@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Prioritization Score Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* 2026 Marketing Brand Color Style Guide */
+      --dark-anchor: #2d2660;
+      --deep-violet: #5b4fb5;
+      --cipher-teal: #00b4a4;
+      --electric-chartreuse: #b5cc2e;
+      --warm-amber: #e8a020;
+      --lavender-white: #f2f1f9;
+      --white: #ffffff;
+
+      /* Tinted badge variants (style guide §04–05) */
+      --teal-tint: #d0f4f1;
+      --teal-tint-text: #004e48;
+      --chartreuse-tint: #e8f4a8;
+      --chartreuse-tint-text: #2a3200;
+      --amber-tint: #fdefd0;
+      --amber-tint-text: #5c3800;
+
+      --gray-200: #e8eaef;
+      --gray-500: #6b7280;
+      --gray-700: #4b5563;
+      --shadow: 0 4px 24px rgba(45, 38, 96, 0.08);
+
+      /* Priority score tiers — style guide badge roles */
+      --score-low-bg: var(--teal-tint);
+      --score-low-text: var(--teal-tint-text);
+      --score-mid-bg: var(--amber-tint);
+      --score-mid-text: var(--amber-tint-text);
+      --score-high-bg: var(--chartreuse-tint);
+      --score-high-text: var(--chartreuse-tint-text);
+
+      /* Legacy aliases */
+      --cipher-teal-light: var(--teal-tint);
+      --cipher-teal-dark: #009688;
+      --deep-violet-light: #eeedf8;
+      --chartreuse: var(--electric-chartreuse);
+      --chartreuse-light: var(--chartreuse-tint);
+      --warm-amber-light: var(--amber-tint);
+      --teal: var(--cipher-teal);
+      --violet: var(--deep-violet);
+      --dark: var(--dark-anchor);
+      --lavender: var(--lavender-white);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--lavender-white);
+      color: var(--dark-anchor);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* STRUCTURE — Dark Anchor for nav/header (style guide §02) */
+    header {
+      background: var(--dark-anchor);
+      color: var(--white);
+      padding: 1.25rem 2rem;
+      border-bottom: 3px solid var(--cipher-teal);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .header-text { flex: 1; min-width: 0; }
+
+    header h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--white);
+    }
+
+    header p {
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.88);
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-shrink: 0;
+      text-decoration: none;
+      color: var(--white);
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      display: block;
+    }
+
+    .brand-wordmark {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--white);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 640px) {
+      .header-inner { flex-wrap: wrap; }
+      .brand-lockup { margin-left: auto; }
+      .brand-wordmark { font-size: 1rem; }
+      .brand-mark { width: 34px; height: 34px; }
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 1.25rem 1.5rem;
+      border: 1px solid rgba(91, 79, 181, 0.1);
+    }
+
+    .card h2 {
+      margin: 0 0 0.75rem;
+      font-size: 0.95rem;
+      color: var(--deep-violet);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+    }
+
+    .card h3 {
+      margin: 1rem 0 0.5rem;
+      font-size: 0.82rem;
+      color: var(--deep-violet);
+      font-weight: 600;
+    }
+
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      margin-bottom: 0.3rem;
+    }
+
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 0.5rem 0.65rem;
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      font-size: 0.88rem;
+      background: var(--white);
+      color: var(--gray-700);
+      font-family: inherit;
+    }
+
+    textarea { resize: vertical; min-height: 120px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; }
+
+    input:focus, textarea:focus, select:focus {
+      outline: 2px solid var(--cipher-teal);
+      border-color: var(--cipher-teal);
+    }
+
+    .sheet-table-wrap { overflow-x: auto; margin-top: 0.5rem; }
+
+    .sheet-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    .sheet-table th {
+      background: var(--lavender-white);
+      color: var(--deep-violet);
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 0.45rem 0.4rem;
+      border: 1px solid var(--gray-200);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .sheet-table td {
+      padding: 0.2rem;
+      border: 1px solid var(--gray-200);
+      vertical-align: middle;
+    }
+
+    .sheet-table input, .sheet-table select {
+      border: none;
+      border-radius: 0;
+      padding: 0.4rem 0.35rem;
+      font-size: 0.82rem;
+      background: transparent;
+    }
+
+    .sheet-table input:focus, .sheet-table select:focus {
+      outline: 2px solid var(--cipher-teal);
+      background: #fff;
+    }
+
+    .sheet-table tr:hover td { background: #fafbfc; }
+
+    .row-actions { width: 2rem; text-align: center; }
+
+    .btn-row-del {
+      border: none;
+      background: none;
+      color: var(--deep-violet);
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .btn-row-del:hover { background: var(--deep-violet-light); }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .btn {
+      border: 1px solid rgba(91, 79, 181, 0.2);
+      background: var(--lavender-white);
+      color: var(--dark-anchor);
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .btn:hover { border-color: var(--cipher-teal); background: var(--teal-tint); color: var(--dark-anchor); }
+
+    /* PRIMARY UI — Cipher Teal (style guide §02) */
+    .btn-primary {
+      background: var(--cipher-teal);
+      border-color: var(--cipher-teal);
+      color: var(--white);
+      padding: 0.65rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      background: var(--cipher-teal-dark);
+      border-color: var(--cipher-teal-dark);
+      color: var(--white);
+    }
+
+    .formula-box {
+      background: var(--lavender-white);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      color: var(--dark-anchor);
+      margin: 0.5rem 0;
+      border-left: 4px solid var(--cipher-teal);
+    }
+
+    .formula-box code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.82rem;
+    }
+
+    .scenario-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+
+    .scenario-picker {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 0.5rem;
+      align-items: end;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem;
+      background: var(--lavender-white);
+      border-radius: 8px;
+      border: 1px solid rgba(91, 79, 181, 0.12);
+    }
+
+    @media (max-width: 640px) {
+      .scenario-picker { grid-template-columns: 1fr; }
+    }
+
+    .scenario-picker label { margin-bottom: 0.25rem; }
+
+    .factor-select optgroup { font-weight: 700; color: var(--dark); }
+
+    .example-manager {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.65rem 0.75rem;
+      align-items: end;
+      margin-bottom: 0.5rem;
+    }
+
+    .example-manager .span-2 { grid-column: 1 / -1; }
+
+    .example-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .preset-label {
+      font-size: 0.8rem;
+      margin-right: 0.25rem;
+    }
+
+    .preset-btn {
+      font-size: 0.8rem;
+    }
+
+    .share-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .share-hint {
+      margin: 0.5rem 0 0;
+      font-size: 0.82rem;
+    }
+
+    .share-hint.success { color: var(--cipher-teal); }
+
+    @media (min-width: 720px) {
+      .example-manager {
+        grid-template-columns: 1fr 1fr auto auto;
+      }
+      .example-manager .name-field { grid-column: span 1; }
+    }
+
+    .simulate-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+
+    .result-panel {
+      display: none;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 2px solid var(--gray-200);
+    }
+
+    .result-panel.visible { display: block; }
+
+    .score-hero {
+      text-align: center;
+      padding: 1.25rem 1rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .score-hero .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.85;
+    }
+
+    .score-hero .value {
+      font-size: 4rem;
+      font-weight: 700;
+      line-height: 1.1;
+      margin: 0.2rem 0;
+    }
+
+    .score-hero .sub { font-size: 0.88rem; opacity: 0.9; }
+
+    .score-hero.tier-low {
+      background: var(--score-low-bg);
+      color: var(--score-low-text);
+      border: 2px solid rgba(0, 180, 164, 0.35);
+    }
+
+    .score-hero.tier-mid {
+      background: var(--score-mid-bg);
+      color: var(--score-mid-text);
+      border: 2px solid rgba(232, 160, 32, 0.4);
+    }
+
+    .score-hero.tier-high {
+      background: var(--score-high-bg);
+      color: var(--score-high-text);
+      border: 2px solid rgba(181, 204, 46, 0.55);
+    }
+
+    .score-hero.tier-none {
+      background: var(--lavender-white);
+      color: var(--gray-500);
+      border: 2px solid var(--gray-200);
+    }
+
+    .tier-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      font-size: 0.78rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .tier-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--gray-700);
+    }
+
+    .tier-dot::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .tier-dot.low::before { background: var(--cipher-teal); }
+    .tier-dot.mid::before { background: var(--warm-amber); }
+    .tier-dot.high::before { background: var(--electric-chartreuse); }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+    }
+
+    .result-table th, .result-table td {
+      text-align: left;
+      padding: 0.45rem 0.5rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .result-table th {
+      color: var(--gray-500);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+    }
+
+    .no-match { color: var(--deep-violet); font-style: italic; }
+    .muted { color: var(--gray-500); font-size: 0.82rem; }
+    .calc-box {
+      background: var(--lavender-white);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      border-left: 4px solid var(--deep-violet);
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .status-active { background: var(--teal-tint); color: var(--teal-tint-text); }
+    .status-inactive { background: var(--amber-tint); color: var(--amber-tint-text); }
+
+    footer {
+      text-align: center;
+      padding: 1rem 2rem;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.55);
+      background: var(--dark-anchor);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="header-text">
+        <h1>Patient Prioritization Score Simulator</h1>
+        <p>Edit your factor rules, type a scenario, and click Simulate to see how the priority score changes.</p>
+      </div>
+      <a class="brand-lockup" href="https://www.cipherhealth.com" target="_blank" rel="noopener noreferrer" aria-label="CipherHealth">
+        <img
+          src="assets/cipherhealth-logo-mark.svg"
+          alt=""
+          class="brand-mark"
+          width="40"
+          height="40"
+        >
+        <span class="brand-wordmark">CipherHealth</span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Saved examples</h2>
+      <p class="muted">Load a preset or save your current program configuration and scenario as a reusable example. Custom examples are stored in this browser.</p>
+      <div class="example-manager">
+        <div>
+          <label for="exampleSelect">Example</label>
+          <select id="exampleSelect"></select>
+        </div>
+        <div class="name-field">
+          <label for="exampleNameInput">Save current as</label>
+          <input type="text" id="exampleNameInput" placeholder="e.g. My ICU Program">
+        </div>
+        <div class="example-actions">
+          <button type="button" class="btn btn-primary" id="loadExampleBtn">Load</button>
+          <button type="button" class="btn" id="saveExampleBtn">Save</button>
+          <button type="button" class="btn" id="deleteExampleBtn">Delete</button>
+        </div>
+      </div>
+      <div class="preset-row">
+        <span class="muted preset-label">Quick load:</span>
+        <button type="button" class="btn preset-btn" data-example-id="builtin-central-hospital">Central Hospital</button>
+        <button type="button" class="btn preset-btn" data-example-id="builtin-default-program">Default Program</button>
+        <button type="button" class="btn preset-btn" data-example-id="builtin-ed-program">ED Program</button>
+        <button type="button" class="btn preset-btn" data-example-id="builtin-best-practice">Best Practice</button>
+      </div>
+      <div class="share-row">
+        <span class="muted preset-label">Share:</span>
+        <button type="button" class="btn btn-primary" id="copyShareLinkBtn">Copy link</button>
+        <button type="button" class="btn" id="exportJsonBtn">Export file</button>
+        <button type="button" class="btn" id="importJsonBtn">Import file</button>
+        <input type="file" id="importJsonInput" accept=".json,application/json" hidden>
+      </div>
+      <p class="muted share-hint" id="shareHint" hidden></p>
+    </section>
+
+    <section class="card">
+      <h2>Program configuration</h2>
+      <label for="programName">Patient Prioritization Program Name</label>
+      <input type="text" id="programName" value="Central Hospital Program">
+
+      <h3>Activation criteria</h3>
+      <p class="muted">Leave empty for default program (all patients eligible).</p>
+      <div class="sheet-table-wrap">
+        <table class="sheet-table" id="activationTable">
+          <thead>
+            <tr>
+              <th>Factor</th>
+              <th>Operator</th>
+              <th>Value (V)</th>
+              <th class="row-actions"></th>
+            </tr>
+          </thead>
+          <tbody id="activationBody"></tbody>
+        </table>
+      </div>
+      <div class="toolbar">
+        <button type="button" class="btn" id="addActivationRow">+ Add activation row</button>
+      </div>
+
+      <h3>Scoring factors</h3>
+      <div class="sheet-table-wrap">
+        <table class="sheet-table" id="factorTable">
+          <thead>
+            <tr>
+              <th>Factor</th>
+              <th>Operator</th>
+              <th>Value (V)</th>
+              <th>Score</th>
+              <th>Weight (W)</th>
+              <th class="row-actions"></th>
+            </tr>
+          </thead>
+          <tbody id="factorConfigBody"></tbody>
+        </table>
+      </div>
+      <div class="toolbar">
+        <button type="button" class="btn" id="addFactorRow">+ Add factor row</button>
+      </div>
+
+      <div class="formula-box">
+        <strong>Priority Score Formula:</strong>
+        <code>(W1×V1) + (W2×V2) + (W3×V3) + … + (Wn×Vn) ÷ (W1+W2+W3+…+Wn)</code>
+        <span class="muted"> — rounded up to nearest whole number</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Scenario</h2>
+      <p class="muted">Pick factors from the dropdown or type one attribute per line using <code>Factor = value</code>.</p>
+
+      <div class="scenario-picker">
+        <div>
+          <label for="scenarioFactorSelect">Factor</label>
+          <select id="scenarioFactorSelect" class="factor-select"></select>
+        </div>
+        <div>
+          <label for="scenarioValueInput">Value</label>
+          <input type="text" id="scenarioValueInput" placeholder="e.g. Y, 7, Central Line">
+        </div>
+        <button type="button" class="btn" id="addScenarioLine">Add to scenario</button>
+      </div>
+
+      <textarea id="scenarioInput" placeholder="Unit: Unit Facility = Central Hospital
+Encounter: Fall Risk = Y
+Encounter: Length of Stay = 7
+Encounter: Risk Score 1 on Discharge = Central Line
+Patient: Age = 30"></textarea>
+      <div class="simulate-row">
+        <button type="button" class="btn btn-primary" id="simulateBtn">Simulate</button>
+        <span class="muted">Score updates when you click Simulate</span>
+      </div>
+
+      <div class="result-panel" id="resultPanel">
+        <div class="tier-legend">
+          <span class="tier-dot low">0–59 · Informational</span>
+          <span class="tier-dot mid">60–80 · Signal</span>
+          <span class="tier-dot high">81–100 · High priority</span>
+        </div>
+        <div id="activationStatus"></div>
+        <div class="score-hero tier-none" id="scoreHero">
+          <div class="label">Priority Score</div>
+          <div class="value" id="finalScore">—</div>
+          <div class="sub" id="scoreSubtext"></div>
+        </div>
+
+        <h3>Matched factors</h3>
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>Factor</th>
+              <th>Rule matched</th>
+              <th>Score (V)</th>
+              <th>Weight (W)</th>
+              <th>W × V</th>
+            </tr>
+          </thead>
+          <tbody id="matchBody"></tbody>
+        </table>
+
+        <h3>Calculation</h3>
+        <div class="calc-box" id="calcBox"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Patient Prioritization Score Simulator · CipherHealth</footer>
+
+  <datalist id="allFactorsList"></datalist>
+
+  <script>
+    const FACTOR_GROUPS = [
+      {
+        label: "Encounter",
+        factors: [
+          "Encounter: Admission Type",
+          "Encounter: Admit Source",
+          "Encounter: Admitting Diagnosis",
+          "Encounter: Bed Number",
+          "Encounter: Fall Risk",
+          "Encounter: Has Expected Discharge Date",
+          "Encounter: Length of Stay",
+          "Encounter: Likehood to be Dissatisfied*",
+          "Encounter: Patient Class",
+          "Encounter: Primary Discharge Diagnosis",
+          "Encounter: Readmitted",
+          "Encounter: Risk Score 1 on Discharge",
+          "Encounter: Risk Score 2 on Discharge",
+          "Encounter: Risk Score 3 on Discharge",
+          "Encounter: Room",
+          "Encounter: Rounding Flag"
+        ]
+      },
+      {
+        label: "Interaction",
+        factors: [
+          "Interaction: Hours Since Last Round (Current Encounter)",
+          "Interaction: Hours Unresolved Issue Has Been Open (Current Encounter",
+          "Interaction: Issue in Previous Rounds (Current Encounter)",
+          "Interaction: Issue in Previous Rounds (Previous Encounters)",
+          "Interaction: Negative Response (Current Encounter)",
+          "Interaction: Negative Response (Previous Encounter)",
+          "Interaction: Rounding Interaction Count (Current Encounter)"
+        ]
+      },
+      {
+        label: "Patient",
+        factors: [
+          "Patient: Age",
+          "Patient: Gender",
+          "Patient: Insurance Company Name",
+          "Patient: Primary Language",
+          "Patient: Race",
+          "Patient: Tobacco Use"
+        ]
+      },
+      {
+        label: "Unit",
+        factors: [
+          "Unit: Unit",
+          "Unit: Unit Facility",
+          "Unit: Unit Group",
+          "Unit: Unit Name"
+        ]
+      }
+    ];
+
+    const ALL_FACTORS = FACTOR_GROUPS.flatMap((g) => g.factors);
+
+    const OPERATORS = [
+      "Equals",
+      "Greater Than",
+      "Greater Than Or Equal To",
+      "Less Than Or Equal To",
+      "Less Than",
+      "In Between"
+    ];
+
+    const OPERATOR_MAP = {
+      "Equals": "equals",
+      "Greater Than": "gt",
+      "Greater Than Or Equal To": "gte",
+      "Less Than Or Equal To": "lte",
+      "Less Than": "lt",
+      "In Between": "between"
+    };
+
+    const CENTRAL_ACTIVATION = [
+      { factor: "Unit: Unit Facility", operator: "Equals", value: "Central Hospital" }
+    ];
+
+    const CENTRAL_FACTORS = [
+      { factor: "Encounter: Fall Risk", operator: "Equals", value: "Y", score: 50, weight: 20 },
+      { factor: "", operator: "Equals", value: "N", score: 0, weight: "" },
+      { factor: "Encounter: Length of Stay", operator: "Greater Than Or Equal To", value: "14", score: 75, weight: 50 },
+      { factor: "", operator: "Less Than Or Equal To", value: "13", score: 25, weight: "" },
+      { factor: "Encounter: Risk Score 1 on Discharge", operator: "Equals", value: "HAPI", score: 80, weight: 20 },
+      { factor: "", operator: "Equals", value: "Central Line", score: 70, weight: "" },
+      { factor: "", operator: "Equals", value: "Foley", score: 60, weight: "" },
+      { factor: "Patient: Age", operator: "Greater Than Or Equal To", value: "80", score: 100, weight: 10 },
+      { factor: "", operator: "In Between", value: "50-79", score: 75, weight: "" },
+      { factor: "", operator: "In Between", value: "1-49", score: 50, weight: "" },
+      { factor: "", operator: "Less Than", value: "1", score: 75, weight: "" }
+    ];
+
+    const DEFAULT_ACTIVATION = [];
+
+    const DEFAULT_FACTORS = [
+      { factor: "Encounter: Patient Class", operator: "Equals", value: "IP", score: 75, weight: 20 },
+      { factor: "Encounter: Rounding Flag", operator: "Equals", value: "ED Admit", score: 75, weight: 30 },
+      { factor: "", operator: "Equals", value: "Frequent Flyer", score: 100, weight: "" },
+      { factor: "Encounter: Admitting Diagnosis", operator: "Equals", value: "Pneumonia", score: 50, weight: 50 },
+      { factor: "", operator: "Equals", value: "Stroke", score: 75, weight: "" },
+      { factor: "", operator: "Equals", value: "Cardiac Arrest", score: 80, weight: "" },
+      { factor: "", operator: "Equals", value: "Sepsis", score: 100, weight: "" }
+    ];
+
+    const BEST_PRACTICE_ACTIVATION = [];
+
+    const BEST_PRACTICE_FACTORS = [
+      { factor: "Encounter: Length of Stay", operator: "Greater Than", value: "14", score: 100, weight: 34 },
+      { factor: "Patient: Age", operator: "Greater Than", value: "80", score: 100, weight: 33 },
+      { factor: "Interaction: Negative Response (Previous Encounter)", operator: "Greater Than", value: "2", score: 100, weight: 33 },
+      { factor: "", operator: "Less Than", value: "2", score: 0, weight: "" }
+    ];
+
+    const ED_ACTIVATION = [
+      { factor: "Encounter: Rounding Flag", operator: "Equals", value: "ED Admit" }
+    ];
+
+    const ED_FACTORS = [
+      { factor: "Encounter: Length of Stay", operator: "Greater Than", value: "24", score: 100, weight: 30 },
+      { factor: "", operator: "Less Than Or Equal To", value: "24", score: 25, weight: "" },
+      { factor: "Encounter: Has Expected Discharge Date", operator: "Equals", value: "Y", score: 100, weight: 30 },
+      { factor: "", operator: "Equals", value: "N", score: 0, weight: "" },
+      { factor: "Patient: Age", operator: "Greater Than", value: "80", score: 100, weight: 40 },
+      { factor: "", operator: "Less Than Or Equal To", value: "80", score: 25, weight: "" }
+    ];
+
+    const SCENARIO_CENTRAL = `Unit: Unit Facility = Central Hospital
+Encounter: Fall Risk = Y
+Encounter: Length of Stay = 7
+Encounter: Risk Score 1 on Discharge = Central Line
+Patient: Age = 30`;
+
+    const SCENARIO_DEFAULT = `Encounter: Patient Class = IP
+Encounter: Rounding Flag = ED Admit
+Encounter: Admitting Diagnosis = Pneumonia`;
+
+    const SCENARIO_BEST_PRACTICE = `Encounter: Length of Stay = 20
+Patient: Age = 85
+Interaction: Negative Response (Previous Encounter) = 3`;
+
+    const SCENARIO_ED = `Encounter: Rounding Flag = ED Admit
+Encounter: Length of Stay = 36
+Encounter: Has Expected Discharge Date = Y
+Patient: Age = 82`;
+
+    const STORAGE_KEY = "priority-score-simulator-examples";
+
+    const BUILT_IN_EXAMPLES = [
+      {
+        id: "builtin-central-hospital",
+        builtIn: true,
+        name: "Central Hospital",
+        programName: "Central Hospital Program",
+        activation: CENTRAL_ACTIVATION,
+        factors: CENTRAL_FACTORS,
+        scenario: SCENARIO_CENTRAL
+      },
+      {
+        id: "builtin-default-program",
+        builtIn: true,
+        name: "Default Program",
+        programName: "Default Program",
+        activation: DEFAULT_ACTIVATION,
+        factors: DEFAULT_FACTORS,
+        scenario: SCENARIO_DEFAULT
+      },
+      {
+        id: "builtin-ed-program",
+        builtIn: true,
+        name: "ED Program",
+        programName: "ED Program",
+        activation: ED_ACTIVATION,
+        factors: ED_FACTORS,
+        scenario: SCENARIO_ED
+      },
+      {
+        id: "builtin-best-practice",
+        builtIn: true,
+        name: "Best Practice Example",
+        programName: "Best Practice Example",
+        activation: BEST_PRACTICE_ACTIVATION,
+        factors: BEST_PRACTICE_FACTORS,
+        scenario: SCENARIO_BEST_PRACTICE
+      }
+    ];
+
+    function getCustomExamples() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function setCustomExamples(examples) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(examples));
+    }
+
+    function getAllExamples() {
+      return [...BUILT_IN_EXAMPLES, ...getCustomExamples()];
+    }
+
+    function renderExampleSelect(selectedId) {
+      const select = document.getElementById("exampleSelect");
+      const current = selectedId || select.value;
+      select.innerHTML = "";
+
+      const builtInGroup = document.createElement("optgroup");
+      builtInGroup.label = "Built-in examples";
+      BUILT_IN_EXAMPLES.forEach((ex) => {
+        const opt = document.createElement("option");
+        opt.value = ex.id;
+        opt.textContent = ex.name;
+        builtInGroup.appendChild(opt);
+      });
+      select.appendChild(builtInGroup);
+
+      const custom = getCustomExamples();
+      const customGroup = document.createElement("optgroup");
+      customGroup.label = "My saved examples";
+      if (!custom.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "(none yet — save one below)";
+        opt.disabled = true;
+        customGroup.appendChild(opt);
+      } else {
+        custom.forEach((ex) => {
+          const opt = document.createElement("option");
+          opt.value = ex.id;
+          opt.textContent = ex.name;
+          customGroup.appendChild(opt);
+        });
+      }
+      select.appendChild(customGroup);
+
+      if (current && getAllExamples().some((ex) => ex.id === current)) {
+        select.value = current;
+      }
+    }
+
+    function captureCurrentExample(name) {
+      return {
+        id: `custom-${Date.now()}`,
+        builtIn: false,
+        name: name.trim(),
+        programName: document.getElementById("programName").value.trim() || name.trim(),
+        activation: readActivationRows(),
+        factors: readFactorRows().filter((r) => r.factor || r.operator || r.value || r.score || r.weight),
+        scenario: document.getElementById("scenarioInput").value.trim(),
+        savedAt: new Date().toISOString()
+      };
+    }
+
+    function captureShareState() {
+      const snapshot = captureCurrentExample(document.getElementById("programName").value.trim() || "Shared program");
+      return {
+        v: 1,
+        programName: snapshot.programName,
+        activation: snapshot.activation,
+        factors: snapshot.factors,
+        scenario: snapshot.scenario
+      };
+    }
+
+    function encodeShareState(state) {
+      const json = JSON.stringify(state);
+      return btoa(unescape(encodeURIComponent(json)))
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+    }
+
+    function decodeShareState(encoded) {
+      let b64 = encoded.replace(/-/g, "+").replace(/_/g, "/");
+      while (b64.length % 4) b64 += "=";
+      const json = decodeURIComponent(escape(atob(b64)));
+      return JSON.parse(json);
+    }
+
+    function buildShareUrl(state) {
+      const base = window.location.href.split("#")[0];
+      return `${base}#s=${encodeShareState(state)}`;
+    }
+
+    function showShareHint(message, isSuccess) {
+      const hint = document.getElementById("shareHint");
+      hint.textContent = message;
+      hint.hidden = false;
+      hint.classList.toggle("success", Boolean(isSuccess));
+      window.clearTimeout(showShareHint._timer);
+      showShareHint._timer = window.setTimeout(() => {
+        hint.hidden = true;
+      }, 5000);
+    }
+
+    async function copyShareLink() {
+      const url = buildShareUrl(captureShareState());
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(url);
+          showShareHint("Link copied! Send it to anyone — they'll see your program and scenario.", true);
+        } else {
+          window.prompt("Copy this link to share your program:", url);
+        }
+      } catch {
+        window.prompt("Copy this link to share your program:", url);
+      }
+    }
+
+    function exportCurrentJson() {
+      const snapshot = captureCurrentExample(
+        document.getElementById("exampleNameInput").value.trim()
+          || document.getElementById("programName").value.trim()
+          || "priority-program"
+      );
+      const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
+      const slug = snapshot.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "priority-program";
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${slug}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showShareHint(`Exported ${slug}.json — attach or send to colleagues.`, true);
+    }
+
+    function importJsonFile(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(String(reader.result));
+          if (!data.programName && !data.activation && !data.factors) {
+            throw new Error("Invalid program file");
+          }
+          loadExample({
+            programName: data.programName || data.name || "Imported program",
+            activation: data.activation || [],
+            factors: data.factors || [],
+            scenario: data.scenario || ""
+          });
+          document.getElementById("exampleNameInput").value = data.name || "";
+          showShareHint("Program imported. Click Simulate to see the score.", true);
+        } catch (err) {
+          alert(`Could not import file: ${err.message || err}`);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function loadFromUrl() {
+      const hash = window.location.hash.replace(/^#/, "");
+      if (!hash) return false;
+
+      const presetMatch = hash.match(/^preset=([a-z0-9-]+)$/i);
+      if (presetMatch) {
+        const id = presetMatch[1];
+        if (getAllExamples().some((ex) => ex.id === id)) {
+          loadExampleById(id);
+          return true;
+        }
+      }
+
+      const shareMatch = hash.match(/^s=([A-Za-z0-9_-]+)$/);
+      if (shareMatch) {
+        try {
+          const data = decodeShareState(shareMatch[1]);
+          loadExample({
+            programName: data.programName || "Shared program",
+            activation: data.activation || [],
+            factors: data.factors || [],
+            scenario: data.scenario || ""
+          });
+          showShareHint("Loaded shared program from link.", true);
+          return true;
+        } catch {
+          showShareHint("Could not load shared link — the URL may be incomplete.", false);
+        }
+      }
+
+      return false;
+    }
+
+    function cloneData(data) {
+      return JSON.parse(JSON.stringify(data));
+    }
+
+    function loadExample(example) {
+      document.getElementById("programName").value = example.programName || example.name;
+      loadActivationRows(cloneData(example.activation || []));
+      loadFactorRows(cloneData(example.factors || []));
+      document.getElementById("scenarioInput").value = example.scenario || "";
+      document.getElementById("resultPanel").classList.remove("visible");
+    }
+
+    function loadExampleById(id) {
+      const example = getAllExamples().find((ex) => ex.id === id);
+      if (!example) return;
+      loadExample(example);
+      document.getElementById("exampleNameInput").value = example.builtIn ? "" : example.name;
+      renderExampleSelect(id);
+    }
+
+    function saveCurrentExample() {
+      const name = document.getElementById("exampleNameInput").value.trim();
+      if (!name) {
+        alert("Enter a name for your example before saving.");
+        document.getElementById("exampleNameInput").focus();
+        return;
+      }
+
+      const custom = getCustomExamples();
+      const existingIdx = custom.findIndex((ex) => ex.name.toLowerCase() === name.toLowerCase());
+      const snapshot = captureCurrentExample(name);
+
+      if (existingIdx >= 0) {
+        if (!confirm(`"${name}" already exists. Replace it with your current setup?`)) return;
+        snapshot.id = custom[existingIdx].id;
+        custom[existingIdx] = snapshot;
+      } else {
+        custom.push(snapshot);
+      }
+
+      setCustomExamples(custom);
+      renderExampleSelect(snapshot.id);
+      document.getElementById("exampleSelect").value = snapshot.id;
+    }
+
+    function deleteSelectedExample() {
+      const id = document.getElementById("exampleSelect").value;
+      const example = getAllExamples().find((ex) => ex.id === id);
+      if (!example) return;
+      if (example.builtIn) {
+        alert("Built-in examples cannot be deleted.");
+        return;
+      }
+      if (!confirm(`Delete saved example "${example.name}"?`)) return;
+
+      const custom = getCustomExamples().filter((ex) => ex.id !== id);
+      setCustomExamples(custom);
+      renderExampleSelect(BUILT_IN_EXAMPLES[0].id);
+      document.getElementById("exampleNameInput").value = "";
+    }
+
+    function createOperatorSelect(value) {
+      const select = document.createElement("select");
+      OPERATORS.forEach((op) => {
+        const opt = document.createElement("option");
+        opt.value = op;
+        opt.textContent = op;
+        if (op === value) opt.selected = true;
+        select.appendChild(opt);
+      });
+      return select;
+    }
+
+    function createTextInput(value, placeholder) {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = value ?? "";
+      if (placeholder) input.placeholder = placeholder;
+      return input;
+    }
+
+    function createFactorInput(value) {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = value ?? "";
+      input.setAttribute("list", "allFactorsList");
+      input.placeholder = "Select or type factor";
+      input.title = "Pick from dropdown or type a custom factor name";
+      return input;
+    }
+
+    function populateFactorDropdowns() {
+      const datalist = document.getElementById("allFactorsList");
+      datalist.innerHTML = "";
+      ALL_FACTORS.forEach((factor) => {
+        const opt = document.createElement("option");
+        opt.value = factor;
+        datalist.appendChild(opt);
+      });
+
+      const scenarioSelect = document.getElementById("scenarioFactorSelect");
+      scenarioSelect.innerHTML = "";
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "Select a factor…";
+      scenarioSelect.appendChild(placeholder);
+
+      FACTOR_GROUPS.forEach((group) => {
+        const optgroup = document.createElement("optgroup");
+        optgroup.label = group.label;
+        group.factors.forEach((factor) => {
+          const opt = document.createElement("option");
+          opt.value = factor;
+          opt.textContent = factor;
+          optgroup.appendChild(opt);
+        });
+        scenarioSelect.appendChild(optgroup);
+      });
+    }
+
+    function createDeleteButton(onClick) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn-row-del";
+      btn.textContent = "×";
+      btn.title = "Remove row";
+      btn.addEventListener("click", onClick);
+      return btn;
+    }
+
+    function addActivationRow(data = { factor: "", operator: "Equals", value: "" }) {
+      const tbody = document.getElementById("activationBody");
+      const tr = document.createElement("tr");
+
+      const factorTd = document.createElement("td");
+      factorTd.appendChild(createFactorInput(data.factor));
+
+      const opTd = document.createElement("td");
+      opTd.appendChild(createOperatorSelect(data.operator));
+
+      const valTd = document.createElement("td");
+      valTd.appendChild(createTextInput(data.value));
+
+      const actTd = document.createElement("td");
+      actTd.className = "row-actions";
+      actTd.appendChild(createDeleteButton(() => tr.remove()));
+
+      tr.appendChild(factorTd);
+      tr.appendChild(opTd);
+      tr.appendChild(valTd);
+      tr.appendChild(actTd);
+      tbody.appendChild(tr);
+    }
+
+    function addFactorRow(data = { factor: "", operator: "Equals", value: "", score: "", weight: "" }) {
+      const tbody = document.getElementById("factorConfigBody");
+      const tr = document.createElement("tr");
+
+      const cells = [
+        createFactorInput(data.factor),
+        createOperatorSelect(data.operator),
+        createTextInput(data.value),
+        createTextInput(data.score === "" ? "" : String(data.score)),
+        createTextInput(data.weight === "" ? "" : String(data.weight))
+      ];
+
+      cells.forEach((el, i) => {
+        const td = document.createElement("td");
+        if (i === 3 || i === 4) el.type = "text";
+        td.appendChild(el);
+        tr.appendChild(td);
+      });
+
+      const actTd = document.createElement("td");
+      actTd.className = "row-actions";
+      actTd.appendChild(createDeleteButton(() => tr.remove()));
+      tr.appendChild(actTd);
+      tbody.appendChild(tr);
+    }
+
+    function clearTable(tbodyId) {
+      document.getElementById(tbodyId).innerHTML = "";
+    }
+
+    function loadActivationRows(rows) {
+      clearTable("activationBody");
+      if (!rows.length) {
+        addActivationRow();
+        return;
+      }
+      rows.forEach((row) => addActivationRow(row));
+    }
+
+    function loadFactorRows(rows) {
+      clearTable("factorConfigBody");
+      rows.forEach((row) => addFactorRow(row));
+    }
+
+    function readActivationRows() {
+      return [...document.querySelectorAll("#activationBody tr")].map((tr) => {
+        const inputs = tr.querySelectorAll("input, select");
+        return {
+          factor: inputs[0].value.trim(),
+          operator: inputs[1].value,
+          value: inputs[2].value.trim()
+        };
+      }).filter((r) => r.factor || r.value);
+    }
+
+    function readFactorRows() {
+      return [...document.querySelectorAll("#factorConfigBody tr")].map((tr) => {
+        const inputs = tr.querySelectorAll("input, select");
+        if (inputs.length < 5) return null;
+        return {
+          factor: inputs[0].value.trim(),
+          operator: inputs[1].value,
+          value: inputs[2].value.trim(),
+          score: inputs[3].value.trim(),
+          weight: inputs[4].value.trim()
+        };
+      }).filter(Boolean);
+    }
+
+    function parseWeight(raw) {
+      if (raw === "" || raw === null || raw === undefined) return null;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function parseScore(raw) {
+      if (raw === "" || raw === null || raw === undefined) return 0;
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function parseOperatorValue(operator, rawValue) {
+      const op = OPERATOR_MAP[operator] || "equals";
+      if (op === "between") {
+        const parts = String(rawValue).split("-").map((s) => s.trim());
+        if (parts.length === 2 && parts[0] !== "" && parts[1] !== "") {
+          return { operator: op, value: [Number(parts[0]), Number(parts[1])] };
+        }
+        return { operator: op, value: rawValue };
+      }
+      const num = Number(rawValue);
+      if (!Number.isNaN(num) && rawValue !== "") {
+        return { operator: op, value: num };
+      }
+      return { operator: op, value: rawValue };
+    }
+
+    function groupFactorRows(rows) {
+      const groups = [];
+      let current = null;
+
+      rows.forEach((row) => {
+        if (!row.factor && !row.operator && !row.value && !row.score && !row.weight) return;
+
+        if (row.factor) {
+          current = {
+            label: row.factor,
+            weight: parseWeight(row.weight),
+            rules: []
+          };
+          groups.push(current);
+        } else if (!current) {
+          return;
+        }
+
+        if (row.weight !== "" && current.weight === null) {
+          current.weight = parseWeight(row.weight);
+        }
+
+        const parsed = parseOperatorValue(row.operator, row.value);
+        current.rules.push({
+          operator: parsed.operator,
+          value: parsed.value,
+          score: parseScore(row.score),
+          displayOperator: row.operator,
+          displayValue: row.value
+        });
+      });
+
+      return groups.filter((g) => g.rules.length);
+    }
+
+    function normalizeKey(key) {
+      return key.toLowerCase().replace(/\s+/g, " ").trim();
+    }
+
+    function parseScenario(text) {
+      const scenario = {};
+      text.split("\n").forEach((line) => {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) return;
+
+        // Factor names include "Category: Name" — only "=" separates factor from value.
+        const eqIdx = trimmed.indexOf("=");
+        if (eqIdx !== -1) {
+          const key = trimmed.slice(0, eqIdx).trim();
+          const val = trimmed.slice(eqIdx + 1).trim();
+          if (key) scenario[normalizeKey(key)] = val;
+          return;
+        }
+
+        const colon = trimmed.match(/^(.+?)\s*:\s*(.+)$/);
+        if (colon) {
+          scenario[normalizeKey(colon[1])] = colon[2].trim();
+        }
+      });
+      return scenario;
+    }
+
+    function getScenarioValue(scenario, factorLabel) {
+      const key = normalizeKey(factorLabel);
+      if (key in scenario) return scenario[key];
+
+      for (const [k, v] of Object.entries(scenario)) {
+        if (k.endsWith(key) || key.endsWith(k)) return v;
+      }
+      return undefined;
+    }
+
+    function ruleMatches(rule, rawValue) {
+      if (rawValue === "" || rawValue === null || rawValue === undefined) return false;
+      const value = typeof rawValue === "number" ? rawValue : String(rawValue);
+
+      switch (rule.operator) {
+        case "equals":
+          return String(value).toLowerCase() === String(rule.value).toLowerCase();
+        case "gte":
+          return Number(value) >= Number(rule.value);
+        case "gt":
+          return Number(value) > Number(rule.value);
+        case "lte":
+          return Number(value) <= Number(rule.value);
+        case "lt":
+          return Number(value) < Number(rule.value);
+        case "between":
+          if (Array.isArray(rule.value)) {
+            return Number(value) >= rule.value[0] && Number(value) <= rule.value[1];
+          }
+          return false;
+        default:
+          return false;
+      }
+    }
+
+    function formatRule(rule) {
+      if (rule.operator === "between" && Array.isArray(rule.value)) {
+        return `${rule.displayOperator} ${rule.value[0]}-${rule.value[1]}`;
+      }
+      return `${rule.displayOperator} ${rule.displayValue ?? rule.value}`;
+    }
+
+    function getScoreTier(score) {
+      if (score === null || score === undefined) return "low";
+      if (score <= 59) return "low";
+      if (score <= 80) return "mid";
+      return "high";
+    }
+
+    function setFinalScore(scoreHero, finalScoreEl, scoreSubtext, score, subtext) {
+      const n = Number(score);
+      const finalScore = Number.isFinite(n) ? Math.max(0, Math.ceil(n)) : 0;
+      scoreHero.className = `score-hero tier-${getScoreTier(finalScore)}`;
+      finalScoreEl.textContent = String(finalScore);
+      scoreSubtext.textContent = subtext;
+      return finalScore;
+    }
+
+    function simulate() {
+      try {
+      const activationRows = readActivationRows();
+      const factorRows = readFactorRows();
+      const scenario = parseScenario(document.getElementById("scenarioInput").value);
+      const factorGroups = groupFactorRows(factorRows);
+
+      const activationResults = activationRows.map((row) => {
+        const parsed = parseOperatorValue(row.operator, row.value);
+        const raw = getScenarioValue(scenario, row.factor);
+        const matched = ruleMatches(parsed, raw);
+        return { factor: row.factor, rule: formatRule({ ...parsed, displayOperator: row.operator, displayValue: row.value }), matched };
+      });
+
+      const activationActive = activationRows.length === 0 || activationResults.every((r) => r.matched);
+
+      const panel = document.getElementById("resultPanel");
+      const statusEl = document.getElementById("activationStatus");
+      const scoreHero = document.getElementById("scoreHero");
+      const finalScoreEl = document.getElementById("finalScore");
+      const scoreSubtext = document.getElementById("scoreSubtext");
+      const matchBody = document.getElementById("matchBody");
+      const calcBox = document.getElementById("calcBox");
+
+      panel.classList.add("visible");
+
+      if (!factorGroups.length) {
+        statusEl.innerHTML = "";
+        setFinalScore(scoreHero, finalScoreEl, scoreSubtext, 0, "No scoring factors configured — score defaults to 0");
+        matchBody.innerHTML = "";
+        calcBox.textContent = "Add scoring factor rows to calculate a weighted score. With none configured, priority score = 0.";
+        return;
+      }
+
+      if (!activationActive) {
+        statusEl.innerHTML = `<span class="status-pill status-inactive">Not eligible for program</span>`;
+        setFinalScore(
+          scoreHero,
+          finalScoreEl,
+          scoreSubtext,
+          0,
+          activationResults.map((r) => `${r.factor}: ${r.rule} — ${r.matched ? "met" : "not met"}`).join("; ")
+        );
+        matchBody.innerHTML = "";
+        calcBox.textContent = "Patient does not meet activation criteria → priority score = 0.";
+        return;
+      }
+
+      statusEl.innerHTML = activationRows.length
+        ? `<span class="status-pill status-active">Eligible for program</span>`
+        : `<span class="status-pill status-active">Default program — all patients eligible</span>`;
+
+      const matches = factorGroups.map((group) => {
+        const raw = getScenarioValue(scenario, group.label);
+        for (const rule of group.rules) {
+          if (ruleMatches(rule, raw)) {
+            const weight = parseWeight(group.weight);
+            return {
+              matched: true,
+              factor: group.label,
+              rule: formatRule(rule),
+              score: rule.score,
+              weight,
+              product: Number.isFinite(weight) ? rule.score * weight : null,
+              input: raw
+            };
+          }
+        }
+        return {
+          matched: false,
+          factor: group.label,
+          rule: "No matching rule",
+          score: null,
+          weight: parseWeight(group.weight),
+          product: null,
+          input: raw
+        };
+      });
+
+      const scoring = matches.filter((m) => m.matched && Number.isFinite(m.weight));
+
+      matchBody.innerHTML = "";
+      matches.forEach((m) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${m.factor}</td>
+          <td class="${m.matched ? "" : "no-match"}">${m.rule}${m.input !== undefined ? ` <span class="muted">(input: ${m.input})</span>` : ""}</td>
+          <td>${m.matched ? m.score : "—"}</td>
+          <td>${m.weight ?? "—"}</td>
+          <td>${m.matched && m.product !== null ? m.product : "—"}</td>
+        `;
+        matchBody.appendChild(tr);
+      });
+
+      if (!scoring.length) {
+        const unmatched = matches.filter((m) => !m.matched).map((m) => m.factor);
+        setFinalScore(
+          scoreHero,
+          finalScoreEl,
+          scoreSubtext,
+          0,
+          unmatched.length
+            ? `No rules matched for: ${unmatched.join(", ")} — score = 0`
+            : "No weighted factor matches — score = 0"
+        );
+        calcBox.textContent = [
+          "No contributing factor rules matched this scenario.",
+          unmatched.length ? `Unmatched factors: ${unmatched.join(", ")}` : "",
+          "Priority score = 0."
+        ].filter(Boolean).join("\n");
+        return;
+      }
+
+      const sumProducts = scoring.reduce((s, m) => s + m.product, 0);
+      const sumWeights = scoring.reduce((s, m) => s + m.weight, 0);
+      const rawScore = sumWeights > 0 ? sumProducts / sumWeights : 0;
+      const finalScore = setFinalScore(
+        scoreHero,
+        finalScoreEl,
+        scoreSubtext,
+        rawScore,
+        `Raw score: ${rawScore.toFixed(2)} → rounded up to ${Math.max(0, Math.ceil(rawScore))}`
+      );
+
+      const terms = scoring.map((m) => `${m.weight}×${m.score}`).join(" + ");
+      const products = scoring.map((m) => m.product).join(" + ");
+      const weights = scoring.map((m) => m.weight).join("+");
+
+      calcBox.textContent = [
+        `(${terms}) ÷ (${weights})`,
+        `= (${products}) ÷ ${sumWeights}`,
+        `= ${rawScore.toFixed(1)} → ${finalScore} (rounded up)`
+      ].join("\n");
+      } catch (err) {
+        console.error(err);
+        document.getElementById("resultPanel").classList.add("visible");
+        setFinalScore(
+          document.getElementById("scoreHero"),
+          document.getElementById("finalScore"),
+          document.getElementById("scoreSubtext"),
+          0,
+          "Simulator error — score defaults to 0"
+        );
+        document.getElementById("calcBox").textContent = String(err);
+      }
+    }
+
+    function addScenarioLine() {
+      const factor = document.getElementById("scenarioFactorSelect").value;
+      const value = document.getElementById("scenarioValueInput").value.trim();
+      if (!factor) return;
+      if (!value) return;
+
+      const textarea = document.getElementById("scenarioInput");
+      const line = `${factor} = ${value}`;
+      const existing = textarea.value.trim();
+      const lines = existing ? existing.split("\n") : [];
+      const key = normalizeKey(factor);
+      const idx = lines.findIndex((l) => {
+        const trimmed = l.trim();
+        const eqIdx = trimmed.indexOf("=");
+        const keyPart = eqIdx !== -1 ? trimmed.slice(0, eqIdx).trim() : trimmed;
+        return normalizeKey(keyPart) === key;
+      });
+
+      if (idx >= 0) {
+        lines[idx] = line;
+      } else {
+        lines.push(line);
+      }
+
+      textarea.value = lines.join("\n");
+      document.getElementById("scenarioValueInput").value = "";
+    }
+
+    document.getElementById("addActivationRow").addEventListener("click", () => addActivationRow());
+    document.getElementById("addFactorRow").addEventListener("click", () => addFactorRow());
+    document.getElementById("loadExampleBtn").addEventListener("click", () => {
+      loadExampleById(document.getElementById("exampleSelect").value);
+    });
+    document.getElementById("saveExampleBtn").addEventListener("click", saveCurrentExample);
+    document.getElementById("deleteExampleBtn").addEventListener("click", deleteSelectedExample);
+    document.getElementById("exampleSelect").addEventListener("change", () => {
+      const id = document.getElementById("exampleSelect").value;
+      if (!id) return;
+      loadExampleById(id);
+    });
+    document.querySelectorAll(".preset-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-example-id");
+        if (id) loadExampleById(id);
+      });
+    });
+    document.getElementById("addScenarioLine").addEventListener("click", addScenarioLine);
+    document.getElementById("scenarioValueInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addScenarioLine();
+      }
+    });
+    document.getElementById("simulateBtn").addEventListener("click", simulate);
+    document.getElementById("copyShareLinkBtn").addEventListener("click", copyShareLink);
+    document.getElementById("exportJsonBtn").addEventListener("click", exportCurrentJson);
+    document.getElementById("importJsonBtn").addEventListener("click", () => {
+      document.getElementById("importJsonInput").click();
+    });
+    document.getElementById("importJsonInput").addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) importJsonFile(file);
+      e.target.value = "";
+    });
+
+    populateFactorDropdowns();
+    renderExampleSelect(BUILT_IN_EXAMPLES[0].id);
+    if (!loadFromUrl()) {
+      loadExampleById(BUILT_IN_EXAMPLES[0].id);
+    }
+  </script>
+</body>
+</html>
