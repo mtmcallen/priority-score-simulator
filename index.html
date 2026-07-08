@@ -227,6 +227,16 @@
       background: #fff;
     }
 
+    .sheet-table input.factor-continuation {
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .sheet-table input.factor-continuation:focus {
+      outline: none;
+      background: transparent;
+    }
+
     .sheet-table tr:hover td { background: #fafbfc; }
 
     .row-actions { width: 2rem; text-align: center; }
@@ -1208,6 +1218,21 @@ Interaction: Hours Since Last Round (Current Encounter) = 18`;
       return input;
     }
 
+    function createFactorCell(value, { isContinuation = false } = {}) {
+      if (isContinuation) {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = "";
+        input.readOnly = true;
+        input.className = "factor-continuation";
+        input.tabIndex = -1;
+        input.title = "Additional rule for the factor above";
+        input.setAttribute("aria-label", "Continuation row");
+        return input;
+      }
+      return createFactorInput(value);
+    }
+
     function populateFactorDropdowns() {
       const datalist = document.getElementById("allFactorsList");
       datalist.innerHTML = "";
@@ -1271,13 +1296,14 @@ Interaction: Hours Since Last Round (Current Encounter) = 18`;
       tbody.appendChild(tr);
     }
 
-    function addFactorRow(data = { factor: "", operator: "Equals", value: "", score: "", weight: "", weightOnly: false }) {
+    function addFactorRow(data = { factor: "", operator: "Equals", value: "", score: "", weight: "", weightOnly: false, isContinuation: false }) {
       const tbody = document.getElementById("factorConfigBody");
       const tr = document.createElement("tr");
       if (data.weightOnly) tr.dataset.weightOnly = "true";
+      if (data.isContinuation) tr.dataset.continuation = "true";
 
       const cells = [
-        createFactorInput(data.factor),
+        createFactorCell(data.factor, { isContinuation: data.isContinuation }),
         createOperatorSelect(data.operator),
         createTextInput(data.value),
         createTextInput(data.score === "" ? "" : String(data.score)),
@@ -1313,7 +1339,13 @@ Interaction: Hours Since Last Round (Current Encounter) = 18`;
 
     function loadFactorRows(rows) {
       clearTable("factorConfigBody");
-      rows.forEach((row) => addFactorRow(row));
+      rows.forEach((row, index) => {
+        const priorHasFactor = rows.slice(0, index).some((r) => r.factor);
+        addFactorRow({
+          ...row,
+          isContinuation: !row.factor && priorHasFactor
+        });
+      });
     }
 
     function readActivationRows() {
@@ -1701,7 +1733,11 @@ Interaction: Hours Since Last Round (Current Encounter) = 18`;
     }
 
     document.getElementById("addActivationRow").addEventListener("click", () => addActivationRow());
-    document.getElementById("addFactorRow").addEventListener("click", () => addFactorRow());
+    document.getElementById("addFactorRow").addEventListener("click", () => {
+      const rows = readFactorRows();
+      const last = rows[rows.length - 1];
+      addFactorRow({ isContinuation: Boolean(last && last.factor) });
+    });
     document.getElementById("loadExampleBtn").addEventListener("click", () => {
       loadExampleById(document.getElementById("exampleSelect").value);
     });
