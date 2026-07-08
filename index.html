@@ -572,9 +572,9 @@
       <div class="preset-row">
         <span class="muted preset-label">Quick load:</span>
         <button type="button" class="btn preset-btn" data-example-id="builtin-central-hospital">Central Hospital</button>
-        <button type="button" class="btn preset-btn" data-example-id="builtin-default-program">Default Program</button>
+        <button type="button" class="btn preset-btn" data-example-id="builtin-ip-program">IP Program</button>
         <button type="button" class="btn preset-btn" data-example-id="builtin-ed-program">ED Program</button>
-        <button type="button" class="btn preset-btn" data-example-id="builtin-best-practice">Best Practice</button>
+        <button type="button" class="btn preset-btn" data-example-id="builtin-maternity-program">Maternity Program</button>
       </div>
       <div class="share-row">
         <span class="muted preset-label">Share:</span>
@@ -795,38 +795,63 @@ Patient: Age = 30"></textarea>
       { factor: "", operator: "Less Than", value: "1", score: 75, weight: "" }
     ];
 
-    const DEFAULT_ACTIVATION = [];
-
-    const DEFAULT_FACTORS = [
-      { factor: "Encounter: Patient Class", operator: "Equals", value: "IP", score: 75, weight: 20, weightOnly: true },
-      { factor: "Encounter: Rounding Flag", operator: "Equals", value: "ED Admit", score: 75, weight: 30 },
-      { factor: "", operator: "Equals", value: "Frequent Flyer", score: 100, weight: "" },
-      { factor: "Encounter: Admitting Diagnosis", operator: "Equals", value: "Pneumonia", score: 50, weight: 50 },
-      { factor: "", operator: "Equals", value: "Stroke", score: 75, weight: "" },
-      { factor: "", operator: "Equals", value: "Cardiac Arrest", score: 80, weight: "" },
-      { factor: "", operator: "Equals", value: "Sepsis", score: 100, weight: "" }
+    const IP_ACTIVATION = [
+      { factor: "Unit: Unit Name", operator: "Equals", value: "ICU" },
+      { factor: "Unit: Unit Name", operator: "Equals", value: "MedSurg" }
     ];
 
-    const BEST_PRACTICE_ACTIVATION = [];
-
-    const BEST_PRACTICE_FACTORS = [
-      { factor: "Encounter: Length of Stay", operator: "Greater Than", value: "14", score: 100, weight: 34 },
-      { factor: "Patient: Age", operator: "Greater Than", value: "80", score: 100, weight: 33 },
-      { factor: "Interaction: Negative Response (Previous Encounter)", operator: "Greater Than", value: "2", score: 100, weight: 33 },
-      { factor: "", operator: "Less Than", value: "2", score: 0, weight: "" }
+    const IP_FACTORS = [
+      { factor: "Encounter: Rounding Flag", operator: "Equals", value: "ED Admit", score: 75, weight: 30 },
+      { factor: "", operator: "Equals", value: "ICU Step Down", score: 50, weight: "" },
+      { factor: "Encounter: Admitting Diagnosis", operator: "Equals", value: "Cardiac Arrest", score: 90, weight: 20 },
+      { factor: "", operator: "Equals", value: "Stroke", score: 80, weight: "" },
+      { factor: "Patient: Age", operator: "In Between", value: "40-60", score: 50, weight: 20 },
+      { factor: "", operator: "In Between", value: "61-75", score: 60, weight: "" },
+      { factor: "", operator: "Greater Than", value: "76", score: 75, weight: "" },
+      { factor: "Encounter: Length of Stay", operator: "In Between", value: "7-14", score: 50, weight: 30 },
+      { factor: "", operator: "In Between", value: "14-21", score: 75, weight: "" },
+      { factor: "", operator: "Greater Than", value: "21", score: 100, weight: "" }
     ];
 
     const ED_ACTIVATION = [
-      { factor: "Encounter: Rounding Flag", operator: "Equals", value: "ED Admit" }
+      { factor: "Unit: Unit Name", operator: "Equals", value: "Emergency Department" }
     ];
 
     const ED_FACTORS = [
-      { factor: "Encounter: Length of Stay", operator: "Greater Than", value: "24", score: 100, weight: 30 },
-      { factor: "", operator: "Less Than Or Equal To", value: "24", score: 25, weight: "" },
-      { factor: "Encounter: Has Expected Discharge Date", operator: "Equals", value: "Y", score: 100, weight: 30 },
-      { factor: "", operator: "Equals", value: "N", score: 0, weight: "" },
-      { factor: "Patient: Age", operator: "Greater Than", value: "80", score: 100, weight: 40 },
-      { factor: "", operator: "Less Than Or Equal To", value: "80", score: 25, weight: "" }
+      { factor: "Encounter: Rounding Flag", operator: "Equals", value: "Frequent Flyer", score: 50, weight: 20 },
+      { factor: "Interaction: Negative Response (Current Encounter)", operator: "In Between", value: "1-3", score: 50, weight: 10 },
+      { factor: "", operator: "Greater Than", value: "3", score: 75, weight: "" },
+      { factor: "Patient: Age", operator: "In Between", value: "0-1", score: 80, weight: 20 },
+      { factor: "", operator: "Greater Than", value: "76", score: 75, weight: "" },
+      { factor: "Encounter: Admitting Diagnosis", operator: "Equals", value: "Cardiac Arrest", score: 90, weight: 20 },
+      { factor: "", operator: "Equals", value: "Stroke", score: 80, weight: "" },
+      { factor: "", operator: "Equals", value: "TBI", score: 80, weight: "" },
+      { factor: "", operator: "Equals", value: "GSW", score: 60, weight: "" },
+      { factor: "Encounter: Length of Stay", operator: "In Between", value: "1-2", score: 50, weight: 30 },
+      { factor: "", operator: "Greater Than", value: "2", score: 75, weight: "" }
+    ];
+
+    const MATERNITY_ACTIVATION = [
+      { factor: "Unit: Unit Name", operator: "Equals", value: "Mom & Baby Unit" },
+      { factor: "Unit: Unit Name", operator: "Equals", value: "L&D Unit" }
+    ];
+
+    const MATERNITY_FACTORS = [
+      { factor: "Encounter: Admitting Diagnosis", operator: "Equals", value: "Preterm Labor", score: 90, weight: 40 },
+      { factor: "", operator: "Equals", value: "Preeclampsia", score: 80, weight: "" },
+      { factor: "", operator: "Equals", value: "Placental Abruption", score: 80, weight: "" },
+      { factor: "", operator: "Equals", value: "IUGR", score: 60, weight: "" },
+      { factor: "", operator: "Equals", value: "Delayed Onset Preeclampsia", score: 90, weight: "" },
+      { factor: "Encounter: Rounding Flag", operator: "Equals", value: "Lactation Assistance", score: 75, weight: 10 },
+      { factor: "", operator: "Equals", value: "Fall Risk", score: 50, weight: "" },
+      { factor: "Encounter: Risk Score 1 on Discharge", operator: "Equals", value: "C section", score: 80, weight: 30 },
+      { factor: "", operator: "Equals", value: "Severe Postpartum Depression", score: 70, weight: "" },
+      { factor: "", operator: "Equals", value: "Infection (sepsis)", score: 85, weight: "" },
+      { factor: "", operator: "Equals", value: "PPH", score: 90, weight: "" },
+      { factor: "", operator: "Equals", value: "Severe Hypertension", score: 70, weight: "" },
+      { factor: "Interaction: Hours Since Last Round (Current Encounter)", operator: "Equals", value: "Never", score: 90, weight: 20 },
+      { factor: "", operator: "In Between", value: "12-24", score: 30, weight: "" },
+      { factor: "", operator: "In Between", value: "24-48", score: 50, weight: "" }
     ];
 
     const SCENARIO_CENTRAL = `Unit: Unit Facility = Central Hospital
@@ -835,18 +860,24 @@ Encounter: Length of Stay = 7
 Encounter: Risk Score 1 on Discharge = Central Line
 Patient: Age = 30`;
 
-    const SCENARIO_DEFAULT = `Encounter: Patient Class = IP
-Encounter: Rounding Flag = ED Admit
-Encounter: Admitting Diagnosis = Pneumonia`;
+    const SCENARIO_IP = `Unit: Unit Name = ICU
+Encounter: Rounding Flag = ICU Step Down
+Encounter: Admitting Diagnosis = Stroke
+Patient: Age = 55
+Encounter: Length of Stay = 10`;
 
-    const SCENARIO_BEST_PRACTICE = `Encounter: Length of Stay = 20
-Patient: Age = 85
-Interaction: Negative Response (Previous Encounter) = 3`;
+    const SCENARIO_ED = `Unit: Unit Name = Emergency Department
+Encounter: Rounding Flag = Frequent Flyer
+Interaction: Negative Response (Current Encounter) = 2
+Patient: Age = 45
+Encounter: Admitting Diagnosis = GSW
+Encounter: Length of Stay = 3`;
 
-    const SCENARIO_ED = `Encounter: Rounding Flag = ED Admit
-Encounter: Length of Stay = 36
-Encounter: Has Expected Discharge Date = Y
-Patient: Age = 82`;
+    const SCENARIO_MATERNITY = `Unit: Unit Name = Mom & Baby Unit
+Encounter: Admitting Diagnosis = Preeclampsia
+Encounter: Rounding Flag = Fall Risk
+Encounter: Risk Score 1 on Discharge = C section
+Interaction: Hours Since Last Round (Current Encounter) = 18`;
 
     const STORAGE_KEY = "priority-score-simulator-examples";
 
@@ -861,13 +892,13 @@ Patient: Age = 82`;
         scenario: SCENARIO_CENTRAL
       },
       {
-        id: "builtin-default-program",
+        id: "builtin-ip-program",
         builtIn: true,
-        name: "Default Program",
-        programName: "Default Program",
-        activation: DEFAULT_ACTIVATION,
-        factors: DEFAULT_FACTORS,
-        scenario: SCENARIO_DEFAULT
+        name: "IP Program",
+        programName: "IP Program",
+        activation: IP_ACTIVATION,
+        factors: IP_FACTORS,
+        scenario: SCENARIO_IP
       },
       {
         id: "builtin-ed-program",
@@ -879,13 +910,13 @@ Patient: Age = 82`;
         scenario: SCENARIO_ED
       },
       {
-        id: "builtin-best-practice",
+        id: "builtin-maternity-program",
         builtIn: true,
-        name: "Best Practice Example",
-        programName: "Best Practice Example",
-        activation: BEST_PRACTICE_ACTIVATION,
-        factors: BEST_PRACTICE_FACTORS,
-        scenario: SCENARIO_BEST_PRACTICE
+        name: "Maternity Program",
+        programName: "Maternity Program",
+        activation: MATERNITY_ACTIVATION,
+        factors: MATERNITY_FACTORS,
+        scenario: SCENARIO_MATERNITY
       }
     ];
 
@@ -1460,6 +1491,40 @@ Patient: Age = 82`;
       return finalScore;
     }
 
+    function isActivationActive(activationRows, scenario) {
+      if (!activationRows.length) return true;
+
+      const groups = new Map();
+      activationRows.forEach((row) => {
+        const key = normalizeKey(row.factor);
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(row);
+      });
+
+      for (const [, rows] of groups) {
+        const groupMatched = rows.some((row) => {
+          const parsed = parseOperatorValue(row.operator, row.value);
+          return ruleMatches(parsed, getScenarioValue(scenario, row.factor));
+        });
+        if (!groupMatched) return false;
+      }
+
+      return true;
+    }
+
+    function getActivationResults(activationRows, scenario) {
+      return activationRows.map((row) => {
+        const parsed = parseOperatorValue(row.operator, row.value);
+        const raw = getScenarioValue(scenario, row.factor);
+        const matched = ruleMatches(parsed, raw);
+        return {
+          factor: row.factor,
+          rule: formatRule({ ...parsed, displayOperator: row.operator, displayValue: row.value }),
+          matched
+        };
+      });
+    }
+
     function simulate() {
       try {
       const activationRows = readActivationRows();
@@ -1467,14 +1532,8 @@ Patient: Age = 82`;
       const scenario = parseScenario(document.getElementById("scenarioInput").value);
       const factorGroups = groupFactorRows(factorRows);
 
-      const activationResults = activationRows.map((row) => {
-        const parsed = parseOperatorValue(row.operator, row.value);
-        const raw = getScenarioValue(scenario, row.factor);
-        const matched = ruleMatches(parsed, raw);
-        return { factor: row.factor, rule: formatRule({ ...parsed, displayOperator: row.operator, displayValue: row.value }), matched };
-      });
-
-      const activationActive = activationRows.length === 0 || activationResults.every((r) => r.matched);
+      const activationResults = getActivationResults(activationRows, scenario);
+      const activationActive = isActivationActive(activationRows, scenario);
 
       const panel = document.getElementById("resultPanel");
       const statusEl = document.getElementById("activationStatus");
