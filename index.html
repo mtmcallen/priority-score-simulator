@@ -632,7 +632,7 @@
       <div class="formula-box">
         <strong>Priority Score Formula:</strong>
         <code>(W1×V1) + (W2×V2) + (W3×V3) + … + (Wn×Vn) ÷ (W1+W2+W3+…+Wn)</code>
-        <span class="muted"> — rounded up to nearest whole number</span>
+        <span class="muted"> — divide by total program weight (typically 100); unmatched factors contribute 0 to the numerator</span>
       </div>
     </section>
 
@@ -797,7 +797,7 @@ Patient: Age = 30"></textarea>
     const DEFAULT_ACTIVATION = [];
 
     const DEFAULT_FACTORS = [
-      { factor: "Encounter: Patient Class", operator: "Equals", value: "IP", score: 75, weight: 20 },
+      { factor: "Encounter: Patient Class", operator: "Equals", value: "IP", score: 75, weight: 20, weightOnly: true },
       { factor: "Encounter: Rounding Flag", operator: "Equals", value: "ED Admit", score: 75, weight: 30 },
       { factor: "", operator: "Equals", value: "Frequent Flyer", score: 100, weight: "" },
       { factor: "Encounter: Admitting Diagnosis", operator: "Equals", value: "Pneumonia", score: 50, weight: 50 },
@@ -1239,9 +1239,10 @@ Patient: Age = 82`;
       tbody.appendChild(tr);
     }
 
-    function addFactorRow(data = { factor: "", operator: "Equals", value: "", score: "", weight: "" }) {
+    function addFactorRow(data = { factor: "", operator: "Equals", value: "", score: "", weight: "", weightOnly: false }) {
       const tbody = document.getElementById("factorConfigBody");
       const tr = document.createElement("tr");
+      if (data.weightOnly) tr.dataset.weightOnly = "true";
 
       const cells = [
         createFactorInput(data.factor),
@@ -1303,7 +1304,8 @@ Patient: Age = 82`;
           operator: inputs[1].value,
           value: inputs[2].value.trim(),
           score: inputs[3].value.trim(),
-          weight: inputs[4].value.trim()
+          weight: inputs[4].value.trim(),
+          weightOnly: tr.dataset.weightOnly === "true"
         };
       }).filter(Boolean);
     }
@@ -1347,6 +1349,7 @@ Patient: Age = 82`;
           current = {
             label: row.factor,
             weight: parseWeight(row.weight),
+            weightOnly: Boolean(row.weightOnly),
             rules: []
           };
           groups.push(current);
@@ -1508,18 +1511,25 @@ Patient: Age = 82`;
         ? `<span class="status-pill status-active">Eligible for program</span>`
         : `<span class="status-pill status-active">Default program — all patients eligible</span>`;
 
+      const totalProgramWeight = factorGroups.reduce((sum, group) => {
+        const weight = parseWeight(group.weight);
+        return Number.isFinite(weight) ? sum + weight : sum;
+      }, 0);
+
       const matches = factorGroups.map((group) => {
         const raw = getScenarioValue(scenario, group.label);
         for (const rule of group.rules) {
           if (ruleMatches(rule, raw)) {
             const weight = parseWeight(group.weight);
+            const contributesToScore = !group.weightOnly && Number.isFinite(weight);
             return {
               matched: true,
               factor: group.label,
               rule: formatRule(rule),
               score: rule.score,
               weight,
-              product: Number.isFinite(weight) ? rule.score * weight : null,
+              weightOnly: group.weightOnly,
+              product: contributesToScore ? rule.score * weight : null,
               input: raw
             };
           }
@@ -1530,48 +1540,44 @@ Patient: Age = 82`;
           rule: "No matching rule",
           score: null,
           weight: parseWeight(group.weight),
+          weightOnly: group.weightOnly,
           product: null,
           input: raw
         };
       });
 
-      const scoring = matches.filter((m) => m.matched && Number.isFinite(m.weight));
+      const scoring = matches.filter((m) => m.matched && m.product !== null);
 
       matchBody.innerHTML = "";
       matches.forEach((m) => {
         const tr = document.createElement("tr");
+        const productCell = m.weightOnly && m.matched
+          ? `<span class="muted">denominator only</span>`
+          : (m.matched && m.product !== null ? m.product : "—");
         tr.innerHTML = `
           <td>${m.factor}</td>
           <td class="${m.matched ? "" : "no-match"}">${m.rule}${m.input !== undefined ? ` <span class="muted">(input: ${m.input})</span>` : ""}</td>
           <td>${m.matched ? m.score : "—"}</td>
           <td>${m.weight ?? "—"}</td>
-          <td>${m.matched && m.product !== null ? m.product : "—"}</td>
+          <td>${productCell}</td>
         `;
         matchBody.appendChild(tr);
       });
 
-      if (!scoring.length) {
-        const unmatched = matches.filter((m) => !m.matched).map((m) => m.factor);
+      if (!totalProgramWeight) {
         setFinalScore(
           scoreHero,
           finalScoreEl,
           scoreSubtext,
           0,
-          unmatched.length
-            ? `No rules matched for: ${unmatched.join(", ")} — score = 0`
-            : "No weighted factor matches — score = 0"
+          "No factor weights configured — score = 0"
         );
-        calcBox.textContent = [
-          "No contributing factor rules matched this scenario.",
-          unmatched.length ? `Unmatched factors: ${unmatched.join(", ")}` : "",
-          "Priority score = 0."
-        ].filter(Boolean).join("\n");
+        calcBox.textContent = "Add weights to your scoring factors. Program weights should sum to 100.";
         return;
       }
 
       const sumProducts = scoring.reduce((s, m) => s + m.product, 0);
-      const sumWeights = scoring.reduce((s, m) => s + m.weight, 0);
-      const rawScore = sumWeights > 0 ? sumProducts / sumWeights : 0;
+      const rawScore = sumProducts / totalProgramWeight;
       const finalScore = setFinalScore(
         scoreHero,
         finalScoreEl,
@@ -1582,11 +1588,14 @@ Patient: Age = 82`;
 
       const terms = scoring.map((m) => `${m.weight}×${m.score}`).join(" + ");
       const products = scoring.map((m) => m.product).join(" + ");
-      const weights = scoring.map((m) => m.weight).join("+");
+      const allWeights = factorGroups
+        .map((g) => parseWeight(g.weight))
+        .filter((w) => Number.isFinite(w));
+      const weightSumLabel = allWeights.join("+");
 
       calcBox.textContent = [
-        `(${terms}) ÷ (${weights})`,
-        `= (${products}) ÷ ${sumWeights}`,
+        scoring.length ? `(${terms}) ÷ (${weightSumLabel})` : `(0) ÷ (${weightSumLabel})`,
+        scoring.length ? `= (${products}) ÷ ${totalProgramWeight}` : `= 0 ÷ ${totalProgramWeight}`,
         `= ${rawScore.toFixed(1)} → ${finalScore} (rounded up)`
       ].join("\n");
       } catch (err) {
