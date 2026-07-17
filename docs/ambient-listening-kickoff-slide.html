@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ambient Listening — Implementation Overview Slide</title>
+  <title>Ambient Listening — Overview Slide</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -20,12 +20,8 @@
       --chartreuse-tint: #e8f4a8;
       --chartreuse-tint-text: #2a3200;
       --amber-tint: #fdefd0;
-      --amber-tint-text: #5c3800;
       --gray-500: #6b7280;
       --white: #ffffff;
-      --tag-low: #16a34a;
-      --tag-medium: #ca8a04;
-      --tag-high: #dc2626;
     }
 
     @page { size: 13.333in 7.5in; margin: 0; }
@@ -62,12 +58,6 @@
 
     .edit-toolbar strong { color: var(--cipher-teal); }
 
-    .edit-toolbar-actions {
-      display: flex;
-      gap: 0.45rem;
-      flex-shrink: 0;
-    }
-
     .edit-toolbar button {
       font: inherit;
       font-size: 8.25pt;
@@ -78,12 +68,6 @@
       cursor: pointer;
       background: var(--cipher-teal);
       color: var(--white);
-    }
-
-    .edit-toolbar button.secondary {
-      background: rgba(255, 255, 255, 0.12);
-      color: var(--white);
-      border: 1px solid rgba(255, 255, 255, 0.22);
     }
 
     .slide-wrap {
@@ -123,17 +107,8 @@
     .brand-mark { width: 30px; height: 30px; display: block; }
     .brand-name { font-size: 11pt; font-weight: 800; letter-spacing: -0.02em; }
 
-    .header-meta { text-align: right; }
-
-    .header-meta .customer {
-      margin: 0;
-      font-size: 10pt;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-    }
-
     .header-meta .doc-type {
-      margin: 0.04rem 0 0;
+      margin: 0;
       font-size: 7pt;
       font-weight: 600;
       text-transform: uppercase;
@@ -142,7 +117,7 @@
     }
 
     .title-band {
-      padding: 0.12in 0.38in 0.1in;
+      padding: 0.22in 0.38in 0.18in;
       background: var(--lavender-white);
       border-bottom: 1px solid rgba(45, 38, 96, 0.08);
       flex-shrink: 0;
@@ -150,261 +125,223 @@
 
     .title-band h1 {
       margin: 0;
-      font-size: 15pt;
+      font-size: 22pt;
       font-weight: 900;
       letter-spacing: -0.03em;
-      line-height: 1.05;
+      line-height: 1.02;
       color: var(--dark-anchor);
     }
 
     .title-band p {
-      margin: 0.06rem 0 0;
-      font-size: 7.75pt;
+      margin: 0.1rem 0 0;
+      font-size: 9.5pt;
       color: var(--gray-500);
-      line-height: 1.3;
+      line-height: 1.35;
+      max-width: 9.5in;
     }
 
     .content {
       flex: 1;
-      padding: 0.12in 0.38in 0.1in;
+      padding: 0.22in 0.38in 0.18in;
       display: grid;
-      grid-template-rows: 1fr auto;
-      gap: 0.1in;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.2in;
       min-height: 0;
-      overflow: hidden;
     }
 
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1.05fr 1.95fr;
-      gap: 0.18in;
+    .panel {
+      border-radius: 8px;
+      padding: 0.18in 0.2in;
+      display: flex;
+      flex-direction: column;
       min-height: 0;
+    }
+
+    .panel-what {
+      background: var(--teal-tint);
+      border: 2px solid var(--cipher-teal);
+    }
+
+    .panel-enable {
+      background: var(--lavender-white);
+      border: 2px solid var(--deep-violet);
+    }
+
+    .panel-benefits {
+      background: var(--chartreuse-tint);
+      border: 2px solid var(--electric-chartreuse);
     }
 
     .section-label {
-      margin: 0 0 0.05in;
-      font-size: 6.5pt;
+      margin: 0 0 0.1in;
+      font-size: 7pt;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: var(--deep-violet);
     }
 
-    .scope-card {
-      background: var(--teal-tint);
-      border: 2px solid var(--cipher-teal);
-      border-radius: 6px;
-      padding: 0.12in 0.14in;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-    }
+    .panel-what .section-label { color: var(--teal-tint-text); }
+    .panel-enable .section-label { color: var(--deep-violet); }
+    .panel-benefits .section-label { color: var(--chartreuse-tint-text); }
 
-    .scope-card .tagline {
-      margin: 0 0 0.08in;
-      font-size: 9pt;
+    .panel h2 {
+      margin: 0 0 0.12in;
+      font-size: 11pt;
       font-weight: 900;
-      line-height: 1.15;
-      color: var(--teal-tint-text);
-    }
-
-    .scope-card p,
-    .scope-card li {
-      font-size: 7pt;
-      line-height: 1.28;
-      color: var(--teal-tint-text);
-    }
-
-    .scope-card ul {
-      margin: 0 0 0.08in;
-      padding-left: 0.9rem;
-    }
-
-    .scope-card li { margin-bottom: 0.05rem; }
-    .scope-card strong { color: var(--dark-anchor); }
-
-    .tag-row {
-      display: flex;
-      gap: 0.12rem;
-      margin: 0.06in 0 0.08in;
-    }
-
-    .tag-pill {
-      flex: 1;
-      border-radius: 4px;
-      padding: 0.12rem 0.18rem;
-      font-size: 6pt;
-      line-height: 1.2;
-      color: var(--white);
-      text-align: center;
-      font-weight: 700;
-    }
-
-    .tag-pill.consent { background: var(--deep-violet); }
-    .tag-pill.record { background: var(--cipher-teal); }
-    .tag-pill.process { background: var(--warm-amber); color: var(--dark-anchor); }
-    .tag-pill.review { background: var(--electric-chartreuse); color: var(--chartreuse-tint-text); }
-
-    .outcomes-box {
-      margin-top: auto;
-      background: rgba(255, 255, 255, 0.55);
-      border-radius: 5px;
-      padding: 0.1in 0.12in;
-    }
-
-    .outcomes-box .label {
-      margin: 0 0 0.05in;
-      font-size: 6pt;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--dark-anchor);
-    }
-
-    .outcomes-box ul {
-      margin: 0;
-      padding-left: 0.85rem;
-    }
-
-    .outcomes-box li {
-      font-size: 6.5pt;
-      line-height: 1.26;
-      margin-bottom: 0.04rem;
-    }
-
-    .timeline-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(2, 1fr);
-      gap: 0.08in;
-      height: 100%;
-      min-height: 0;
-    }
-
-    .phase {
-      border-radius: 6px;
-      padding: 0.1in 0.12in;
-      display: flex;
-      flex-direction: column;
-      border: 1.5px solid rgba(45, 38, 96, 0.1);
-      min-height: 0;
-    }
-
-    .phase-1 { background: var(--white); border-top: 3px solid var(--cipher-teal); }
-    .phase-2 { background: var(--lavender-white); border-top: 3px solid var(--deep-violet); }
-    .phase-3 { background: var(--teal-tint); border-top: 3px solid var(--cipher-teal); }
-    .phase-4 { background: var(--white); border-top: 3px solid var(--deep-violet); }
-    .phase-5 { background: var(--amber-tint); border-top: 3px solid var(--warm-amber); }
-    .phase-6 { background: var(--chartreuse-tint); border-top: 3px solid var(--electric-chartreuse); }
-
-    .phase .when {
-      font-size: 6pt;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.03in;
-    }
-
-    .phase-1 .when, .phase-3 .when { color: var(--cipher-teal); }
-    .phase-2 .when, .phase-4 .when { color: var(--deep-violet); }
-    .phase-5 .when { color: var(--amber-tint-text); }
-    .phase-6 .when { color: var(--chartreuse-tint-text); }
-
-    .phase h3 {
-      margin: 0 0 0.04in;
-      font-size: 8pt;
-      font-weight: 900;
-      line-height: 1.08;
+      line-height: 1.12;
       letter-spacing: -0.02em;
     }
 
-    .phase ul {
+    .panel-what h2 { color: var(--teal-tint-text); }
+    .panel-enable h2 { color: var(--dark-anchor); }
+    .panel-benefits h2 { color: var(--chartreuse-tint-text); }
+
+    .panel p,
+    .panel li {
+      font-size: 7.75pt;
+      line-height: 1.32;
+    }
+
+    .panel-what p,
+    .panel-what li { color: var(--teal-tint-text); }
+
+    .panel ul {
       margin: 0;
-      padding-left: 0.8rem;
-      flex: 1;
+      padding-left: 0.95rem;
     }
 
-    .phase li {
-      font-size: 6.5pt;
-      line-height: 1.24;
-      margin-bottom: 0.04rem;
-      color: var(--gray-500);
-    }
+    .panel li { margin-bottom: 0.06rem; }
+    .panel strong { color: var(--dark-anchor); }
 
-    .phase li strong { color: var(--dark-anchor); }
-
-    .next-steps-card {
-      background: var(--dark-anchor);
-      color: var(--white);
-      border-radius: 6px;
-      padding: 0.1in 0.14in;
+    .workflow {
       display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 0.14in;
-      align-items: center;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.08in;
+      margin-top: auto;
+      padding-top: 0.12in;
     }
 
-    .next-steps-card .when {
-      font-size: 6pt;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--cipher-teal);
-      margin-bottom: 0.03in;
+    .workflow-step {
+      text-align: center;
+      font-size: 6.5pt;
+      font-weight: 700;
+      line-height: 1.2;
+      padding: 0.14rem 0.1rem;
+      border-radius: 4px;
+      color: var(--white);
     }
 
-    .next-steps-card h3 {
-      margin: 0;
-      font-size: 8.5pt;
-      font-weight: 900;
-      line-height: 1.1;
-    }
+    .workflow-step:nth-child(1) { background: var(--deep-violet); }
+    .workflow-step:nth-child(2) { background: var(--cipher-teal); }
+    .workflow-step:nth-child(3) { background: var(--warm-amber); color: var(--dark-anchor); }
+    .workflow-step:nth-child(4) { background: var(--electric-chartreuse); color: var(--chartreuse-tint-text); }
 
-    .next-steps-card ul {
+    .enable-steps {
       margin: 0;
       padding: 0;
       list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.12in;
+      flex: 1;
+    }
+
+    .enable-step {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.1in;
+      grid-template-columns: 0.38in 1fr;
+      gap: 0.12in;
+      align-items: start;
     }
 
-    .next-steps-card li {
-      font-size: 6.75pt;
-      line-height: 1.26;
-      opacity: 0.92;
+    .enable-step .num {
+      width: 0.38in;
+      height: 0.38in;
+      border-radius: 50%;
+      background: var(--deep-violet);
+      color: var(--white);
+      font-size: 11pt;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
     }
 
-    .next-steps-card li strong { color: var(--cipher-teal); }
+    .enable-step .text {
+      font-size: 7.75pt;
+      line-height: 1.32;
+      color: var(--gray-500);
+      padding-top: 0.04in;
+    }
 
-    .next-steps-card .resource {
-      font-size: 6.5pt;
+    .enable-step .text strong {
+      display: block;
+      font-size: 8.25pt;
+      color: var(--dark-anchor);
+      margin-bottom: 0.03rem;
+    }
+
+    .enable-note {
+      margin-top: auto;
+      padding: 0.1in 0.12in;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 5px;
+      font-size: 7pt;
       line-height: 1.3;
-      text-align: right;
-      white-space: nowrap;
+      color: var(--gray-500);
     }
 
-    .next-steps-card .resource a {
-      color: var(--cipher-teal);
-      text-decoration: none;
-      font-weight: 700;
+    .enable-note strong { color: var(--deep-violet); }
+
+    .stat-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.14in;
+      flex: 1;
+    }
+
+    .stat {
+      background: rgba(255, 255, 255, 0.55);
+      border-radius: 6px;
+      padding: 0.14in 0.16in;
+    }
+
+    .stat .value {
+      margin: 0;
+      font-size: 16pt;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: var(--chartreuse-tint-text);
+    }
+
+    .stat .label {
+      margin: 0.06rem 0 0;
+      font-size: 7.25pt;
+      line-height: 1.28;
+      color: var(--dark-anchor);
+    }
+
+    .stat .detail {
+      margin: 0.04rem 0 0;
+      font-size: 6.5pt;
+      color: var(--gray-500);
+      line-height: 1.25;
     }
 
     .footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.08in 0.38in;
+      padding: 0.1in 0.38in;
       background: var(--dark-anchor);
       color: var(--white);
       flex-shrink: 0;
     }
 
     .footer .note {
-      font-size: 6.5pt;
-      line-height: 1.28;
-      max-width: 9.5in;
+      font-size: 7pt;
+      line-height: 1.3;
       opacity: 0.92;
     }
 
@@ -432,7 +369,6 @@
         width: 13.333in;
         height: 7.5in;
       }
-
     }
   </style>
 </head>
@@ -440,11 +376,9 @@
   <div class="slide-wrap">
     <div class="edit-toolbar">
       <div>
-        <strong>Implementation overview slide</strong> — Drop into an existing kickoff deck. Print or save as PDF (16:9).
+        <strong>Overview slide</strong> — Drop into an existing kickoff deck. Print or save as PDF (16:9).
       </div>
-      <div class="edit-toolbar-actions">
-        <button type="button" id="print-slide">Print / Save PDF</button>
-      </div>
+      <button type="button" id="print-slide">Print / Save PDF</button>
     </div>
 
     <div class="slide">
@@ -454,127 +388,87 @@
           <span class="brand-name">CipherHealth</span>
         </div>
         <div class="header-meta">
-          <p class="doc-type">Ambient Listening · Implementation Overview</p>
+          <p class="doc-type">Ambient Listening</p>
         </div>
       </header>
 
       <div class="title-band">
-        <h1>Ambient Listening — How We'll Roll This Out</h1>
-        <p>Rounders speak naturally at the bedside; AI drafts script responses from the conversation. Human-in-the-loop — nothing auto-submits until the rounder reviews and submits.</p>
+        <h1>Speak naturally at the bedside. AI handles the documentation.</h1>
+        <p>Ambient Listening listens to the patient conversation, drafts script answers, and puts them in Needs Review — rounders always review and submit. Nothing auto-submits.</p>
       </div>
 
       <div class="content">
-        <div class="main-grid">
-          <section>
-            <p class="section-label">Product Overview</p>
-            <div class="scope-card">
-              <p class="tagline">Speak naturally at the bedside. AI handles the documentation.</p>
-              <ul>
-                <li><strong>Consent-first workflow</strong> — patient consent captured before any recording begins</li>
-                <li><strong>Human-in-the-loop</strong> — AI drafts responses; rounders review, edit, and submit</li>
-                <li><strong>Mobile + web</strong> — iOS v6.13.0+ / Android v2.3.0+; microphone permissions required</li>
-                <li><strong>North star metric</strong> — Capture Rate ≥85% (successful ambient sessions vs. eligible encounters)</li>
-              </ul>
-              <div class="tag-row">
-                <div class="tag-pill consent">Consent</div>
-                <div class="tag-pill record">Record</div>
-                <div class="tag-pill process">Process</div>
-                <div class="tag-pill review">Review &amp; Submit</div>
-              </div>
-              <div class="outcomes-box">
-                <p class="label">Beta outcomes</p>
-                <ul>
-                  <li><strong>64–85%</strong> reduction in documentation time</li>
-                  <li><strong>+3 to +11 pts</strong> script completion improvement</li>
-                  <li><strong>+15 to +40 pts</strong> on rounding opportunities</li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <p class="section-label">Implementation Phases &amp; Timeline</p>
-            <div class="timeline-grid">
-              <article class="phase phase-1">
-                <p class="when">Phase 1 · Initiate</p>
-                <h3>Discovery &amp; Alignment</h3>
-                <ul>
-                  <li>Confirm <strong>scripts in scope</strong> and conversational phrasing needs</li>
-                  <li>Identify <strong>super-user champions</strong> for peer coaching</li>
-                  <li>Establish baseline metrics — doc time, script completion, Capture Rate</li>
-                </ul>
-              </article>
-              <article class="phase phase-2">
-                <p class="when">Phase 2 · Design</p>
-                <h3>Script &amp; Consent Readiness</h3>
-                <ul>
-                  <li>Review <strong>conversational phrasing</strong> on in-scope scripts</li>
-                  <li>Nursing leaders approve <strong>consent language</strong> and workflow</li>
-                  <li>Confirm <strong>device readiness</strong> (iOS 6.13+ / Android 2.3+, mic permissions)</li>
-                </ul>
-              </article>
-              <article class="phase phase-3">
-                <p class="when">Phase 3 · Configure</p>
-                <h3>Evolve &amp; Reporting</h3>
-                <ul>
-                  <li><strong>3-click enablement:</strong> CP setting → script toggle → role permission</li>
-                  <li>Set up <strong>dashboard access</strong> and ambient listening data views</li>
-                  <li>Complete pre-go-live checklist (consent, training plan, baseline metrics)</li>
-                </ul>
-              </article>
-              <article class="phase phase-4">
-                <p class="when">Phase 4 · Testing</p>
-                <h3>UAT on Devices</h3>
-                <ul>
-                  <li>Test <strong>consent Given / Declined</strong> paths on live devices</li>
-                  <li>Validate processing (~20–30 sec) and <strong>Needs Review</strong> queue</li>
-                  <li>Resolve config gaps before end-user training</li>
-                </ul>
-              </article>
-              <article class="phase phase-5">
-                <p class="when">Phase 5 · Training</p>
-                <h3>Enable Rounders</h3>
-                <ul>
-                  <li>Train on <strong>notetaking assistant</strong> messaging and consent workflow</li>
-                  <li>Emphasize <strong>review before submit</strong> — rounder owns final documentation</li>
-                  <li>Activate super-users for peer coaching; share hype flyer &amp; training videos</li>
-                </ul>
-              </article>
-              <article class="phase phase-6">
-                <p class="when">Phase 6 · Launch</p>
-                <h3>Go-Live &amp; Optimize</h3>
-                <ul>
-                  <li>Rounders use ambient listening in <strong>daily workflow</strong></li>
-                  <li><strong>Biweekly</strong> feedback on adoption, consent rates, and processing failures</li>
-                  <li>Monitor Capture Rate and script completion vs. baseline</li>
-                </ul>
-              </article>
-            </div>
-          </section>
-        </div>
-
-        <div class="next-steps-card">
-          <div>
-            <p class="when">Before go-live</p>
-            <h3>Key enablers</h3>
-          </div>
+        <section class="panel panel-what">
+          <p class="section-label">What it is</p>
+          <h2>Your notetaking assistant in CipherRounds</h2>
           <ul>
-            <li><strong>Nursing leaders</strong> approve consent language and script phrasing</li>
-            <li><strong>Rounders</strong> complete UAT on live devices during pilot shifts</li>
-            <li><strong>Super-users</strong> identified for peer coaching and frontline feedback</li>
+            <li><strong>Built into rounding</strong> — no new app; works on mobile and web</li>
+            <li><strong>Consent first</strong> — recording starts only after patient consent</li>
+            <li><strong>Human-in-the-loop</strong> — AI suggests answers; rounders edit and submit</li>
           </ul>
-          <div class="resource">
-            Hype flyer<br>
-            <a href="https://mtmcallen.github.io/priority-score-simulator/docs/ambient-listening-hype-flyer.html">ambient-listening-hype-flyer</a>
+          <div class="workflow">
+            <div class="workflow-step">Consent</div>
+            <div class="workflow-step">Record</div>
+            <div class="workflow-step">Review</div>
+            <div class="workflow-step">Submit</div>
           </div>
-        </div>
+        </section>
+
+        <section class="panel panel-enable">
+          <p class="section-label">How to turn it on</p>
+          <h2>Three clicks in Evolve</h2>
+          <ol class="enable-steps">
+            <li class="enable-step">
+              <span class="num">1</span>
+              <div class="text">
+                <strong>Enable Ambient Listening</strong>
+                Turn on at the care provider level in Evolve
+              </div>
+            </li>
+            <li class="enable-step">
+              <span class="num">2</span>
+              <div class="text">
+                <strong>Toggle the script</strong>
+                Enable AI Ambient Listening on the rounding script
+              </div>
+            </li>
+            <li class="enable-step">
+              <span class="num">3</span>
+              <div class="text">
+                <strong>Grant permission</strong>
+                Add the Ambient Listening role permission for rounders
+              </div>
+            </li>
+          </ol>
+          <p class="enable-note"><strong>That's it.</strong> Rounders need iOS v6.13.0+ or Android v2.3.0+ with microphone access — then they're ready to go.</p>
+        </section>
+
+        <section class="panel panel-benefits">
+          <p class="section-label">Why use it</p>
+          <h2>Less typing, more time with patients</h2>
+          <div class="stat-grid">
+            <div class="stat">
+              <p class="value">64–85%</p>
+              <p class="label">Less time on documentation</p>
+              <p class="detail">Beta sites saw major doc-time reductions per round</p>
+            </div>
+            <div class="stat">
+              <p class="value">+3–11 pts</p>
+              <p class="label">Higher script completion</p>
+              <p class="detail">More complete interactions without extra manual entry</p>
+            </div>
+            <div class="stat">
+              <p class="value">+15–40 pts</p>
+              <p class="label">More rounding opportunities captured</p>
+              <p class="detail">AI surfaces what gets missed when you're heads-down typing</p>
+            </div>
+          </div>
+        </section>
       </div>
 
       <footer class="footer">
-        <p class="note">
-          <strong>Three things must be complete before rounders use Ambient Listening:</strong> (1) Enable Ambient Listening at the CP level, (2) turn on the script toggle and grant role permission, (3) confirm mobile app version and microphone permissions on pilot devices.
-        </p>
-        <span class="contact">Confidential · CipherRounds</span>
+        <p class="note"><strong>Stay present with patients.</strong> Let Ambient Listening capture the conversation — you review every answer before it becomes part of the record.</p>
+        <span class="contact">CipherRounds</span>
       </footer>
     </div>
   </div>
