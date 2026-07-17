@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patient Prioritization — Implementation Kickoff Slide</title>
+  <title>Patient Prioritization — Overview Slide</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -19,8 +19,6 @@
       --teal-tint-text: #004e48;
       --chartreuse-tint: #e8f4a8;
       --chartreuse-tint-text: #2a3200;
-      --amber-tint: #fdefd0;
-      --amber-tint-text: #5c3800;
       --gray-500: #6b7280;
       --white: #ffffff;
       --tag-low: #16a34a;
@@ -62,12 +60,6 @@
 
     .edit-toolbar strong { color: var(--cipher-teal); }
 
-    .edit-toolbar-actions {
-      display: flex;
-      gap: 0.45rem;
-      flex-shrink: 0;
-    }
-
     .edit-toolbar button {
       font: inherit;
       font-size: 8.25pt;
@@ -78,12 +70,6 @@
       cursor: pointer;
       background: var(--cipher-teal);
       color: var(--white);
-    }
-
-    .edit-toolbar button.secondary {
-      background: rgba(255, 255, 255, 0.12);
-      color: var(--white);
-      border: 1px solid rgba(255, 255, 255, 0.22);
     }
 
     .slide-wrap {
@@ -123,17 +109,8 @@
     .brand-mark { width: 30px; height: 30px; display: block; }
     .brand-name { font-size: 11pt; font-weight: 800; letter-spacing: -0.02em; }
 
-    .header-meta { text-align: right; }
-
-    .header-meta .customer {
-      margin: 0;
-      font-size: 10pt;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-    }
-
     .header-meta .doc-type {
-      margin: 0.04rem 0 0;
+      margin: 0;
       font-size: 7pt;
       font-weight: 600;
       text-transform: uppercase;
@@ -142,7 +119,7 @@
     }
 
     .title-band {
-      padding: 0.12in 0.38in 0.1in;
+      padding: 0.22in 0.38in 0.18in;
       background: var(--lavender-white);
       border-bottom: 1px solid rgba(45, 38, 96, 0.08);
       flex-shrink: 0;
@@ -150,257 +127,228 @@
 
     .title-band h1 {
       margin: 0;
-      font-size: 15pt;
+      font-size: 22pt;
       font-weight: 900;
       letter-spacing: -0.03em;
-      line-height: 1.05;
+      line-height: 1.02;
       color: var(--dark-anchor);
     }
 
     .title-band p {
-      margin: 0.06rem 0 0;
-      font-size: 7.75pt;
+      margin: 0.1rem 0 0;
+      font-size: 9.5pt;
       color: var(--gray-500);
-      line-height: 1.3;
+      line-height: 1.35;
+      max-width: 9.5in;
     }
 
     .content {
       flex: 1;
-      padding: 0.12in 0.38in 0.1in;
+      padding: 0.22in 0.38in 0.18in;
       display: grid;
-      grid-template-rows: 1fr auto;
-      gap: 0.1in;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.2in;
       min-height: 0;
-      overflow: hidden;
     }
 
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1.05fr 1.95fr;
-      gap: 0.18in;
+    .panel {
+      border-radius: 8px;
+      padding: 0.18in 0.2in;
+      display: flex;
+      flex-direction: column;
       min-height: 0;
+    }
+
+    .panel-what {
+      background: var(--teal-tint);
+      border: 2px solid var(--cipher-teal);
+    }
+
+    .panel-enable {
+      background: var(--lavender-white);
+      border: 2px solid var(--deep-violet);
+    }
+
+    .panel-benefits {
+      background: var(--chartreuse-tint);
+      border: 2px solid var(--electric-chartreuse);
     }
 
     .section-label {
-      margin: 0 0 0.05in;
-      font-size: 6.5pt;
+      margin: 0 0 0.1in;
+      font-size: 7pt;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: var(--deep-violet);
     }
 
-    .scope-card {
-      background: var(--teal-tint);
-      border: 2px solid var(--cipher-teal);
-      border-radius: 6px;
-      padding: 0.12in 0.14in;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-    }
+    .panel-what .section-label { color: var(--teal-tint-text); }
+    .panel-enable .section-label { color: var(--deep-violet); }
+    .panel-benefits .section-label { color: var(--chartreuse-tint-text); }
 
-    .scope-card .tagline {
-      margin: 0 0 0.08in;
-      font-size: 9pt;
+    .panel h2 {
+      margin: 0 0 0.12in;
+      font-size: 11pt;
       font-weight: 900;
-      line-height: 1.15;
-      color: var(--teal-tint-text);
-    }
-
-    .scope-card p,
-    .scope-card li {
-      font-size: 7pt;
-      line-height: 1.28;
-      color: var(--teal-tint-text);
-    }
-
-    .scope-card ul {
-      margin: 0 0 0.08in;
-      padding-left: 0.9rem;
-    }
-
-    .scope-card li { margin-bottom: 0.05rem; }
-    .scope-card strong { color: var(--dark-anchor); }
-
-    .tag-row {
-      display: flex;
-      gap: 0.12rem;
-      margin: 0.06in 0 0.08in;
-    }
-
-    .tag-pill {
-      flex: 1;
-      border-radius: 4px;
-      padding: 0.12rem 0.18rem;
-      font-size: 6pt;
-      line-height: 1.2;
-      color: var(--white);
-      text-align: center;
-      font-weight: 700;
-    }
-
-    .tag-pill.low { background: var(--tag-low); }
-    .tag-pill.medium { background: var(--tag-medium); }
-    .tag-pill.high { background: var(--tag-high); }
-
-    .scope-fields {
-      margin-top: auto;
-      background: rgba(255, 255, 255, 0.55);
-      border-radius: 5px;
-      padding: 0.1in 0.12in;
-    }
-
-    .scope-fields dl {
-      margin: 0;
-      display: grid;
-      grid-template-columns: 0.72in 1fr;
-      gap: 0.05in 0.12in;
-      font-size: 6.75pt;
-      line-height: 1.25;
-    }
-
-    .scope-fields dt {
-      margin: 0;
-      font-weight: 800;
-      color: var(--dark-anchor);
-    }
-
-    .scope-fields dd { margin: 0; color: var(--teal-tint-text); }
-
-    .timeline-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(2, 1fr);
-      gap: 0.08in;
-      height: 100%;
-      min-height: 0;
-    }
-
-    .phase {
-      border-radius: 6px;
-      padding: 0.1in 0.12in;
-      display: flex;
-      flex-direction: column;
-      border: 1.5px solid rgba(45, 38, 96, 0.1);
-      min-height: 0;
-    }
-
-    .phase-1 { background: var(--white); border-top: 3px solid var(--cipher-teal); }
-    .phase-2 { background: var(--lavender-white); border-top: 3px solid var(--deep-violet); }
-    .phase-3 { background: var(--teal-tint); border-top: 3px solid var(--cipher-teal); }
-    .phase-4 { background: var(--white); border-top: 3px solid var(--deep-violet); }
-    .phase-5 { background: var(--amber-tint); border-top: 3px solid var(--warm-amber); }
-    .phase-6 { background: var(--chartreuse-tint); border-top: 3px solid var(--electric-chartreuse); }
-
-    .phase .when {
-      font-size: 6pt;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.03in;
-    }
-
-    .phase-1 .when, .phase-3 .when { color: var(--cipher-teal); }
-    .phase-2 .when, .phase-4 .when { color: var(--deep-violet); }
-    .phase-5 .when { color: var(--amber-tint-text); }
-    .phase-6 .when { color: var(--chartreuse-tint-text); }
-
-    .phase h3 {
-      margin: 0 0 0.04in;
-      font-size: 8pt;
-      font-weight: 900;
-      line-height: 1.08;
+      line-height: 1.12;
       letter-spacing: -0.02em;
     }
 
-    .phase ul {
+    .panel-what h2 { color: var(--teal-tint-text); }
+    .panel-enable h2 { color: var(--dark-anchor); }
+    .panel-benefits h2 { color: var(--chartreuse-tint-text); }
+
+    .panel p,
+    .panel li {
+      font-size: 7.75pt;
+      line-height: 1.32;
+    }
+
+    .panel-what p,
+    .panel-what li { color: var(--teal-tint-text); }
+
+    .panel ul {
       margin: 0;
-      padding-left: 0.8rem;
-      flex: 1;
+      padding-left: 0.95rem;
     }
 
-    .phase li {
-      font-size: 6.5pt;
-      line-height: 1.24;
-      margin-bottom: 0.04rem;
-      color: var(--gray-500);
-    }
+    .panel li { margin-bottom: 0.06rem; }
+    .panel strong { color: var(--dark-anchor); }
 
-    .phase li strong { color: var(--dark-anchor); }
-
-    .next-steps-card {
-      background: var(--dark-anchor);
-      color: var(--white);
-      border-radius: 6px;
-      padding: 0.1in 0.14in;
+    .workflow {
       display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 0.14in;
-      align-items: center;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.08in;
+      margin-top: auto;
+      padding-top: 0.12in;
     }
 
-    .next-steps-card .when {
-      font-size: 6pt;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--cipher-teal);
-      margin-bottom: 0.03in;
+    .workflow-step {
+      text-align: center;
+      font-size: 6.5pt;
+      font-weight: 700;
+      line-height: 1.2;
+      padding: 0.14rem 0.1rem;
+      border-radius: 4px;
+      color: var(--white);
     }
 
-    .next-steps-card h3 {
-      margin: 0;
-      font-size: 8.5pt;
-      font-weight: 900;
-      line-height: 1.1;
-    }
+    .workflow-step.low { background: var(--tag-low); }
+    .workflow-step.medium { background: var(--tag-medium); }
+    .workflow-step.high { background: var(--tag-high); }
 
-    .next-steps-card ul {
+    .enable-steps {
       margin: 0;
       padding: 0;
       list-style: none;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: flex;
+      flex-direction: column;
       gap: 0.1in;
+      flex: 1;
     }
 
-    .next-steps-card li {
-      font-size: 6.75pt;
-      line-height: 1.26;
-      opacity: 0.92;
+    .enable-step {
+      display: grid;
+      grid-template-columns: 0.38in 1fr;
+      gap: 0.12in;
+      align-items: start;
     }
 
-    .next-steps-card li strong { color: var(--cipher-teal); }
+    .enable-step .num {
+      width: 0.38in;
+      height: 0.38in;
+      border-radius: 50%;
+      background: var(--deep-violet);
+      color: var(--white);
+      font-size: 11pt;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
 
-    .next-steps-card .resource {
-      font-size: 6.5pt;
+    .enable-step .text {
+      font-size: 7.5pt;
+      line-height: 1.32;
+      color: var(--gray-500);
+      padding-top: 0.04in;
+    }
+
+    .enable-step .text strong {
+      display: block;
+      font-size: 8pt;
+      color: var(--dark-anchor);
+      margin-bottom: 0.03rem;
+    }
+
+    .enable-note {
+      margin-top: auto;
+      padding: 0.1in 0.12in;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 5px;
+      font-size: 7pt;
       line-height: 1.3;
-      text-align: right;
-      white-space: nowrap;
+      color: var(--gray-500);
     }
 
-    .next-steps-card .resource a {
-      color: var(--cipher-teal);
-      text-decoration: none;
+    .enable-note strong { color: var(--deep-violet); }
+
+    .enable-note a {
+      color: var(--deep-violet);
       font-weight: 700;
+      text-decoration: none;
+    }
+
+    .stat-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.14in;
+      flex: 1;
+    }
+
+    .stat {
+      background: rgba(255, 255, 255, 0.55);
+      border-radius: 6px;
+      padding: 0.14in 0.16in;
+    }
+
+    .stat .value {
+      margin: 0;
+      font-size: 16pt;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: var(--chartreuse-tint-text);
+    }
+
+    .stat .label {
+      margin: 0.06rem 0 0;
+      font-size: 7.25pt;
+      line-height: 1.28;
+      color: var(--dark-anchor);
+    }
+
+    .stat .detail {
+      margin: 0.04rem 0 0;
+      font-size: 6.5pt;
+      color: var(--gray-500);
+      line-height: 1.25;
     }
 
     .footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.08in 0.38in;
+      padding: 0.1in 0.38in;
       background: var(--dark-anchor);
       color: var(--white);
       flex-shrink: 0;
     }
 
     .footer .note {
-      font-size: 6.5pt;
-      line-height: 1.28;
-      max-width: 9.5in;
+      font-size: 7pt;
+      line-height: 1.3;
       opacity: 0.92;
     }
 
@@ -413,40 +361,6 @@
       letter-spacing: 0.08em;
       color: var(--cipher-teal);
       white-space: nowrap;
-    }
-
-    .editable-field {
-      display: inline;
-      min-width: 0.2in;
-      padding: 0 0.08rem;
-      border-radius: 3px;
-      outline: none;
-      background: rgba(232, 160, 32, 0.22);
-      box-shadow: inset 0 0 0 1px rgba(232, 160, 32, 0.65);
-      cursor: text;
-    }
-
-    .editable-field:focus {
-      background: rgba(232, 160, 32, 0.32);
-      box-shadow: inset 0 0 0 2px var(--warm-amber);
-    }
-
-    .editable-field:empty::before {
-      content: attr(data-placeholder);
-      color: rgba(45, 38, 96, 0.45);
-      font-style: italic;
-    }
-
-    .header-meta .editable-field,
-    .next-steps-card .editable-field {
-      background: rgba(232, 160, 32, 0.28);
-      box-shadow: inset 0 0 0 1px rgba(232, 160, 32, 0.75);
-      color: var(--white);
-    }
-
-    .header-meta .editable-field:empty::before,
-    .next-steps-card .editable-field:empty::before {
-      color: rgba(255, 255, 255, 0.5);
     }
 
     @media print {
@@ -462,11 +376,6 @@
         width: 13.333in;
         height: 7.5in;
       }
-
-      .editable-field {
-        background: transparent !important;
-        box-shadow: none !important;
-      }
     }
   </style>
 </head>
@@ -474,12 +383,9 @@
   <div class="slide-wrap">
     <div class="edit-toolbar">
       <div>
-        <strong>Implementation kickoff slide</strong> — Click highlighted fields to customize for your account, then print or save as PDF (16:9).
+        <strong>Overview slide</strong> — Drop into an existing kickoff deck. Print or save as PDF (16:9).
       </div>
-      <div class="edit-toolbar-actions">
-        <button type="button" class="secondary" id="reset-template">Reset template</button>
-        <button type="button" id="print-slide">Print / Save PDF</button>
-      </div>
+      <button type="button" id="print-slide">Print / Save PDF</button>
     </div>
 
     <div class="slide">
@@ -489,161 +395,102 @@
           <span class="brand-name">CipherHealth</span>
         </div>
         <div class="header-meta">
-          <p class="customer"><span class="editable-field" contenteditable="true" spellcheck="true" data-field="hospitalName" data-placeholder="Hospital / Health System">[Hospital Name]</span></p>
-          <p class="doc-type">Patient Prioritization · Implementation Kickoff</p>
+          <p class="doc-type">Patient Prioritization</p>
         </div>
       </header>
 
       <div class="title-band">
-        <h1>Patient Prioritization Implementation Plan</h1>
-        <p>Advisory priority scores (0–100) on the CipherRounds worklist — configurable factors, transparent reasoning, and optional AI for HCAHPS risk. Scores are advisory and do not replace clinical judgment.</p>
+        <h1>Most tools show a score. We show the why.</h1>
+        <p>Advisory priority scores (0–100) and tags on the CipherRounds worklist — rounders sort by who needs attention first and see exactly what drove each score.</p>
       </div>
 
       <div class="content">
-        <div class="main-grid">
-          <section>
-            <p class="section-label">What We're Implementing</p>
-            <div class="scope-card">
-              <p class="tagline">Most tools show a score. We show the why.</p>
-              <ul>
-                <li><strong>Priority tags</strong> on every patient card — sort and filter the worklist at shift start</li>
-                <li><strong>Factor breakdown</strong> — rounders see what drove each score before entering the room</li>
-                <li><strong>Configurable logic</strong> — rule-based factors per unit; optional Likelihood to be Dissatisfied AI factor</li>
-                <li><strong>No new app</strong> — enabled in Evolve; visible on CipherRounds mobile and web</li>
-              </ul>
-              <div class="tag-row">
-                <div class="tag-pill low">Low 0–59</div>
-                <div class="tag-pill medium">Med 60–79</div>
-                <div class="tag-pill high">High 80–100</div>
-              </div>
-              <div class="scope-fields">
-                <dl>
-                  <dt>Scope</dt>
-                  <dd><span class="editable-field" contenteditable="true" spellcheck="true" data-field="scopeUnits" data-placeholder="Units / facilities">[Pilot units]</span></dd>
-                  <dt>Go-live</dt>
-                  <dd><span class="editable-field" contenteditable="true" spellcheck="true" data-field="targetGoLive" data-placeholder="Target go-live date">[Target go-live]</span></dd>
-                  <dt>EC / PC</dt>
-                  <dd><span class="editable-field" contenteditable="true" spellcheck="true" data-field="champions" data-placeholder="Executive & project champions">[EC / PC names]</span></dd>
-                  <dt>IL lead</dt>
-                  <dd><span class="editable-field" contenteditable="true" spellcheck="true" data-field="ilName" data-placeholder="Implementation lead">[IL Name]</span></dd>
-                </dl>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <p class="section-label">Implementation Phases &amp; Timeline</p>
-            <div class="timeline-grid">
-              <article class="phase phase-1">
-                <p class="when">Week 1 · Initiate</p>
-                <h3>Kickoff &amp; Alignment</h3>
-                <ul>
-                  <li>Confirm <strong>scope, units, and timeline</strong></li>
-                  <li>Identify <strong>operational stakeholders</strong> and rounder champions</li>
-                  <li>Review success metrics and feedback cadence</li>
-                </ul>
-              </article>
-              <article class="phase phase-2">
-                <p class="when">Weeks 2–3 · Design</p>
-                <h3>Factor Discovery</h3>
-                <ul>
-                  <li>Decide <strong>contributing factors</strong> (LOS, flags, last round, issues, etc.)</li>
-                  <li>Agree on <strong>factor weights</strong> with nursing leadership</li>
-                  <li>Model configs in the <strong>Priority Score Simulator</strong></li>
-                </ul>
-              </article>
-              <article class="phase phase-3">
-                <p class="when">Weeks 4–5 · Configure</p>
-                <h3>Evolve Build</h3>
-                <ul>
-                  <li>Enable feature flag + <strong>provider role permissions</strong></li>
-                  <li>Build &amp; activate <strong>factor program(s)</strong></li>
-                  <li>Set activation criteria for unit-specific programs</li>
-                </ul>
-              </article>
-              <article class="phase phase-4">
-                <p class="when">Week 6 · Testing</p>
-                <h3>Validate</h3>
-                <ul>
-                  <li>Verify scores on <strong>mobile and web</strong> worklists</li>
-                  <li>Confirm sort/filter and factor detail views</li>
-                  <li>Resolve config gaps before end-user training</li>
-                </ul>
-              </article>
-              <article class="phase phase-5">
-                <p class="when">Week 7 · Training</p>
-                <h3>Enable Rounders</h3>
-                <ul>
-                  <li>Train on <strong>reading tags, sorting, and factor breakdown</strong></li>
-                  <li>Socialize that scores are <strong>advisory</strong> — clinical judgment always applies</li>
-                  <li>Distribute setup one-pager and FAQ resources</li>
-                </ul>
-              </article>
-              <article class="phase phase-6">
-                <p class="when">Week 8+ · Launch</p>
-                <h3>Go-Live &amp; Optimize</h3>
-                <ul>
-                  <li>Rounders use priority scores in <strong>daily workflow</strong></li>
-                  <li><strong>Weekly → biweekly</strong> feedback sessions with stakeholders</li>
-                  <li>Tune factor weights based on frontline input</li>
-                </ul>
-              </article>
-            </div>
-          </section>
-        </div>
-
-        <div class="next-steps-card">
-          <div>
-            <p class="when">From this meeting</p>
-            <h3>Customer commitments</h3>
-          </div>
+        <section class="panel panel-what">
+          <p class="section-label">What it is</p>
+          <h2>Priority guidance on your worklist</h2>
           <ul>
-            <li><strong>Nursing leaders</strong> join factor/weight design sessions (~2 hrs kickoff block)</li>
-            <li><strong>Rounders</strong> test during live shifts and join feedback sessions</li>
-            <li><strong>EC / PC</strong> drive awareness and remove adoption blockers</li>
+            <li><strong>Built into CipherRounds</strong> — no new app; mobile and web</li>
+            <li><strong>Sort &amp; filter</strong> — priority tags at shift start</li>
+            <li><strong>Factor breakdown</strong> — see the reasoning before entering the room</li>
+            <li><strong>Advisory only</strong> — supports clinical judgment, never replaces it</li>
           </ul>
-          <div class="resource">
-            Simulator<br>
-            <a href="https://mtmcallen.github.io/priority-score-simulator/">priority-score-simulator</a>
+          <div class="workflow">
+            <div class="workflow-step low">Low 0–59</div>
+            <div class="workflow-step medium">Med 60–79</div>
+            <div class="workflow-step high">High 80–100</div>
           </div>
-        </div>
+        </section>
+
+        <section class="panel panel-enable">
+          <p class="section-label">How to turn it on</p>
+          <h2>Four steps in Evolve</h2>
+          <ol class="enable-steps">
+            <li class="enable-step">
+              <span class="num">1</span>
+              <div class="text">
+                <strong>Enable Patient Prioritization</strong>
+                Turn on the feature flag in Evolve
+              </div>
+            </li>
+            <li class="enable-step">
+              <span class="num">2</span>
+              <div class="text">
+                <strong>Grant permissions</strong>
+                Add provider role access to tags and factor details
+              </div>
+            </li>
+            <li class="enable-step">
+              <span class="num">3</span>
+              <div class="text">
+                <strong>Build a factor program</strong>
+                Configure factors, weights, and activation criteria
+              </div>
+            </li>
+            <li class="enable-step">
+              <span class="num">4</span>
+              <div class="text">
+                <strong>Verify on the worklist</strong>
+                Confirm scores appear on mobile and web
+              </div>
+            </li>
+          </ol>
+          <p class="enable-note"><strong>Tip:</strong> Model factor weights in the <a href="https://mtmcallen.github.io/priority-score-simulator/">Priority Score Simulator</a> before building in Evolve.</p>
+        </section>
+
+        <section class="panel panel-benefits">
+          <p class="section-label">Why use it</p>
+          <h2>Stop guessing at shift start</h2>
+          <div class="stat-grid">
+            <div class="stat">
+              <p class="value">Shift start</p>
+              <p class="label">Less cognitive load</p>
+              <p class="detail">Sort the worklist in seconds instead of manually building a rounding order</p>
+            </div>
+            <div class="stat">
+              <p class="value">Every patient</p>
+              <p class="label">Transparent reasoning</p>
+              <p class="detail">Factor breakdown shows why a score is high — enter the room with context</p>
+            </div>
+            <div class="stat">
+              <p class="value">Your units</p>
+              <p class="label">Configurable &amp; proactive</p>
+              <p class="detail">Rule-based factors per unit; optional AI for HCAHPS risk and service recovery</p>
+            </div>
+          </div>
+        </section>
       </div>
 
       <footer class="footer">
-        <p class="note">
-          <strong>Four things must be live before rounders see scores:</strong> (1) Enable Patient Prioritization in Evolve, (2) grant provider-role permission, (3) build &amp; activate a factor program, (4) verify on the CipherRounds worklist.
-          Timeline estimates are directional — finalize dates in project planning.
-        </p>
-        <span class="contact">Confidential · CipherRounds</span>
+        <p class="note"><strong>Advisory scores, not directives.</strong> Patient Prioritization helps rounders focus — clinical judgment always comes first.</p>
+        <span class="contact">CipherRounds</span>
       </footer>
     </div>
   </div>
 
   <script>
-    (function () {
-      var defaults = {
-        hospitalName: '[Hospital Name]',
-        scopeUnits: '[Pilot units]',
-        targetGoLive: '[Target go-live]',
-        champions: '[EC / PC names]',
-        ilName: '[IL Name]'
-      };
-
-      var fields = document.querySelectorAll('.editable-field');
-
-      document.getElementById('print-slide').addEventListener('click', function () {
-        window.print();
-      });
-
-      document.getElementById('reset-template').addEventListener('click', function () {
-        if (!window.confirm('Reset all customized fields to the default template?')) return;
-
-        fields.forEach(function (field) {
-          var key = field.getAttribute('data-field');
-          if (key && defaults[key]) field.textContent = defaults[key];
-        });
-      });
-    })();
+    document.getElementById('print-slide').addEventListener('click', function () {
+      window.print();
+    });
   </script>
 </body>
 </html>
