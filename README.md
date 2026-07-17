@@ -36,6 +36,14 @@ Built-in preset IDs: `builtin-central-hospital`, `builtin-default-program`, `bui
 
 Your team can then use a stable URL like `https://<org>.github.io/priority-score-simulator/`.
 
+## Customer-facing templates
+
+| Template | Public URL |
+| --- | --- |
+| **Staff SSR Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/staff-ssr-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/staff-ssr-hype-flyer.html) |
+
+Open the flyer in a browser, click highlighted fields to customize for an account, paste a QR code image, then print or save as PDF.
+
 ## Scoring formula
 
 ```
