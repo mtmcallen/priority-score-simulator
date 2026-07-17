@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ambient Listening — Implementation Kickoff Slide</title>
+  <title>Ambient Listening — Implementation Overview Slide</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -246,29 +246,32 @@
     .tag-pill.process { background: var(--warm-amber); color: var(--dark-anchor); }
     .tag-pill.review { background: var(--electric-chartreuse); color: var(--chartreuse-tint-text); }
 
-    .scope-fields {
+    .outcomes-box {
       margin-top: auto;
       background: rgba(255, 255, 255, 0.55);
       border-radius: 5px;
       padding: 0.1in 0.12in;
     }
 
-    .scope-fields dl {
-      margin: 0;
-      display: grid;
-      grid-template-columns: 0.72in 1fr;
-      gap: 0.05in 0.12in;
-      font-size: 6.75pt;
-      line-height: 1.25;
-    }
-
-    .scope-fields dt {
-      margin: 0;
+    .outcomes-box .label {
+      margin: 0 0 0.05in;
+      font-size: 6pt;
       font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
       color: var(--dark-anchor);
     }
 
-    .scope-fields dd { margin: 0; color: var(--teal-tint-text); }
+    .outcomes-box ul {
+      margin: 0;
+      padding-left: 0.85rem;
+    }
+
+    .outcomes-box li {
+      font-size: 6.5pt;
+      line-height: 1.26;
+      margin-bottom: 0.04rem;
+    }
 
     .timeline-grid {
       display: grid;
@@ -416,40 +419,6 @@
       white-space: nowrap;
     }
 
-    .editable-field {
-      display: inline;
-      min-width: 0.2in;
-      padding: 0 0.08rem;
-      border-radius: 3px;
-      outline: none;
-      background: rgba(232, 160, 32, 0.22);
-      box-shadow: inset 0 0 0 1px rgba(232, 160, 32, 0.65);
-      cursor: text;
-    }
-
-    .editable-field:focus {
-      background: rgba(232, 160, 32, 0.32);
-      box-shadow: inset 0 0 0 2px var(--warm-amber);
-    }
-
-    .editable-field:empty::before {
-      content: attr(data-placeholder);
-      color: rgba(45, 38, 96, 0.45);
-      font-style: italic;
-    }
-
-    .header-meta .editable-field,
-    .next-steps-card .editable-field {
-      background: rgba(232, 160, 32, 0.28);
-      box-shadow: inset 0 0 0 1px rgba(232, 160, 32, 0.75);
-      color: var(--white);
-    }
-
-    .header-meta .editable-field:empty::before,
-    .next-steps-card .editable-field:empty::before {
-      color: rgba(255, 255, 255, 0.5);
-    }
-
     @media print {
       body {
         background: none;
@@ -464,10 +433,6 @@
         height: 7.5in;
       }
 
-      .editable-field {
-        background: transparent !important;
-        box-shadow: none !important;
-      }
     }
   </style>
 </head>
@@ -475,10 +440,9 @@
   <div class="slide-wrap">
     <div class="edit-toolbar">
       <div>
-        <strong>Implementation kickoff slide</strong> — Click highlighted fields to customize for your account, then print or save as PDF (16:9).
+        <strong>Implementation overview slide</strong> — Drop into an existing kickoff deck. Print or save as PDF (16:9).
       </div>
       <div class="edit-toolbar-actions">
-        <button type="button" class="secondary" id="reset-template">Reset template</button>
         <button type="button" id="print-slide">Print / Save PDF</button>
       </div>
     </div>
@@ -490,20 +454,19 @@
           <span class="brand-name">CipherHealth</span>
         </div>
         <div class="header-meta">
-          <p class="customer"><span class="editable-field" contenteditable="true" spellcheck="true" data-field="hospitalName" data-placeholder="Hospital / Health System">[Hospital Name]</span></p>
-          <p class="doc-type">Ambient Listening · Implementation Kickoff</p>
+          <p class="doc-type">Ambient Listening · Implementation Overview</p>
         </div>
       </header>
 
       <div class="title-band">
-        <h1>Ambient Listening Implementation Plan</h1>
+        <h1>Ambient Listening — How We'll Roll This Out</h1>
         <p>Rounders speak naturally at the bedside; AI drafts script responses from the conversation. Human-in-the-loop — nothing auto-submits until the rounder reviews and submits.</p>
       </div>
 
       <div class="content">
         <div class="main-grid">
           <section>
-            <p class="section-label">What We're Implementing</p>
+            <p class="section-label">Product Overview</p>
             <div class="scope-card">
               <p class="tagline">Speak naturally at the bedside. AI handles the documentation.</p>
               <ul>
@@ -518,19 +481,13 @@
                 <div class="tag-pill process">Process</div>
                 <div class="tag-pill review">Review &amp; Submit</div>
               </div>
-              <div class="scope-fields">
-                <dl>
-                  <dt>Scope</dt>
-                  <dd><span class="editable-field" contenteditable="true" spellcheck="true" data-field="scopeUnits" data-placeholder="Units / facilities">[Pilot units]</span></dd>
-                  <dt>Scripts</dt>
-                  <dd><span class="editable-field" contenteditable="true" spellcheck="true" data-field="scopeScripts" data-placeholder="Scripts in scope">[Scripts in scope]</span></dd>
-                  <dt>Go-live</dt>
-                  <dd><span class="editable-field" contenteditable="true" spellcheck="true" data-field="targetGoLive" data-placeholder="Target go-live date">[Target go-live]</span></dd>
-                  <dt>EC / PC</dt>
-                  <dd><span class="editable-field" contenteditable="true" spellcheck="true" data-field="champions" data-placeholder="Executive & project champions">[EC / PC names]</span></dd>
-                  <dt>IL lead</dt>
-                  <dd><span class="editable-field" contenteditable="true" spellcheck="true" data-field="ilName" data-placeholder="Implementation lead">[IL Name]</span></dd>
-                </dl>
+              <div class="outcomes-box">
+                <p class="label">Beta outcomes</p>
+                <ul>
+                  <li><strong>64–85%</strong> reduction in documentation time</li>
+                  <li><strong>+3 to +11 pts</strong> script completion improvement</li>
+                  <li><strong>+15 to +40 pts</strong> on rounding opportunities</li>
+                </ul>
               </div>
             </div>
           </section>
@@ -539,16 +496,16 @@
             <p class="section-label">Implementation Phases &amp; Timeline</p>
             <div class="timeline-grid">
               <article class="phase phase-1">
-                <p class="when">Week 1 · Initiate</p>
-                <h3>Kickoff &amp; Alignment</h3>
+                <p class="when">Phase 1 · Initiate</p>
+                <h3>Discovery &amp; Alignment</h3>
                 <ul>
-                  <li>Confirm <strong>scope, scripts, units, and timeline</strong></li>
-                  <li>Identify <strong>operational stakeholders</strong> and super-user champions</li>
-                  <li>Align on success metrics — <strong>Capture Rate ≥85%</strong> and baseline doc time</li>
+                  <li>Confirm <strong>scripts in scope</strong> and conversational phrasing needs</li>
+                  <li>Identify <strong>super-user champions</strong> for peer coaching</li>
+                  <li>Establish baseline metrics — doc time, script completion, Capture Rate</li>
                 </ul>
               </article>
               <article class="phase phase-2">
-                <p class="when">Weeks 2–3 · Design</p>
+                <p class="when">Phase 2 · Design</p>
                 <h3>Script &amp; Consent Readiness</h3>
                 <ul>
                   <li>Review <strong>conversational phrasing</strong> on in-scope scripts</li>
@@ -557,7 +514,7 @@
                 </ul>
               </article>
               <article class="phase phase-3">
-                <p class="when">Weeks 4–5 · Configure</p>
+                <p class="when">Phase 3 · Configure</p>
                 <h3>Evolve &amp; Reporting</h3>
                 <ul>
                   <li><strong>3-click enablement:</strong> CP setting → script toggle → role permission</li>
@@ -566,7 +523,7 @@
                 </ul>
               </article>
               <article class="phase phase-4">
-                <p class="when">Week 6 · Testing</p>
+                <p class="when">Phase 4 · Testing</p>
                 <h3>UAT on Devices</h3>
                 <ul>
                   <li>Test <strong>consent Given / Declined</strong> paths on live devices</li>
@@ -575,7 +532,7 @@
                 </ul>
               </article>
               <article class="phase phase-5">
-                <p class="when">Week 7 · Training</p>
+                <p class="when">Phase 5 · Training</p>
                 <h3>Enable Rounders</h3>
                 <ul>
                   <li>Train on <strong>notetaking assistant</strong> messaging and consent workflow</li>
@@ -584,7 +541,7 @@
                 </ul>
               </article>
               <article class="phase phase-6">
-                <p class="when">Week 8+ · Launch</p>
+                <p class="when">Phase 6 · Launch</p>
                 <h3>Go-Live &amp; Optimize</h3>
                 <ul>
                   <li>Rounders use ambient listening in <strong>daily workflow</strong></li>
@@ -598,13 +555,13 @@
 
         <div class="next-steps-card">
           <div>
-            <p class="when">From this meeting</p>
-            <h3>Customer commitments</h3>
+            <p class="when">Before go-live</p>
+            <h3>Key enablers</h3>
           </div>
           <ul>
             <li><strong>Nursing leaders</strong> approve consent language and script phrasing</li>
-            <li><strong>Rounders</strong> test on live shifts and join biweekly feedback sessions</li>
-            <li><strong>EC / PC</strong> drive adoption; identify a super-user for peer coaching</li>
+            <li><strong>Rounders</strong> complete UAT on live devices during pilot shifts</li>
+            <li><strong>Super-users</strong> identified for peer coaching and frontline feedback</li>
           </ul>
           <div class="resource">
             Hype flyer<br>
@@ -616,7 +573,6 @@
       <footer class="footer">
         <p class="note">
           <strong>Three things must be complete before rounders use Ambient Listening:</strong> (1) Enable Ambient Listening at the CP level, (2) turn on the script toggle and grant role permission, (3) confirm mobile app version and microphone permissions on pilot devices.
-          Timeline estimates are directional — finalize dates in project planning.
         </p>
         <span class="contact">Confidential · CipherRounds</span>
       </footer>
@@ -624,31 +580,9 @@
   </div>
 
   <script>
-    (function () {
-      var defaults = {
-        hospitalName: '[Hospital Name]',
-        scopeUnits: '[Pilot units]',
-        scopeScripts: '[Scripts in scope]',
-        targetGoLive: '[Target go-live]',
-        champions: '[EC / PC names]',
-        ilName: '[IL Name]'
-      };
-
-      var fields = document.querySelectorAll('.editable-field');
-
-      document.getElementById('print-slide').addEventListener('click', function () {
-        window.print();
-      });
-
-      document.getElementById('reset-template').addEventListener('click', function () {
-        if (!window.confirm('Reset all customized fields to the default template?')) return;
-
-        fields.forEach(function (field) {
-          var key = field.getAttribute('data-field');
-          if (key && defaults[key]) field.textContent = defaults[key];
-        });
-      });
-    })();
+    document.getElementById('print-slide').addEventListener('click', function () {
+      window.print();
+    });
   </script>
 </body>
 </html>
