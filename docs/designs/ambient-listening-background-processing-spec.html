@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ambient Listening Background Processing — Design Spec</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark-anchor: #2d2660;
+      --deep-violet: #5b4fb5;
+      --cipher-teal: #00b4a4;
+      --gray-500: #6b7280;
+      --gray-200: #e8eaef;
+      --white: #ffffff;
+      --lavender-white: #f2f1f9;
+      --red: #dc2626;
+      --red-bg: #fee2e2;
+      --green: #16a34a;
+      --green-bg: #dcfce7;
+      --bar-dark: #3d3d3d;
+      --bar-helper: #f5e6a3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--dark-anchor);
+      background: var(--lavender-white);
+      line-height: 1.5;
+    }
+
+    header {
+      background: var(--dark-anchor);
+      color: var(--white);
+      padding: 1.5rem 2rem;
+      border-bottom: 4px solid var(--cipher-teal);
+    }
+
+    header .brand { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    header img { width: 40px; height: 40px; }
+    header h1 { margin: 0; font-size: 1.55rem; font-weight: 800; }
+    header p { margin: 0.35rem 0 0; opacity: 0.88; max-width: 56rem; }
+
+    main { max-width: 1180px; margin: 0 auto; padding: 1.5rem; }
+
+    .meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .tag { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+    .tag-teal { background: #d0f4f1; color: #004e48; }
+    .tag-violet { background: rgba(91, 79, 181, 0.12); color: var(--deep-violet); }
+    .tag-amber { background: #fdefd0; color: #5c3800; }
+
+    section {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    section h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--deep-violet);
+      border-bottom: 2px solid var(--cipher-teal);
+      padding-bottom: 0.35rem;
+    }
+
+    p, li { font-size: 0.88rem; color: var(--gray-500); }
+    strong { color: var(--dark-anchor); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.75rem 0; }
+    th, td { text-align: left; padding: 0.55rem 0.65rem; border-bottom: 1px solid var(--gray-200); vertical-align: top; }
+    th { color: var(--gray-500); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; }
+
+    pre {
+      background: #1e1b4b;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .flow-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin: 0.75rem 0; }
+    @media (max-width: 900px) { .flow-grid { grid-template-columns: 1fr 1fr; } }
+    .flow-step {
+      background: var(--lavender-white);
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    .flow-step .num {
+      display: inline-flex; width: 1.35rem; height: 1.35rem; border-radius: 50%;
+      background: var(--cipher-teal); color: white; align-items: center; justify-content: center;
+      font-size: 0.7rem; margin-bottom: 0.35rem;
+    }
+
+    .phone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    @media (max-width: 1000px) { .phone-grid { grid-template-columns: 1fr; } }
+
+    .phone {
+      border: 1px solid var(--gray-200);
+      border-radius: 16px;
+      overflow: hidden;
+      background: #f3f4f6;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    .phone-label {
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--deep-violet);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .toast {
+      padding: 0.65rem 0.75rem;
+      color: white;
+      font-size: 0.62rem;
+      line-height: 1.35;
+    }
+
+    .toast.green { background: var(--green); }
+    .toast.red { background: var(--red); }
+    .toast strong { color: white; display: block; font-size: 0.68rem; margin-bottom: 0.15rem; }
+
+    .recording-bar {
+      background: var(--bar-dark);
+      color: white;
+      padding: 0.45rem 0.55rem;
+      font-size: 0.62rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+    }
+
+    .recording-bar .title { font-weight: 700; flex: 1; text-align: center; }
+    .recording-bar .btn-outline {
+      border: 1px solid #7dd3c0;
+      color: #7dd3c0;
+      padding: 0.2rem 0.45rem;
+      border-radius: 4px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .recording-bar .btn-solid {
+      background: #fff;
+      color: var(--bar-dark);
+      padding: 0.2rem 0.45rem;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .helper-bar {
+      background: var(--bar-helper);
+      color: #333;
+      padding: 0.35rem 0.5rem;
+      font-size: 0.58rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .screen-body {
+      padding: 0.5rem;
+      min-height: 120px;
+      font-size: 0.58rem;
+      color: var(--gray-500);
+      text-align: center;
+    }
+
+    .processing-overlay {
+      background: rgba(0,0,0,0.45);
+      padding: 0.75rem 0.5rem;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .processing-card {
+      background: white;
+      border-radius: 10px;
+      padding: 0.85rem 0.75rem;
+      width: 90%;
+      text-align: center;
+      font-size: 0.62rem;
+    }
+
+    .processing-card h4 { margin: 0 0 0.35rem; font-size: 0.72rem; color: var(--dark-anchor); }
+
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.35rem;
+      margin-top: 0.65rem;
+      padding-top: 0.55rem;
+      border-top: 1px solid var(--gray-200);
+      text-align: left;
+      font-size: 0.6rem;
+      color: var(--dark-anchor);
+    }
+
+    .checkbox {
+      width: 14px; height: 14px; border: 2px solid var(--cipher-teal);
+      border-radius: 3px; flex-shrink: 0; margin-top: 1px;
+    }
+
+    .checkbox.checked { background: var(--cipher-teal); }
+
+    .patient-pill {
+      display: inline-block;
+      background: #d0f4f1;
+      color: #004e48;
+      font-size: 0.58rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border-radius: 999px;
+      margin-top: 0.35rem;
+    }
+
+    footer { text-align: center; padding: 1.5rem; font-size: 0.75rem; color: var(--gray-500); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="../../assets/cipherhealth-logo-mark.svg" alt="CipherHealth">
+      <strong>CipherHealth</strong>
+    </div>
+    <h1>Ambient Listening Background Processing — Design Spec</h1>
+    <p>Allow rounders to dismiss the processing modal and continue using CipherRounds while an Ambient Listening recording uploads and processes. Recording bar, patient list status, and toast notifications reflect progress and outcomes.</p>
+  </header>
+
+  <main>
+    <div class="meta">
+      <span class="tag tag-teal">CipherRounds Mobile</span>
+      <span class="tag tag-violet">Ambient Listening</span>
+      <span class="tag tag-amber">Background processing</span>
+    </div>
+
+    <section>
+      <h2>Summary</h2>
+      <p>Today, when a rounder taps <strong>Stop &amp; Submit</strong>, a full-screen <strong>Processing</strong> modal appears and the interaction screen stays blocked until upload and server-side processing finish (or fail).</p>
+      <p>This enhancement adds an opt-in path: the rounder can check <strong>Finish processing in the background</strong> on the processing modal, dismiss the blocker, and move freely in the app (or leave the app) while processing continues. The recording bar and patient worklist communicate state; toasts confirm success or failure.</p>
+      <ul>
+        <li><strong>Blocking path unchanged</strong> — if the rounder does not check the box, behavior matches today (modal stays until complete).</li>
+        <li><strong>Background path</strong> — modal dismisses; bar shows <strong>Processing in Progress</strong>; user can navigate anywhere.</li>
+        <li><strong>On success</strong> — bar returns to <strong>Recording Complete</strong> with <strong>Start</strong> (append) and clear (×); worklist shows <strong>Needs Review</strong>; green toast.</li>
+        <li><strong>On failure</strong> — bar shows <strong>Processing Failed</strong> with <strong>Retry</strong>; worklist still <strong>Needs Review</strong>; red toast.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>User flow</h2>
+      <div class="flow-grid">
+        <div class="flow-step"><div class="num">1</div>Stop &amp; Submit<br><small>Recording stops</small></div>
+        <div class="flow-step"><div class="num">2</div>Processing modal<br><small>Screen blocked initially</small></div>
+        <div class="flow-step"><div class="num">3</div>Optional checkbox<br><small>Background processing</small></div>
+        <div class="flow-step"><div class="num">4</div>Complete / fail<br><small>Bar + toast + Needs Review</small></div>
+      </div>
+      <pre>Stop & Submit
+    → Processing modal (upload + poll)
+        → [ ] Finish processing in the background
+            → unchecked: wait on modal (current behavior)
+            → checked: dismiss modal, bar = "Processing in Progress", app unlocked
+                → success: toast (green), bar = "Recording Complete" + Start, worklist = Needs Review
+                → failure: toast (red), bar = "Processing Failed" + Retry, worklist = Needs Review</pre>
+    </section>
+
+    <section>
+      <h2>Processing modal — with background checkbox</h2>
+      <p>Shown immediately after Stop &amp; Submit. Overlay blocks interaction with the round screen until the user checks the background option or processing completes.</p>
+
+      <div class="phone-grid">
+        <div>
+          <div class="phone-label">Blocking (default)</div>
+          <div class="phone">
+            <div class="recording-bar">
+              <span>✓</span>
+              <span class="title">Recording Complete</span>
+              <span></span>
+            </div>
+            <div class="processing-overlay">
+              <div class="processing-card">
+                <h4>Processing…</h4>
+                <p style="margin:0;color:#6b7280;">Uploading and analyzing recording</p>
+                <div class="checkbox-row">
+                  <span class="checkbox"></span>
+                  <span><strong>Finish processing in the background</strong><br><span style="color:#6b7280;">Continue using the app while processing completes</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="phone-label">Background selected</div>
+          <div class="phone">
+            <div class="recording-bar">
+              <span>⟳</span>
+              <span class="title">Processing in Progress</span>
+              <span></span>
+            </div>
+            <div class="screen-body">
+              User can navigate to worklist,<br>other patients, or leave the app.<br>
+              <span class="patient-pill">Needs Review</span> appears when processing completes.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Element</th>
+            <th>Behavior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Checkbox label</td>
+            <td><strong>Finish processing in the background</strong></td>
+          </tr>
+          <tr>
+            <td>Helper subtext (optional)</td>
+            <td>Continue using the app while processing completes</td>
+          </tr>
+          <tr>
+            <td>On check</td>
+            <td>Dismiss processing modal immediately; do not cancel upload/poll task; set bar title to <strong>Processing in Progress</strong>; enable navigation</td>
+          </tr>
+          <tr>
+            <td>On uncheck</td>
+            <td>N/A — once backgrounded, user returns via bar/toast states (do not re-show blocking modal mid-flight)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Recording bar states</h2>
+      <p>Dark bar (<code>tundoraL0</code>) is the primary recording bar. Secondary helper strip (optional) can show listening hints during record; after processing, actions live on the main bar.</p>
+
+      <div class="phone-grid">
+        <div>
+          <div class="phone-label">Processing in progress</div>
+          <div class="phone">
+            <div class="recording-bar">
+              <span>⟳</span>
+              <span class="title">Processing in Progress</span>
+              <span></span>
+            </div>
+            <div class="screen-body">No trailing action. User navigates freely.</div>
+          </div>
+        </div>
+        <div>
+          <div class="phone-label">Success — ready to append</div>
+          <div class="phone">
+            <div class="recording-bar">
+              <span>✓</span>
+              <span class="title">Recording Complete</span>
+              <span class="btn-outline">Start</span>
+            </div>
+            <div class="helper-bar">
+              <span>Tap Start to record again and add to this interaction</span>
+              <span>×</span>
+            </div>
+            <div class="screen-body">× clears the existing recording / resets AL state for a fresh take.</div>
+          </div>
+        </div>
+        <div>
+          <div class="phone-label">Processing failed</div>
+          <div class="phone">
+            <div class="recording-bar">
+              <span>!</span>
+              <span class="title">Processing Failed</span>
+              <span class="btn-solid">Retry</span>
+            </div>
+            <div class="screen-body">Retry re-queues upload/processing (same as today’s retry on complete state).</div>
+          </div>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Bar title</th>
+            <th>When</th>
+            <th>Leading</th>
+            <th>Trailing</th>
+            <th>Helper / dismiss</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Processing in Progress</td>
+            <td>Background processing active</td>
+            <td>Spinner / activity icon</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Recording Complete</td>
+            <td>Processing succeeded</td>
+            <td>Checkmark</td>
+            <td><strong>Start</strong> — begin new segment appended to interaction</td>
+            <td><strong>×</strong> (bottom-right of bar area) clears recording</td>
+          </tr>
+          <tr>
+            <td>Processing Failed</td>
+            <td>Processing failed (background or foreground)</td>
+            <td>Alert icon</td>
+            <td><strong>Retry</strong></td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Toast notifications</h2>
+      <p>Shown when processing completes while the user is elsewhere in the app (especially after backgrounding). Match existing CipherRounds toast pattern (full-width banner at top of screen).</p>
+      <p>Reference: upload success/failure toast layout (green / red banner with icon + title + body).</p>
+
+      <div class="phone-grid">
+        <div>
+          <div class="phone-label">Success toast</div>
+          <div class="phone">
+            <div class="toast green">
+              <strong>Recording finished processing</strong>
+              Round is ready for review
+            </div>
+            <div class="screen-body" style="min-height:100px;">Shown on any screen when background processing succeeds.</div>
+          </div>
+        </div>
+        <div>
+          <div class="phone-label">Failure toast</div>
+          <div class="phone">
+            <div class="toast red">
+              <strong>Recording failed to process</strong>
+              Retry processing
+            </div>
+            <div class="screen-body" style="min-height:100px;">Shown on any screen when background processing fails.</div>
+          </div>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Outcome</th>
+            <th>Color</th>
+            <th>Title</th>
+            <th>Body</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Success</td>
+            <td>Green</td>
+            <td>Recording finished processing</td>
+            <td>Round is ready for review</td>
+          </tr>
+          <tr>
+            <td>Failure</td>
+            <td>Red</td>
+            <td>Recording failed to process</td>
+            <td>Retry processing</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>If the user is still on the interaction screen with the blocking modal open when processing completes, toast is optional (bar + modal transition may be sufficient). Always show toast when processing was backgrounded.</p>
+    </section>
+
+    <section>
+      <h2>Patient worklist — Needs Review</h2>
+      <p>When processing completes—success or failure—the patient’s worklist card shows <strong>Needs Review</strong> as the last-round time/status (existing AL pattern).</p>
+      <ul>
+        <li>Update local interaction state when server returns <code>finished</code> (success) or failed terminal state.</li>
+        <li>Refresh worklist card even if user is on a different tab or screen.</li>
+        <li>Success: rounder can open interaction to review AI-drafted answers.</li>
+        <li>Failure: rounder still sees Needs Review but bar on interaction shows Retry path.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Append vs clear recording</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>Control</th>
+            <th>Behavior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Append recording</td>
+            <td><strong>Start</strong> (after Recording Complete)</td>
+            <td>Start a new AL capture appended to the same interaction attempt; prior processed audio/answers retained</td>
+          </tr>
+          <tr>
+            <td>Clear recording</td>
+            <td><strong>×</strong> on bar helper area</td>
+            <td>Discard current recording from AL bar state; reset to pre-record or initial AL state per existing rules</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>State model (mobile)</h2>
+      <pre>ComponentState: initial | recording | paused | complete
+ProcessingState: processing | successful | failed
+BackgroundProcessing: none | active   // new
+
+showProcessingAlert: Bool              // blocking modal
+backgroundProcessingEnabled: Bool     // user checked box
+processingTask: Task?                  // survives background dismiss
+
+Bar title overrides when complete:
+  processing + background → "Processing in Progress"
+  successful              → "Recording Complete" + Start
+  failed                    → "Processing Failed" + Retry</pre>
+    </section>
+
+    <section>
+      <h2>Implementation notes (iOS reference)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Today</th>
+            <th>Change</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>AudioRecordingBar.swift</code></td>
+            <td><code>processingAlert</code> full-screen cover; no checkbox</td>
+            <td>Add checkbox footer to processing card; wire to view model</td>
+          </tr>
+          <tr>
+            <td><code>AudioRecordingViewModel</code></td>
+            <td><code>showProcessingAlert</code> until poll completes; <code>getProcessingStatusUntilComplete</code></td>
+            <td>Allow <code>showProcessingAlert = false</code> while poll continues; new bar title for background processing</td>
+          </tr>
+          <tr>
+            <td><code>title</code> / trailing button</td>
+            <td>Recording Complete; Retry on failed complete</td>
+            <td>Add Processing in Progress title; Start on success; expose × clear</td>
+          </tr>
+          <tr>
+            <td>Worklist</td>
+            <td><code>interactionNeedsReview</code> → Needs Review pill</td>
+            <td>Set on processing terminal states (success and failure)</td>
+          </tr>
+          <tr>
+            <td>Toasts</td>
+            <td>Upload toasts (separate pattern)</td>
+            <td>New processing-complete toasts with copy above</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><strong>Android:</strong> Match iOS behavior and copy for parity.</p>
+    </section>
+
+    <section>
+      <h2>Acceptance criteria</h2>
+      <ol>
+        <li>After Stop &amp; Submit, processing modal appears with checkbox <strong>Finish processing in the background</strong>.</li>
+        <li>Without checking the box, screen remains blocked until processing finishes (regression).</li>
+        <li>With checkbox selected, modal dismisses and bar reads <strong>Processing in Progress</strong>; user can navigate app-wide.</li>
+        <li>On success: green toast, bar <strong>Recording Complete</strong> with <strong>Start</strong>, worklist <strong>Needs Review</strong>.</li>
+        <li>On failure: red toast, bar <strong>Processing Failed</strong> with <strong>Retry</strong>, worklist <strong>Needs Review</strong>.</li>
+        <li>Start appends a new recording segment; × clears the current recording.</li>
+        <li>Background processing continues if user backgrounds OS or switches patients.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>CipherHealth · Ambient Listening Background Processing · Design Spec · July 2026 · Internal</footer>
+</body>
+</html>
