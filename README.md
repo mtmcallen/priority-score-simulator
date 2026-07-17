@@ -48,6 +48,7 @@ Your team can then use a stable URL like `https://<org>.github.io/priority-score
 | **Patient Prioritization Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/patient-prioritization-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/patient-prioritization-hype-flyer.html) |
 | **Conversational AI for Voice and SMS Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/conversational-ai-voice-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/conversational-ai-voice-hype-flyer.html) |
 | **Automated Voice Talent and Language Enhancements Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/automated-voice-talent-language-enhancements-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/automated-voice-talent-language-enhancements-hype-flyer.html) |
+| **Ambient Listening Consent by Roundable Type** (design spec — Evolve settings, mobile modals, API) | [mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-consent-by-roundable-type-spec.html](https://mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-consent-by-roundable-type-spec.html) |
 
 Open the flyer in a browser, click highlighted fields to customize for an account, paste a QR code image, then print or save as PDF.
 

@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ambient Listening Consent by Roundable Type — Design Spec</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark-anchor: #2d2660;
+      --deep-violet: #5b4fb5;
+      --cipher-teal: #00b4a4;
+      --electric-chartreuse: #b5cc2e;
+      --warm-amber: #e8a020;
+      --lavender-white: #f2f1f9;
+      --teal-tint: #d0f4f1;
+      --teal-tint-text: #004e48;
+      --gray-500: #6b7280;
+      --gray-200: #e8eaef;
+      --white: #ffffff;
+      --mustard: #fef3c7;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--dark-anchor);
+      background: var(--lavender-white);
+      line-height: 1.5;
+    }
+
+    header {
+      background: var(--dark-anchor);
+      color: var(--white);
+      padding: 1.5rem 2rem;
+      border-bottom: 4px solid var(--cipher-teal);
+    }
+
+    header .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    header img { width: 40px; height: 40px; }
+    header h1 { margin: 0; font-size: 1.55rem; font-weight: 800; }
+    header p { margin: 0.35rem 0 0; opacity: 0.88; max-width: 56rem; }
+
+    main { max-width: 1180px; margin: 0 auto; padding: 1.5rem; }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .tag-teal { background: var(--teal-tint); color: var(--teal-tint-text); }
+    .tag-amber { background: #fdefd0; color: #5c3800; }
+    .tag-violet { background: rgba(91, 79, 181, 0.12); color: var(--deep-violet); }
+
+    section {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    section h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--deep-violet);
+      border-bottom: 2px solid var(--cipher-teal);
+      padding-bottom: 0.35rem;
+    }
+
+    section h3 {
+      margin: 1rem 0 0.5rem;
+      font-size: 0.92rem;
+      color: var(--dark-anchor);
+    }
+
+    p, li { font-size: 0.88rem; }
+    p { color: var(--gray-500); margin: 0.5rem 0; }
+    ul, ol { color: var(--gray-500); padding-left: 1.2rem; }
+    li { margin-bottom: 0.35rem; }
+    strong { color: var(--dark-anchor); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin: 0.75rem 0;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.55rem 0.65rem;
+      border-bottom: 1px solid var(--gray-200);
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--gray-500);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.8rem;
+      background: var(--lavender-white);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+    }
+
+    pre {
+      background: #1e1b4b;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    /* Evolve settings wireframe */
+    .settings-panel {
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      background: #fafafa;
+    }
+
+    .settings-panel h4 {
+      margin: 0 0 0.85rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--dark-anchor);
+    }
+
+    .field {
+      margin-bottom: 0.85rem;
+    }
+
+    .field-followup {
+      margin: -0.45rem 0 0.85rem;
+      padding-left: 0.15rem;
+    }
+
+    .field-group {
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px dashed var(--gray-200);
+    }
+
+    .field-group:last-of-type { border-bottom: none; }
+
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--dark-anchor);
+      margin-bottom: 0.35rem;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--dark-anchor);
+      margin-bottom: 0.85rem;
+    }
+
+    .checkbox {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+      background: var(--cipher-teal);
+      border: 2px solid var(--cipher-teal);
+      flex-shrink: 0;
+    }
+
+    .checkbox.unchecked {
+      background: var(--white);
+    }
+
+    .input, .textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: var(--white);
+      padding: 0.45rem 0.55rem;
+      font-size: 0.78rem;
+      color: var(--gray-500);
+      min-height: 34px;
+    }
+
+    .textarea { min-height: 64px; resize: vertical; }
+
+    .save-btn {
+      display: inline-block;
+      margin-top: 0.5rem;
+      float: right;
+      background: linear-gradient(180deg, #00c4b4, #00a89a);
+      color: white;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+    }
+
+    .removed {
+      text-decoration: line-through;
+      opacity: 0.55;
+    }
+
+    .new-field label::after {
+      content: " NEW";
+      color: var(--cipher-teal);
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    /* Mobile consent modal wireframe */
+    .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .modal-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 0.75rem 0;
+    }
+
+    .state-label {
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--deep-violet);
+      margin-bottom: 0.5rem;
+    }
+
+    .state-label.off { color: var(--gray-500); }
+
+    @media (max-width: 1000px) {
+      .modal-grid { grid-template-columns: 1fr; }
+      .modal-grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .phone {
+      border: 1px solid var(--gray-200);
+      border-radius: 16px;
+      overflow: hidden;
+      background: #f3f4f6;
+      max-width: 320px;
+    }
+
+    .phone-status {
+      height: 28px;
+      background: #111827;
+    }
+
+    .phone-body {
+      padding: 0.75rem;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .sheet {
+      background: var(--white);
+      border-radius: 14px 14px 0 0;
+      overflow: hidden;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+    }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid var(--gray-200);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .sheet-header .icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--warm-amber);
+    }
+
+    .sheet-content {
+      padding: 0.65rem 0.75rem;
+      font-size: 0.68rem;
+      color: #374151;
+    }
+
+    .declined-banner {
+      background: var(--mustard);
+      padding: 0.5rem 0.6rem;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      font-size: 0.64rem;
+    }
+
+    .script-box {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 0.55rem 0.6rem;
+      margin-top: 0.45rem;
+    }
+
+    .script-box .label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .script-line {
+      border-left: 2px solid var(--cipher-teal);
+      padding-left: 0.45rem;
+      margin: 0.2rem 0;
+      font-size: 0.64rem;
+    }
+
+    .sheet-footer {
+      display: flex;
+      gap: 0.4rem;
+      padding: 0.65rem 0.75rem 0.85rem;
+    }
+
+    .btn {
+      flex: 1;
+      text-align: center;
+      padding: 0.45rem 0.3rem;
+      border-radius: 8px;
+      font-size: 0.64rem;
+      font-weight: 700;
+    }
+
+    .btn-primary { background: var(--cipher-teal); color: white; }
+    .btn-secondary { background: white; border: 1px solid #d1d5db; color: #374151; }
+    .btn-optional { background: #eef2ff; border: 1px dashed var(--deep-violet); color: var(--deep-violet); font-style: italic; }
+
+    .modal-label {
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--deep-violet);
+      margin: 0.35rem 0 0.5rem;
+    }
+
+    .phase-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      background: #fdefd0;
+      color: #5c3800;
+      margin-left: 0.35rem;
+      vertical-align: middle;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--gray-500);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="../../assets/cipherhealth-logo-mark.svg" alt="CipherHealth">
+      <strong>CipherHealth</strong>
+    </div>
+    <h1>Ambient Listening Consent by Roundable Type — Design Spec</h1>
+    <p>Extend Ambient Listening consent configuration and mobile consent modals to support patient, location, and staff rounding — with separate suggested scripts per roundable type and API parameters for mobile clients.</p>
+  </header>
+
+  <main>
+    <div class="meta">
+      <span class="tag tag-teal">Evolve · Provider Settings</span>
+      <span class="tag tag-violet">CipherRounds Mobile</span>
+      <span class="tag tag-amber">Ambient Listening</span>
+      <span class="tag tag-violet">Patient · Location · Staff</span>
+    </div>
+
+    <section>
+      <h2>Summary</h2>
+      <p>Today, care providers configure a single <strong>Ambient Listening Consent Suggested Script</strong> in Provider Settings. Mobile shows a patient-specific consent modal with hardcoded default script lines and the instruction <em>“Please ask the patient for verbal consent before starting the recording.”</em></p>
+      <p>This spec splits consent configuration by roundable type (patient, location, staff), updates the mobile consent modal copy per type, and defines the API contract mobile needs to render the correct instruction, suggested script, and action buttons.</p>
+      <ul>
+        <li><strong>Evolve:</strong> Three type-specific consent script fields, each with its own <strong>No Consent Needed Button Enabled</strong> checkbox directly below (patient, location, staff).</li>
+        <li><strong>Mobile:</strong> Select instruction + script based on script type; stop using hardcoded script lines.</li>
+        <li><strong>Backend:</strong> Resolve consent fields on script payloads; extend declined-to-record tracking for staff and location roundables.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Provider Settings — Ambient Listening Section</h2>
+      <div class="grid-2">
+        <div>
+          <h3>Current (screenshot reference)</h3>
+          <div class="settings-panel">
+            <h4>Ambient Listening</h4>
+            <div class="checkbox-row"><span class="checkbox"></span> Ambient Listening Enabled</div>
+            <div class="field">
+              <label class="removed">Ambient Listening Consent Suggested Script</label>
+              <div class="input removed">&nbsp;</div>
+            </div>
+            <div class="checkbox-row"><span class="checkbox unchecked"></span> Ambient Listening Audio Retention Enabled</div>
+            <div class="field">
+              <label>Ambient Listening Audio Expiration (Months)</label>
+              <div class="input">36</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3>Proposed</h3>
+          <div class="settings-panel">
+            <h4>Ambient Listening</h4>
+            <div class="checkbox-row"><span class="checkbox"></span> Ambient Listening Enabled</div>
+
+            <div class="field-group new-field">
+              <div class="field">
+                <label>Patient Ambient Listening Consent Suggested Script</label>
+                <div class="textarea">"I'd like to use a digital assistant to help document our conversation today."
+"Your privacy is protected — the recording stays in your medical record."
+"Is it okay if I record our visit today?"</div>
+              </div>
+              <div class="checkbox-row field-followup"><span class="checkbox unchecked"></span> Patient Ambient Listening No Consent Needed Button Enabled</div>
+            </div>
+
+            <div class="field-group new-field">
+              <div class="field">
+                <label>Location Ambient Listening Consent Suggested Script</label>
+                <div class="textarea">"I'd like to use a digital assistant to help document our conversation."
+"Is it okay if I record while we talk?"</div>
+              </div>
+              <div class="checkbox-row field-followup"><span class="checkbox"></span> Location Ambient Listening No Consent Needed Button Enabled</div>
+            </div>
+
+            <div class="field-group new-field">
+              <div class="field">
+                <label>Staff Ambient Listening Consent Suggested Script</label>
+                <div class="textarea">"I'd like to use a digital assistant to help document our conversation."
+"Is it okay if I record while we talk?"</div>
+              </div>
+              <div class="checkbox-row field-followup"><span class="checkbox unchecked"></span> Staff Ambient Listening No Consent Needed Button Enabled</div>
+            </div>
+
+            <div class="checkbox-row"><span class="checkbox unchecked"></span> Ambient Listening Audio Retention Enabled</div>
+            <div class="field">
+              <label>Ambient Listening Audio Expiration (Months)</label>
+              <div class="input">36</div>
+            </div>
+            <span class="save-btn">Save</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>No Consent Needed — per roundable type</h3>
+      <p>Each script field has its own checkbox directly underneath. Settings are independent — e.g., enable for location audits but leave off for patient bedside rounds.</p>
+      <div class="grid-2">
+        <div class="settings-panel">
+          <h4>Example: Location ON, Patient &amp; Staff OFF</h4>
+          <div class="field" style="margin-bottom:0.35rem;">
+            <label style="font-size:0.72rem;">Patient Ambient Listening Consent Suggested Script</label>
+            <div class="input" style="min-height:28px;">…</div>
+          </div>
+          <div class="checkbox-row field-followup"><span class="checkbox unchecked"></span> Patient Ambient Listening No Consent Needed Button Enabled</div>
+          <div class="field" style="margin:0.65rem 0 0.35rem;">
+            <label style="font-size:0.72rem;">Location Ambient Listening Consent Suggested Script</label>
+            <div class="input" style="min-height:28px;">…</div>
+          </div>
+          <div class="checkbox-row field-followup"><span class="checkbox"></span> Location Ambient Listening No Consent Needed Button Enabled</div>
+          <div class="field" style="margin:0.65rem 0 0.35rem;">
+            <label style="font-size:0.72rem;">Staff Ambient Listening Consent Suggested Script</label>
+            <div class="input" style="min-height:28px;">…</div>
+          </div>
+          <div class="checkbox-row field-followup"><span class="checkbox unchecked"></span> Staff Ambient Listening No Consent Needed Button Enabled</div>
+          <p style="margin:0.5rem 0 0;font-size:0.78rem;">→ Location AL modals: 3 buttons. Patient &amp; staff AL modals: 2 buttons.</p>
+        </div>
+        <div class="settings-panel">
+          <h4>Checkbox placement</h4>
+          <p style="margin:0;font-size:0.78rem;">Each <strong>No Consent Needed Button</strong> checkbox sits immediately below its matching consent script text area — not grouped at the bottom of the section. Default: <code>false</code> for all three.</p>
+        </div>
+      </div>
+
+      <h3>Field rules</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Field label (Evolve)</th>
+            <th>Care provider attribute</th>
+            <th>Type</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Patient Ambient Listening Consent Suggested Script</td>
+            <td><code>patient_ambient_listening_consent_suggested_script</code></td>
+            <td>String (multiline)</td>
+            <td>Used when script type is <code>admitted_patients</code>. Migrate value from legacy <code>ambient_listening_consent_suggested_script</code>.</td>
+          </tr>
+          <tr>
+            <td>Patient Ambient Listening No Consent Needed Button Enabled</td>
+            <td><code>patient_ambient_listening_no_consent_needed_button_enabled</code></td>
+            <td>Boolean</td>
+            <td>Directly under patient script field. When <code>true</code>, patient AL modals show third button. Default <code>false</code>.</td>
+          </tr>
+          <tr>
+            <td>Location Ambient Listening Consent Suggested Script</td>
+            <td><code>location_ambient_listening_consent_suggested_script</code></td>
+            <td>String (multiline)</td>
+            <td>Used when script type is <code>location</code> (mobile may still receive <code>unit</code> for compatibility).</td>
+          </tr>
+          <tr>
+            <td>Location Ambient Listening No Consent Needed Button Enabled</td>
+            <td><code>location_ambient_listening_no_consent_needed_button_enabled</code></td>
+            <td>Boolean</td>
+            <td>Directly under location script field. When <code>true</code>, location AL modals show third button. Default <code>false</code>.</td>
+          </tr>
+          <tr>
+            <td>Staff Ambient Listening Consent Suggested Script</td>
+            <td><code>staff_ambient_listening_consent_suggested_script</code></td>
+            <td>String (multiline)</td>
+            <td>Used when script type is <code>staff</code>.</td>
+          </tr>
+          <tr>
+            <td>Staff Ambient Listening No Consent Needed Button Enabled</td>
+            <td><code>staff_ambient_listening_no_consent_needed_button_enabled</code></td>
+            <td>Boolean</td>
+            <td>Directly under staff script field. When <code>true</code>, staff AL modals show third button. Default <code>false</code>.</td>
+          </tr>
+          <tr>
+            <td class="removed">Ambient Listening No Consent Needed Button Enabled</td>
+            <td><code>ambient_listening_no_consent_needed_button_enabled</code></td>
+            <td>Deprecated</td>
+            <td>Replaced by three per-type fields above. Do not use on CP model.</td>
+          </tr>
+          <tr>
+            <td class="removed">Ambient Listening Consent Suggested Script</td>
+            <td><code>ambient_listening_consent_suggested_script</code></td>
+            <td>Deprecated</td>
+            <td>Read/write alias to patient field during migration; remove after all clients updated.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><strong>Multiline behavior:</strong> Each script field accepts free text. Mobile splits on newline characters into separate suggested-script lines (same behavior as today’s single field). Empty lines are ignored.</p>
+    </section>
+
+    <section>
+      <h2>Mobile Consent Modal — By Roundable Type</h2>
+      <p>Modal structure: header → instruction → suggested script block → footer buttons. Instruction text and script content vary by roundable type. Footer button count is controlled per type by the matching CP checkbox under each script field.</p>
+
+      <h3>Footer buttons — per-type setting ON vs OFF</h3>
+      <p>Each roundable type independently shows two or three buttons based on its own CP setting. Below: patient example (same rule applies to location and staff).</p>
+
+      <div class="modal-grid-2">
+        <div>
+          <div class="state-label">Patient — No Consent Needed ON</div>
+          <div class="phone" style="margin:0 auto;">
+            <div class="phone-status"></div>
+            <div class="phone-body">
+              <div class="sheet">
+                <div class="sheet-header"><span class="icon"></span> Consent Required <span style="margin-left:auto">✕</span></div>
+                <div class="sheet-content">
+                  <p style="margin:0 0 0.5rem;">Please ask the patient for verbal consent before starting the recording.</p>
+                  <div class="script-box">
+                    <div class="label">Suggested Script</div>
+                    <div class="script-line">"I'd like to use a digital assistant…"</div>
+                    <div class="script-line">"Is it okay if I record our visit today?"</div>
+                  </div>
+                </div>
+                <div class="sheet-footer">
+                  <div class="btn btn-primary">Consent Given</div>
+                  <div class="btn btn-secondary">Declined</div>
+                  <div class="btn btn-optional">No Consent Needed</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="state-label off">Patient — No Consent Needed OFF</div>
+          <div class="phone" style="margin:0 auto;">
+            <div class="phone-status"></div>
+            <div class="phone-body">
+              <div class="sheet">
+                <div class="sheet-header"><span class="icon"></span> Consent Required <span style="margin-left:auto">✕</span></div>
+                <div class="sheet-content">
+                  <p style="margin:0 0 0.5rem;">Please ask the patient for verbal consent before starting the recording.</p>
+                  <div class="script-box">
+                    <div class="label">Suggested Script</div>
+                    <div class="script-line">"I'd like to use a digital assistant…"</div>
+                    <div class="script-line">"Is it okay if I record our visit today?"</div>
+                  </div>
+                </div>
+                <div class="sheet-footer">
+                  <div class="btn btn-primary">Consent Given</div>
+                  <div class="btn btn-secondary">Declined</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>When to use each button</h3>
+      <p>Only shown when that roundable type’s CP checkbox is on. Instruction copy does not mention the third button — internal training / workflow docs cover when to use it.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Button</th>
+            <th>Patient</th>
+            <th>Location</th>
+            <th>Staff</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Consent Given</strong></td>
+            <td>Patient agreed to recording</td>
+            <td>Staff present and agreed</td>
+            <td>Staff member agreed</td>
+          </tr>
+          <tr>
+            <td><strong>Declined</strong></td>
+            <td>Patient refused recording</td>
+            <td>Staff refused recording</td>
+            <td>Staff member refused</td>
+          </tr>
+          <tr>
+            <td><strong>No Consent Needed</strong></td>
+            <td colspan="3">Only visible when that roundable type’s CP checkbox is enabled. Instruction text never references this button.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Location rounding context</h3>
+      <p>Location rounds are often <strong>not</strong> a 1:1 conversation with the location itself. Common patterns include staff group audits, compliance walk-throughs, and group check-ins. When staff are present, use the suggested script and obtain consent. Organizations often enable <strong>Location Ambient Listening No Consent Needed Button Enabled</strong> for empty walk-through audits while leaving patient/staff checkboxes off.</p>
+
+      <h3>Modal copy by roundable type (setting ON — three buttons)</h3>
+      <div class="modal-grid">
+        <div>
+          <div class="modal-label">Patient rounding</div>
+          <div class="phone">
+            <div class="phone-status"></div>
+            <div class="phone-body">
+              <div class="sheet">
+                <div class="sheet-header"><span class="icon"></span> Consent Required <span style="margin-left:auto">✕</span></div>
+                <div class="sheet-content">
+                  <p style="margin:0 0 0.5rem;">Please ask the patient for verbal consent before starting the recording.</p>
+                  <div class="script-box">
+                    <div class="label">Suggested Script</div>
+                    <div class="script-line">"I'd like to use a digital assistant…"</div>
+                    <div class="script-line">"Your privacy is protected…"</div>
+                    <div class="script-line">"Is it okay if I record our visit today?"</div>
+                  </div>
+                </div>
+                <div class="sheet-footer">
+                  <div class="btn btn-primary">Consent Given</div>
+                  <div class="btn btn-secondary">Declined</div>
+                  <div class="btn btn-optional">No Consent Needed</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="modal-label">Location rounding</div>
+          <div class="phone">
+            <div class="phone-status"></div>
+            <div class="phone-body">
+              <div class="sheet">
+                <div class="sheet-header"><span class="icon"></span> Consent Required <span style="margin-left:auto">✕</span></div>
+                <div class="sheet-content">
+                  <p style="margin:0 0 0.5rem;">If rounding on staff, ask for permission to record.</p>
+                  <div class="script-box">
+                    <div class="label">Suggested Script</div>
+                    <div class="script-line">"I'd like to use a digital assistant to help document our conversation."</div>
+                    <div class="script-line">"Is it okay if I record while we talk?"</div>
+                  </div>
+                  <p style="margin:0.45rem 0 0;font-size:0.62rem;color:#6b7280;">Use when staff are present during the location round.</p>
+                </div>
+                <div class="sheet-footer">
+                  <div class="btn btn-primary">Consent Given</div>
+                  <div class="btn btn-secondary">Declined</div>
+                  <div class="btn btn-optional">No Consent Needed</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="modal-label">Staff rounding</div>
+          <div class="phone">
+            <div class="phone-status"></div>
+            <div class="phone-body">
+              <div class="sheet">
+                <div class="sheet-header"><span class="icon"></span> Consent Required <span style="margin-left:auto">✕</span></div>
+                <div class="sheet-content">
+                  <p style="margin:0 0 0.5rem;">If rounding on a staff member, ask for permission to record.</p>
+                  <div class="script-box">
+                    <div class="label">Suggested Script</div>
+                    <div class="script-line">"I'd like to use a digital assistant to help document our conversation."</div>
+                    <div class="script-line">"Is it okay if I record while we talk?"</div>
+                  </div>
+                </div>
+                <div class="sheet-footer">
+                  <div class="btn btn-primary">Consent Given</div>
+                  <div class="btn btn-secondary">Declined</div>
+                  <div class="btn btn-optional">No Consent Needed</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p style="font-size:0.82rem;color:var(--gray-500);">When a type’s checkbox is <strong>OFF</strong>, that roundable’s modal renders with two footer buttons only. Other types follow their own setting.</p>
+
+      <h3>Default instruction copy (server-provided)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Script type</th>
+            <th><code>ambient_listening_consent_instruction</code> default</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>admitted_patients</code></td>
+            <td>Please ask the patient for verbal consent before starting the recording.</td>
+          </tr>
+          <tr>
+            <td><code>location</code> / <code>unit</code></td>
+            <td>If rounding on staff, ask for permission to record.</td>
+          </tr>
+          <tr>
+            <td><code>staff</code></td>
+            <td>If rounding on a staff member, ask for permission to record.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><strong>Staff suggested script</strong> (also used as the location script when staff are present):</p>
+      <ul>
+        <li>"I'd like to use a digital assistant to help document our conversation."</li>
+        <li>"Is it okay if I record while we talk?"</li>
+      </ul>
+      <p>Location and staff share the same default suggested script when a conversation is involved. Care providers may customize each field independently in Evolve.</p>
+
+      <h3>Previously declined banner</h3>
+      <p>When the roundable previously declined recording, show the existing banner above the instruction:</p>
+      <ul>
+        <li><strong>Title:</strong> <code>{RoundableName} previously declined recording</code> (unchanged)</li>
+        <li><strong>Body:</strong> <code>Opted out of audio recording on their last round.</code> (unchanged)</li>
+      </ul>
+      <p>Today only patients expose <code>ambient_listening_declined_to_record</code> on the worklist API. Staff and location roundables need the same flag (see API section).</p>
+
+      <h3>“No Consent Needed” button behavior</h3>
+      <p>Controlled per roundable type by the checkbox under each consent script field. When enabled for a type, that type’s AL modals include a third footer button. Instruction text never tells the rounder to select it.</p>
+      <ul>
+        <li>Does <strong>not</strong> set <code>ambient_listening_declined_to_record</code> on the roundable.</li>
+        <li>Sets <code>recording_verbal_consent_status: "not_needed"</code> on the interaction attempt.</li>
+        <li>Allows recording to start without verbal consent capture.</li>
+      </ul>
+      <p><strong>Layout (when enabled):</strong> Three equal-width footer buttons — Consent Given · Declined · No Consent Needed. When disabled, two equal-width buttons — Consent Given · Declined.</p>
+    </section>
+
+    <section>
+      <h2>API Contract — Mobile Parameters</h2>
+
+      <h3>1. Script payload (Cipher Rounds API v9+)</h3>
+      <p>Sent on script list/show when <code>ambient_listening_enabled</code> is true. Backend resolves values from the care provider based on script type.</p>
+      <p>Patient script example (patient checkbox on):</p>
+      <pre>{
+  "id": "…",
+  "type": "admitted_patients",
+  "ambient_listening_enabled": true,
+  "ambient_listening_consent_instruction": "Please ask the patient for verbal consent before starting the recording.",
+  "ambient_listening_consent_suggested_script": "I'd like to use a digital assistant…\n…\nIs it okay if I record our visit today?",
+  "ambient_listening_no_consent_needed_button_enabled": true
+}</pre>
+      <p>Location script example (location checkbox on):</p>
+      <pre>{
+  "id": "…",
+  "type": "location",
+  "ambient_listening_enabled": true,
+  "ambient_listening_consent_instruction": "If rounding on staff, ask for permission to record.",
+  "ambient_listening_consent_suggested_script": "I'd like to use a digital assistant…\nIs it okay if I record while we talk?",
+  "ambient_listening_no_consent_needed_button_enabled": true
+}</pre>
+      <p>Staff script example (staff checkbox off):</p>
+      <pre>{
+  "id": "…",
+  "type": "staff",
+  "ambient_listening_enabled": true,
+  "ambient_listening_consent_instruction": "If rounding on a staff member, ask for permission to record.",
+  "ambient_listening_consent_suggested_script": "I'd like to use a digital assistant…\nIs it okay if I record while we talk?",
+  "ambient_listening_no_consent_needed_button_enabled": false
+}</pre>
+      <p>Script payload always uses <code>ambient_listening_no_consent_needed_button_enabled</code> (singular) — backend resolves from the matching per-type CP field.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>When included</th>
+            <th>Mobile usage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>ambient_listening_enabled</code></td>
+            <td>boolean</td>
+            <td>Always on script</td>
+            <td>Gate AL recording bar. Existing field.</td>
+          </tr>
+          <tr>
+            <td><code>ambient_listening_consent_instruction</code></td>
+            <td>string</td>
+            <td>When AL enabled</td>
+            <td><strong>NEW.</strong> Replace hardcoded <code>recordingConsentMessage</code> in consent modal.</td>
+          </tr>
+          <tr>
+            <td><code>ambient_listening_consent_suggested_script</code></td>
+            <td>string</td>
+            <td>When AL enabled and CP script configured</td>
+            <td>Split on <code>\n</code> into suggested-script lines. Type-resolved from CP. Mobile must decode this field (currently hardcoded in iOS).</td>
+          </tr>
+          <tr>
+            <td><code>ambient_listening_no_consent_needed_button_enabled</code></td>
+            <td>boolean</td>
+            <td>When AL enabled</td>
+            <td><strong>NEW.</strong> Resolved from matching CP field by script type (<code>patient_</code> / <code>location_</code> / <code>staff_</code> prefix). When <code>true</code>, show third footer button for that type only.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Resolution logic (backend)</h3>
+      <pre>case script.type
+when admitted_patients
+  instruction: DEFAULT_PATIENT_INSTRUCTION
+  script:      cp.patient_ambient_listening_consent_suggested_script
+  no_consent_needed_enabled: cp.patient_ambient_listening_no_consent_needed_button_enabled
+when location, unit
+  instruction: DEFAULT_LOCATION_INSTRUCTION
+  script:      cp.location_ambient_listening_consent_suggested_script
+  no_consent_needed_enabled: cp.location_ambient_listening_no_consent_needed_button_enabled
+when staff
+  instruction: DEFAULT_STAFF_INSTRUCTION
+  script:      cp.staff_ambient_listening_consent_suggested_script
+  no_consent_needed_enabled: cp.staff_ambient_listening_no_consent_needed_button_enabled
+end
+
+# Emit on script JSON as ambient_listening_no_consent_needed_button_enabled</pre>
+
+      <h3>2. Roundable worklist — declined-to-record flag</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Roundable</th>
+            <th>Endpoint (existing pattern)</th>
+            <th>Field</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Patient</td>
+            <td><code>GET …/patients/admitted</code></td>
+            <td><code>ambient_listening_declined_to_record</code></td>
+            <td>Exists today. Used to pre-set consent modal declined state.</td>
+          </tr>
+          <tr>
+            <td>Staff member</td>
+            <td><code>GET …/staff_members</code> (index)</td>
+            <td><code>ambient_listening_declined_to_record</code></td>
+            <td><strong>NEW.</strong> Mirror patient behavior on <code>StaffMember</code> model.</td>
+          </tr>
+          <tr>
+            <td>Location / unit</td>
+            <td><code>GET …/units</code> or location index</td>
+            <td><code>ambient_listening_declined_to_record</code></td>
+            <td><strong>NEW.</strong> Mirror patient behavior on location roundable model.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>3. Interaction draft — consent outcome</h3>
+      <p>Send <code>not_needed</code> only when the third button is visible for that script type (matching CP checkbox on).</p>
+      <pre>POST/PATCH …/interaction_drafts/{attempt_id}
+
+// Consent Given
+{ "recording_verbal_consent_status": "given" }
+
+// Declined
+{ "recording_verbal_consent_status": "declined" }
+
+// No Consent Needed
+{ "recording_verbal_consent_status": "not_needed" }</pre>
+      <p>Backend side effects:</p>
+      <ul>
+        <li><code>given</code> → clear <code>ambient_listening_declined_to_record</code> on the roundable (patient/staff; N/A for location no-op or omit)</li>
+        <li><code>declined</code> → set <code>ambient_listening_declined_to_record = true</code> where applicable</li>
+        <li><code>not_needed</code> → do not change declined flags; allow recording without verbal consent</li>
+        <li>Legacy boolean param omitted → do not change declined flag (existing behavior)</li>
+      </ul>
+
+      <h3>Deprecated: boolean-only consent</h3>
+      <pre>{ "recording_verbal_consent": true | false }</pre>
+      <p>Still supported for backward compatibility during rollout. New clients should send <code>recording_verbal_consent_status</code> for all roundable types.</p>
+
+      <h3>4. Evolve provider settings API</h3>
+      <p><code>GET/PATCH /vue/provider_settings</code> — add three script + three no-consent checkbox fields to serializer and permitted params.</p>
+      <pre>{
+  "care_provider": {
+    "ambient_listening": true,
+    "patient_ambient_listening_consent_suggested_script": "…",
+    "patient_ambient_listening_no_consent_needed_button_enabled": false,
+    "location_ambient_listening_consent_suggested_script": "…",
+    "location_ambient_listening_no_consent_needed_button_enabled": true,
+    "staff_ambient_listening_consent_suggested_script": "…",
+    "staff_ambient_listening_no_consent_needed_button_enabled": false,
+    "ambient_listening_audio_retention_enabled": false,
+    "ambient_listening_audio_retention_boundary_months": 36
+  }
+}</pre>
+    </section>
+
+    <section>
+      <h2>Mobile Implementation Checklist</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Platform</th>
+            <th>Change</th>
+            <th>Current state</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>iOS</td>
+            <td>Decode <code>ambient_listening_consent_suggested_script</code> on <code>ResponseScript</code> / <code>RealmScript</code></td>
+            <td>Field exists in API but not decoded; hardcoded lines in <code>AudioRecordingBar.swift</code></td>
+          </tr>
+          <tr>
+            <td>iOS</td>
+            <td>Decode <code>ambient_listening_consent_instruction</code>; pass into recording bar view model</td>
+            <td>Hardcoded <code>recordingConsentMessage</code> in <code>K.swift</code></td>
+          </tr>
+          <tr>
+            <td>iOS</td>
+            <td>Read <code>ambient_listening_declined_to_record</code> for staff + location roundables</td>
+            <td>Only checked for <code>RealmPatient</code> today</td>
+          </tr>
+          <tr>
+            <td>iOS</td>
+            <td>Update declined flag locally for staff/location on consent response</td>
+            <td>Patient-only in <code>InteractionTableViewController+Extensions</code></td>
+          </tr>
+          <tr>
+            <td>Android</td>
+            <td>Same script + instruction decoding and modal copy by script type</td>
+            <td>Align with iOS parity</td>
+          </tr>
+          <tr>
+            <td>Both</td>
+            <td>Honor per-type <code>ambient_listening_no_consent_needed_button_enabled</code> on script — render 2 or 3 footer buttons</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Both</td>
+            <td>Remove hardcoded default script lines; use API script or hide script block if null/empty</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Backend Implementation Checklist (Banff)</h2>
+      <ol>
+        <li>Add three CP fields on <code>CareProvider</code>; data migration copies legacy field → patient field.</li>
+        <li>Add three CP fields for per-type no-consent checkboxes; wire each under its script field in <code>CareProviderSettings.vue</code>.</li>
+        <li>Update <code>ProviderSettingsCareProviderSerializer</code> and <code>provider_settings_params</code>.</li>
+        <li>Update <code>Rounding::ScriptSerializer</code> (and location-scoped variant) to emit <code>ambient_listening_consent_instruction</code> and type-resolved script.</li>
+        <li>Add <code>ambient_listening_declined_to_record</code> to <code>StaffMember</code> and location roundable models.</li>
+        <li>Extend interaction draft handler to set/clear declined flag for staff + location (same as patient).</li>
+        <li>Update Swagger v9 script schema; bump mobile contract tests.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Migration &amp; Backward Compatibility</h2>
+      <ul>
+        <li><strong>Data:</strong> On deploy, copy <code>ambient_listening_consent_suggested_script</code> → <code>patient_ambient_listening_consent_suggested_script</code> where patient field is blank.</li>
+        <li><strong>API read:</strong> If type-specific script is blank, fall back to legacy single field (temporary).</li>
+        <li><strong>API write (Evolve):</strong> Writing legacy field updates patient field until field is removed.</li>
+        <li><strong>Mobile:</strong> If <code>ambient_listening_consent_instruction</code> missing (old API), use platform default by script type table above.</li>
+        <li><strong>Mobile:</strong> If suggested script missing, hide suggested-script block; still show instruction + buttons.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Acceptance Criteria</h2>
+      <ol>
+        <li>Evolve shows three script fields; each has a <strong>No Consent Needed Button</strong> checkbox directly below it.</li>
+        <li>Each roundable type independently shows 2 or 3 footer buttons based on its CP checkbox.</li>
+        <li>Instruction copy never references the No Consent Needed button.</li>
+        <li>Patient / location / staff modals show type-appropriate instruction + suggested script.</li>
+        <li>No Consent Needed (when enabled) sets <code>recording_verbal_consent_status: not_needed</code> and does not mark the roundable as declined.</li>
+        <li>Consent Given / Declined updates consent status and roundable declined flag for all three roundable types.</li>
+        <li>Previously declined roundables show the declined banner on next AL round attempt.</li>
+        <li>Mobile no longer uses hardcoded suggested script lines when API provides a script.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>CipherHealth · Ambient Listening Consent by Roundable Type · Design Spec · July 2026 · Internal</footer>
+</body>
+</html>
