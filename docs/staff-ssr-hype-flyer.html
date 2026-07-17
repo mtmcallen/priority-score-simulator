@@ -290,6 +290,21 @@
       line-height: 1.3;
     }
 
+    .timeline-card .editable-field {
+      background: rgba(232, 160, 32, 0.28);
+      box-shadow: inset 0 0 0 1px rgba(232, 160, 32, 0.75);
+      color: var(--white);
+    }
+
+    .timeline-card .editable-field:focus {
+      background: rgba(232, 160, 32, 0.4);
+      box-shadow: inset 0 0 0 2px var(--warm-amber);
+    }
+
+    .timeline-card .editable-field:empty::before {
+      color: rgba(255, 255, 255, 0.55);
+    }
+
     .cta {
       margin-top: 0.3in;
       background: var(--teal-tint);
@@ -458,6 +473,7 @@
         background: transparent !important;
         box-shadow: none !important;
       }
+      .timeline-card .editable-field { color: var(--white) !important; }
     }
   </style>
 </head>
@@ -481,9 +497,9 @@
           <span class="brand-name">CipherHealth</span>
         </div>
         <div class="badge-row">
-          <span class="badge badge-teal">Beta · July 2026</span>
-          <span class="badge badge-amber">GA · Sept 2026</span>
-          <span class="badge badge-green">Web-Based</span>
+          <span class="badge badge-teal">Web-Based</span>
+          <span class="badge badge-green">CipherRounds</span>
+          <span class="badge badge-amber">24/7 Access</span>
         </div>
       </div>
       <div class="headline">
@@ -553,21 +569,16 @@
         </div>
 
         <div class="timeline-card">
-          <h2>Timeline</h2>
+          <h2>Key dates</h2>
           <div class="timeline-item">
-            <div class="label">Beta testing</div>
-            <div class="value">July 2026</div>
-            <div class="note">Early access for select partners. QR codes and URLs — SMS not available at launch.</div>
+            <div class="label">Training</div>
+            <div class="value"><span class="editable-field" contenteditable="true" spellcheck="true" data-field="trainingDate" data-placeholder="Training Date">[Training Date]</span></div>
+            <div class="note">Staff and leader training sessions. Add time/location in the date field if needed.</div>
           </div>
           <div class="timeline-item">
-            <div class="label">General availability</div>
-            <div class="value">End of Sept 2026</div>
-            <div class="note">Full rollout with Staff SSR Insights dashboard and AI summary integration.</div>
-          </div>
-          <div class="timeline-item">
-            <div class="label">Go-live target</div>
+            <div class="label">Go-live</div>
             <div class="value"><span class="editable-field" contenteditable="true" spellcheck="true" data-field="goLiveDate" data-placeholder="Go-Live Date">[Go-Live Date]</span></div>
-            <div class="note">Training sessions: <span class="editable-field" contenteditable="true" spellcheck="true" data-field="leaderSession" data-placeholder="Leader Session Date/Location">[Leader Session Date/Location]</span> · <span class="editable-field" contenteditable="true" spellcheck="true" data-field="serviceRecoverySession" data-placeholder="Service Recovery Session Date/Location">[Service Recovery Session Date/Location]</span></div>
+            <div class="note">Staff SSR live with QR codes placed and programs activated.</div>
           </div>
         </div>
       </div>
@@ -588,7 +599,7 @@
 
     <footer>
       <span><strong>CipherHealth</strong> · Smarter Engagement · Intelligent Insights · Better Care</span>
-      <span>Staff SSR Hype Flyer · July 2026 · Customer-Facing Template</span>
+      <span>Staff SSR Hype Flyer · Customer-Facing Template</span>
     </footer>
   </div>
 
@@ -599,9 +610,8 @@
         pcName: '[PC Name]',
         pcEmail: '[PC Email]',
         pcPhone: '[PC Phone]',
+        trainingDate: '[Training Date]',
         goLiveDate: '[Go-Live Date]',
-        leaderSession: '[Leader Session Date/Location]',
-        serviceRecoverySession: '[Service Recovery Session Date/Location]',
         qrLabel: '[Insert QR]'
       };
 
