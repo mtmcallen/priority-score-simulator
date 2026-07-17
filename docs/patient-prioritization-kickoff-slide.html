@@ -118,6 +118,12 @@
       color: var(--cipher-teal);
     }
 
+    .accent-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--cipher-teal) 0%, var(--electric-chartreuse) 55%, var(--warm-amber) 100%);
+      flex-shrink: 0;
+    }
+
     .title-band {
       padding: 0.22in 0.38in 0.18in;
       background: var(--lavender-white);
@@ -399,6 +405,8 @@
         </div>
       </header>
 
+      <div class="accent-bar"></div>
+
       <div class="title-band">
         <h1>Most tools show a score. We show the why.</h1>
         <p>Advisory priority scores (0–100) and tags on the CipherRounds worklist — rounders sort by who needs attention first and see exactly what drove each score.</p>
@@ -482,7 +490,7 @@
 
       <footer class="footer">
         <p class="note"><strong>Advisory scores, not directives.</strong> Patient Prioritization helps rounders focus — clinical judgment always comes first.</p>
-        <span class="contact">CipherRounds</span>
+        <span class="contact">CipherHealth · CipherRounds</span>
       </footer>
     </div>
   </div>

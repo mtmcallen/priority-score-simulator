@@ -116,6 +116,12 @@
       color: var(--cipher-teal);
     }
 
+    .accent-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--cipher-teal) 0%, var(--electric-chartreuse) 55%, var(--warm-amber) 100%);
+      flex-shrink: 0;
+    }
+
     .title-band {
       padding: 0.22in 0.38in 0.18in;
       background: var(--lavender-white);
@@ -392,6 +398,8 @@
         </div>
       </header>
 
+      <div class="accent-bar"></div>
+
       <div class="title-band">
         <h1>Speak naturally at the bedside. AI handles the documentation.</h1>
         <p>Ambient Listening listens to the patient conversation, drafts script answers, and puts them in Needs Review — rounders always review and submit. Nothing auto-submits.</p>
@@ -468,7 +476,7 @@
 
       <footer class="footer">
         <p class="note"><strong>Stay present with patients.</strong> Let Ambient Listening capture the conversation — you review every answer before it becomes part of the record.</p>
-        <span class="contact">CipherRounds</span>
+        <span class="contact">CipherHealth · CipherRounds</span>
       </footer>
     </div>
   </div>
