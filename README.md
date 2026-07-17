@@ -42,6 +42,7 @@ Your team can then use a stable URL like `https://<org>.github.io/priority-score
 | --- | --- |
 | **Staff SSR Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/staff-ssr-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/staff-ssr-hype-flyer.html) |
 | **Ambient Listening Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/ambient-listening-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/ambient-listening-hype-flyer.html) |
+| **Patient Prioritization Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/patient-prioritization-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/patient-prioritization-hype-flyer.html) |
 | **Conversational AI for Voice and SMS Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/conversational-ai-voice-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/conversational-ai-voice-hype-flyer.html) |
 | **Automated Voice Talent and Language Enhancements Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/automated-voice-talent-language-enhancements-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/automated-voice-talent-language-enhancements-hype-flyer.html) |
 

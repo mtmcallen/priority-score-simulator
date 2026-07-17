@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Prioritization — Hype Flyer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark-anchor: #2d2660;
+      --deep-violet: #5b4fb5;
+      --cipher-teal: #00b4a4;
+      --electric-chartreuse: #b5cc2e;
+      --warm-amber: #e8a020;
+      --lavender-white: #f2f1f9;
+      --teal-tint: #d0f4f1;
+      --teal-tint-text: #004e48;
+      --chartreuse-tint: #e8f4a8;
+      --chartreuse-tint-text: #2a3200;
+      --gray-500: #6b7280;
+      --white: #ffffff;
+      --tag-low: #16a34a;
+      --tag-medium: #ca8a04;
+      --tag-high: #dc2626;
+    }
+
+    @page { size: letter; margin: 0; }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--dark-anchor);
+      background: var(--white);
+    }
+
+    .page {
+      max-width: 8.5in;
+      min-height: 11in;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-band {
+      background: var(--dark-anchor);
+      color: var(--white);
+      padding: 0.55in 0.5in 0.42in;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-band::after {
+      content: "";
+      position: absolute;
+      right: -0.6in;
+      top: -0.4in;
+      width: 3.2in;
+      height: 3.2in;
+      border-radius: 50%;
+      background: rgba(0, 180, 164, 0.14);
+    }
+
+    .hero-band::before {
+      content: "";
+      position: absolute;
+      left: 55%;
+      bottom: -1.2in;
+      width: 2.4in;
+      height: 2.4in;
+      border-radius: 50%;
+      background: rgba(91, 79, 181, 0.22);
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 0.38in;
+    }
+
+    .brand { display: flex; align-items: center; gap: 0.45rem; }
+    .brand-mark { width: 42px; height: 42px; display: block; }
+    .brand-name { font-size: 15pt; font-weight: 800; letter-spacing: -0.03em; }
+
+    .badge-row {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.18rem 0.45rem;
+      border-radius: 999px;
+    }
+
+    .badge-teal { background: var(--cipher-teal); color: var(--white); }
+    .badge-amber { background: var(--warm-amber); color: var(--dark-anchor); }
+    .badge-green { background: var(--electric-chartreuse); color: var(--dark-anchor); }
+
+    .headline {
+      position: relative;
+      z-index: 1;
+      max-width: 6.8in;
+    }
+
+    .headline .eyebrow {
+      margin: 0 0 0.18rem;
+      font-size: 9pt;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cipher-teal);
+    }
+
+    .headline h1 {
+      margin: 0;
+      font-size: 28pt;
+      font-weight: 900;
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+    }
+
+    .headline .sub {
+      margin: 0.28rem 0 0;
+      font-size: 11.5pt;
+      line-height: 1.35;
+      opacity: 0.92;
+      max-width: 5.8in;
+    }
+
+    .accent-bar {
+      height: 5px;
+      background: linear-gradient(90deg, var(--cipher-teal) 0%, var(--electric-chartreuse) 55%, var(--warm-amber) 100%);
+    }
+
+    .body {
+      flex: 1;
+      padding: 0.34in 0.5in 0.28in;
+    }
+
+    .lead {
+      margin: 0 0 0.3in;
+      padding: 0.32rem 0.42rem;
+      background: var(--lavender-white);
+      border-left: 4px solid var(--cipher-teal);
+      border-radius: 0 6px 6px 0;
+      font-size: 10pt;
+      line-height: 1.4;
+    }
+
+    .lead strong { color: var(--deep-violet); }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.28rem;
+      margin-bottom: 0.32in;
+    }
+
+    .feature {
+      background: var(--white);
+      border: 1.5px solid rgba(45, 38, 96, 0.1);
+      border-radius: 8px;
+      padding: 0.34rem 0.36rem;
+      min-height: 1.65in;
+    }
+
+    .feature .icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14pt;
+      font-weight: 800;
+      margin-bottom: 0.22rem;
+    }
+
+    .feature:nth-child(1) .icon { background: var(--teal-tint); color: var(--teal-tint-text); }
+    .feature:nth-child(2) .icon { background: var(--chartreuse-tint); color: var(--chartreuse-tint-text); }
+    .feature:nth-child(3) .icon { background: #e8e4f8; color: var(--deep-violet); }
+    .feature:nth-child(4) .icon { background: #fdefd0; color: #5c3800; }
+    .feature:nth-child(5) .icon { background: var(--teal-tint); color: var(--teal-tint-text); }
+    .feature:nth-child(6) .icon { background: var(--chartreuse-tint); color: var(--chartreuse-tint-text); }
+
+    .feature h3 {
+      margin: 0 0 0.12rem;
+      font-size: 9.5pt;
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--dark-anchor);
+    }
+
+    .feature p {
+      margin: 0;
+      font-size: 8.25pt;
+      line-height: 1.32;
+      color: var(--gray-500);
+    }
+
+    .sections {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 0.34rem;
+    }
+
+    .section-block h2 {
+      margin: 0 0 0.18rem;
+      font-size: 10pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--deep-violet);
+      border-bottom: 2px solid var(--cipher-teal);
+      padding-bottom: 0.1rem;
+    }
+
+    .section-block p,
+    .section-block li {
+      font-size: 8.75pt;
+      line-height: 1.36;
+      color: var(--gray-500);
+    }
+
+    .section-block ul {
+      margin: 0;
+      padding-left: 1rem;
+    }
+
+    .section-block li { margin-bottom: 0.12rem; }
+    .section-block strong { color: var(--dark-anchor); }
+
+    .tag-row {
+      display: flex;
+      gap: 0.28rem;
+      margin: 0.18rem 0 0.22rem;
+    }
+
+    .tag-pill {
+      flex: 1;
+      border-radius: 6px;
+      padding: 0.22rem 0.28rem;
+      font-size: 7.5pt;
+      line-height: 1.25;
+      color: var(--white);
+      text-align: center;
+    }
+
+    .tag-pill strong {
+      display: block;
+      font-size: 8pt;
+      color: var(--white);
+    }
+
+    .tag-pill.low { background: var(--tag-low); }
+    .tag-pill.medium { background: var(--tag-medium); }
+    .tag-pill.high { background: var(--tag-high); }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.22rem;
+      margin-top: 0.2rem;
+    }
+
+    .step {
+      background: var(--lavender-white);
+      border-radius: 6px;
+      padding: 0.28rem 0.3rem;
+      font-size: 7.75pt;
+      line-height: 1.3;
+      color: var(--gray-500);
+    }
+
+    .step .num {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--cipher-teal);
+      color: var(--white);
+      font-size: 7pt;
+      font-weight: 800;
+      text-align: center;
+      line-height: 16px;
+      margin-bottom: 0.12rem;
+    }
+
+    .step strong { display: block; color: var(--dark-anchor); font-size: 8pt; margin-bottom: 0.06rem; }
+
+    .timeline-card {
+      background: var(--dark-anchor);
+      color: var(--white);
+      border-radius: 8px;
+      padding: 0.34rem 0.38rem;
+    }
+
+    .timeline-card h2 {
+      margin: 0 0 0.2rem;
+      font-size: 9pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--cipher-teal);
+      border: none;
+      padding: 0;
+    }
+
+    .timeline-item {
+      margin-bottom: 0.28rem;
+      padding-bottom: 0.22rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .timeline-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .timeline-item .label {
+      font-size: 8pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--cipher-teal);
+    }
+
+    .timeline-item .value {
+      font-size: 11pt;
+      font-weight: 800;
+      margin-top: 0.06rem;
+    }
+
+    .timeline-item .note {
+      font-size: 7.75pt;
+      opacity: 0.82;
+      margin-top: 0.08rem;
+      line-height: 1.3;
+    }
+
+    .timeline-card .editable-field {
+      background: rgba(232, 160, 32, 0.28);
+      box-shadow: inset 0 0 0 1px rgba(232, 160, 32, 0.75);
+      color: var(--white);
+    }
+
+    .timeline-card .editable-field:focus {
+      background: rgba(232, 160, 32, 0.4);
+      box-shadow: inset 0 0 0 2px var(--warm-amber);
+    }
+
+    .timeline-card .editable-field:empty::before {
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .cta {
+      margin-top: 0.3in;
+      background: var(--teal-tint);
+      border: 2px solid var(--cipher-teal);
+      border-radius: 8px;
+      padding: 0.3rem 0.38rem;
+    }
+
+    .cta .text {
+      font-size: 8.75pt;
+      line-height: 1.35;
+      color: var(--teal-tint-text);
+    }
+
+    .cta .text strong {
+      display: block;
+      font-size: 10pt;
+      color: var(--dark-anchor);
+      margin-bottom: 0.06rem;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 0.22in 0.5in 0.3in;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 7.25pt;
+      color: var(--gray-500);
+      border-top: 1px solid rgba(45, 38, 96, 0.1);
+    }
+
+    footer strong { color: var(--dark-anchor); }
+
+    .edit-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.55rem 1rem;
+      background: var(--dark-anchor);
+      color: var(--white);
+      border-bottom: 3px solid var(--cipher-teal);
+      font-size: 8.75pt;
+      line-height: 1.35;
+    }
+
+    .edit-toolbar strong { color: var(--cipher-teal); }
+
+    .edit-toolbar-actions {
+      display: flex;
+      gap: 0.45rem;
+      flex-shrink: 0;
+    }
+
+    .edit-toolbar button {
+      font: inherit;
+      font-size: 8.25pt;
+      font-weight: 700;
+      padding: 0.35rem 0.7rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: var(--cipher-teal);
+      color: var(--white);
+    }
+
+    .edit-toolbar button.secondary {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .editable-field {
+      display: inline;
+      min-width: 0.35in;
+      padding: 0 0.12rem;
+      border-radius: 3px;
+      outline: none;
+      background: rgba(232, 160, 32, 0.18);
+      box-shadow: inset 0 0 0 1px rgba(232, 160, 32, 0.55);
+      cursor: text;
+    }
+
+    .editable-field:focus {
+      background: rgba(232, 160, 32, 0.28);
+      box-shadow: inset 0 0 0 2px var(--warm-amber);
+    }
+
+    .editable-field:empty::before {
+      content: attr(data-placeholder);
+      color: rgba(45, 38, 96, 0.45);
+      font-style: italic;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; min-height: auto; }
+      .edit-toolbar { display: none !important; }
+      .editable-field {
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+      .timeline-card .editable-field { color: var(--white) !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="edit-toolbar" id="edit-toolbar">
+    <div>
+      <strong>Customer-facing template</strong> — Click any <span style="background:rgba(232,160,32,0.35);padding:0 0.2rem;border-radius:3px;">highlighted field</span> to customize for your account, then print or save as PDF.
+    </div>
+    <div class="edit-toolbar-actions">
+      <button type="button" class="secondary" id="reset-template">Reset template</button>
+      <button type="button" id="print-flyer">Print / Save PDF</button>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="hero-band">
+      <div class="top-row">
+        <div class="brand">
+          <img class="brand-mark" src="../assets/cipherhealth-logo-mark.svg" alt="CipherHealth">
+          <span class="brand-name">CipherHealth</span>
+        </div>
+        <div class="badge-row">
+          <span class="badge badge-teal">CipherRounds</span>
+          <span class="badge badge-green">Mobile + Web</span>
+          <span class="badge badge-amber">Advisory Scores</span>
+        </div>
+      </div>
+      <div class="headline">
+        <p class="eyebrow">CipherRounds · Patient Prioritization</p>
+        <h1>Most tools show a score. We show the why.</h1>
+        <p class="sub">Configurable priority scores (0–100) and tags on the patient worklist — so rounding teams focus on who needs attention first, with full transparency into every contributing factor.</p>
+      </div>
+    </div>
+
+    <div class="accent-bar"></div>
+
+    <div class="body">
+      <p class="lead">
+        <strong><span class="editable-field" contenteditable="true" spellcheck="true" data-field="hospitalName" data-placeholder="Hospital Name">[Hospital Name]</span></strong> is bringing Patient Prioritization to CipherRounds. Give rounders a data-guided worklist at shift start — not another app, not another login, and not a replacement for clinical judgment.
+      </p>
+
+      <div class="features">
+        <div class="feature">
+          <div class="icon">🧭</div>
+          <h3>Reduce burnout</h3>
+          <p>Eliminate manual list sorting and cognitive load at shift start. Rounders get a data-guided path instead of guessing who to see first.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">⭐</div>
+          <h3>Improve HCAHPS</h3>
+          <p>Proactive service recovery — identify at-risk patients before discharge. Optional AI factor predicts likelihood to be dissatisfied (HCAHPS Q21).</p>
+        </div>
+        <div class="feature">
+          <div class="icon">💬</div>
+          <h3>Personalize care</h3>
+          <p>Rounders see the score <em>and</em> the reasoning. Click through factor details and enter the room with context for a more meaningful conversation.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">📱</div>
+          <h3>Already in your workflow</h3>
+          <p>No new app or login. Priority tags and scores appear on the CipherRounds worklist in Evolve and mobile — sort and filter to round high-priority patients first.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">⚙</div>
+          <h3>Configurable per unit</h3>
+          <p>Rule-based factors — age, LOS, admit source, rounding flags, and more — with weights you control. Build separate programs for ICU, ED, or med-surg.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">🔍</div>
+          <h3>Explainable by design</h3>
+          <p>Hybrid scoring: transparent rule-based logic plus one optional AI factor. Advisory scores support rounding decisions — they never replace clinical judgment.</p>
+        </div>
+      </div>
+
+      <div class="sections">
+        <div class="section-block">
+          <h2>What is Patient Prioritization?</h2>
+          <p>For each admitted patient, CipherRounds assigns an advisory priority score (0–100) and a priority tag. Rounders sort and filter the worklist to focus on patients who need attention first.</p>
+
+          <h2 style="margin-top: 0.28rem;">Priority tags</h2>
+          <div class="tag-row">
+            <div class="tag-pill low"><strong>Low</strong>0–59</div>
+            <div class="tag-pill medium"><strong>Medium</strong>60–79</div>
+            <div class="tag-pill high"><strong>High</strong>80–100</div>
+          </div>
+
+          <h2 style="margin-top: 0.28rem;">How scoring works</h2>
+          <p>Priority Score = weighted average of factor conversion scores. Each factor maps patient data to a 0–100 score via configurable rules, then weights (summing to 100) determine contribution to the final score.</p>
+          <ul>
+            <li><strong>Rule-based factors</strong> — LOS, age, admit source, rounding flags, admitting diagnosis, and more</li>
+            <li><strong>Optional AI factor</strong> — Likelihood to be Dissatisfied predicts HCAHPS top-box risk; omit it to use rules only</li>
+            <li><strong>Multi-program logic</strong> — when several programs match, the highest score wins</li>
+          </ul>
+
+          <h2 style="margin-top: 0.28rem;">Enablement workflow</h2>
+          <div class="steps">
+            <div class="step"><span class="num">1</span><strong>Enable</strong> Turn on Patient Prioritization in Evolve</div>
+            <div class="step"><span class="num">2</span><strong>Permissions</strong> Grant tag or score + details access</div>
+            <div class="step"><span class="num">3</span><strong>Configure</strong> Build factor program &amp; weights</div>
+            <div class="step"><span class="num">4</span><strong>Go live</strong> Verify on mobile &amp; web worklist</div>
+          </div>
+
+          <h2 style="margin-top: 0.28rem;">What does this mean for you?</h2>
+          <ul>
+            <li><strong>Rounders:</strong> Sort by priority at shift start; review factor breakdown before entering the room</li>
+            <li><strong>Nurse leaders:</strong> Reduce shift prep time and improve high-priority patient coverage</li>
+            <li><strong>Implementation:</strong> Contact <strong><span class="editable-field" contenteditable="true" spellcheck="true" data-field="pcName" data-placeholder="PC Name">[PC Name]</span></strong> at <strong><span class="editable-field" contenteditable="true" spellcheck="true" data-field="pcEmail" data-placeholder="PC Email">[PC Email]</span></strong> or <strong><span class="editable-field" contenteditable="true" spellcheck="true" data-field="pcPhone" data-placeholder="PC Phone">[PC Phone]</span></strong></li>
+          </ul>
+        </div>
+
+        <div class="timeline-card">
+          <h2>Key dates</h2>
+          <div class="timeline-item">
+            <div class="label">Training</div>
+            <div class="value"><span class="editable-field" contenteditable="true" spellcheck="true" data-field="trainingDate" data-placeholder="Training Date">[Training Date]</span></div>
+            <div class="note">Rounder training on worklist sorting, tags, and factor breakdown. Add time/location in the date field if needed.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="label">Go-live</div>
+            <div class="value"><span class="editable-field" contenteditable="true" spellcheck="true" data-field="goLiveDate" data-placeholder="Go-Live Date">[Go-Live Date]</span></div>
+            <div class="note">Patient Prioritization active on target units in CipherRounds mobile and web.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta">
+        <div class="text">
+          <strong>Stop guessing at shift start. Start rounding with context.</strong>
+          Patient Prioritization puts advisory scores and transparent reasoning on the worklist your team already uses — so the right patients get attention first.
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <span><strong>CipherHealth</strong> · Smarter Engagement · Intelligent Insights · Better Care</span>
+      <span>Patient Prioritization Hype Flyer · Customer-Facing Template</span>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var defaults = {
+        hospitalName: '[Hospital Name]',
+        pcName: '[PC Name]',
+        pcEmail: '[PC Email]',
+        pcPhone: '[PC Phone]',
+        trainingDate: '[Training Date]',
+        goLiveDate: '[Go-Live Date]'
+      };
+
+      var fields = document.querySelectorAll('.editable-field');
+
+      document.getElementById('print-flyer').addEventListener('click', function () {
+        window.print();
+      });
+
+      document.getElementById('reset-template').addEventListener('click', function () {
+        if (!window.confirm('Reset all customized fields to the default template?')) return;
+
+        fields.forEach(function (field) {
+          var key = field.getAttribute('data-field');
+          if (key && defaults[key]) field.textContent = defaults[key];
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
