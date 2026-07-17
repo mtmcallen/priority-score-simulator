@@ -42,6 +42,7 @@ Your team can then use a stable URL like `https://<org>.github.io/priority-score
 | --- | --- |
 | **Staff SSR Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/staff-ssr-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/staff-ssr-hype-flyer.html) |
 | **Ambient Listening Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/ambient-listening-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/ambient-listening-hype-flyer.html) |
+| **Conversational AI for Voice Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/conversational-ai-voice-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/conversational-ai-voice-hype-flyer.html) |
 
 Open the flyer in a browser, click highlighted fields to customize for an account, paste a QR code image, then print or save as PDF.
 
