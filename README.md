@@ -41,6 +41,7 @@ Your team can then use a stable URL like `https://<org>.github.io/priority-score
 | Template | Public URL |
 | --- | --- |
 | **Staff SSR Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/staff-ssr-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/staff-ssr-hype-flyer.html) |
+| **Staff SSR Overview Slide** (16:9 — what it is, enablement, benefits) | [mtmcallen.github.io/priority-score-simulator/docs/staff-ssr-kickoff-slide.html](https://mtmcallen.github.io/priority-score-simulator/docs/staff-ssr-kickoff-slide.html) |
 | **Ambient Listening Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/ambient-listening-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/ambient-listening-hype-flyer.html) |
 | **Ambient Listening Overview Slide** (16:9 — what it is, enablement, benefits) | [mtmcallen.github.io/priority-score-simulator/docs/ambient-listening-kickoff-slide.html](https://mtmcallen.github.io/priority-score-simulator/docs/ambient-listening-kickoff-slide.html) |
 | **Patient Prioritization Overview Slide** (16:9 — what it is, enablement, benefits) | [mtmcallen.github.io/priority-score-simulator/docs/patient-prioritization-kickoff-slide.html](https://mtmcallen.github.io/priority-score-simulator/docs/patient-prioritization-kickoff-slide.html) |

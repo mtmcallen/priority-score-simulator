@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff SSR — Overview Slide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark-anchor: #2d2660;
+      --deep-violet: #5b4fb5;
+      --cipher-teal: #00b4a4;
+      --electric-chartreuse: #b5cc2e;
+      --warm-amber: #e8a020;
+      --lavender-white: #f2f1f9;
+      --teal-tint: #d0f4f1;
+      --teal-tint-text: #004e48;
+      --chartreuse-tint: #e8f4a8;
+      --chartreuse-tint-text: #2a3200;
+      --gray-500: #6b7280;
+      --white: #ffffff;
+    }
+
+    @page { size: 13.333in 7.5in; margin: 0; }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--dark-anchor);
+      background: #e8e7ef;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .edit-toolbar {
+      width: 13.333in;
+      max-width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.55rem 1rem;
+      margin-bottom: 0.75rem;
+      background: var(--dark-anchor);
+      color: var(--white);
+      border-bottom: 3px solid var(--cipher-teal);
+      font-size: 8.75pt;
+      line-height: 1.35;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .edit-toolbar strong { color: var(--cipher-teal); }
+
+    .edit-toolbar button {
+      font: inherit;
+      font-size: 8.25pt;
+      font-weight: 700;
+      padding: 0.35rem 0.7rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: var(--cipher-teal);
+      color: var(--white);
+    }
+
+    .slide-wrap {
+      width: 13.333in;
+      max-width: 100%;
+    }
+
+    .slide {
+      width: 13.333in;
+      height: 7.5in;
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(45, 38, 96, 0.12);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--dark-anchor);
+      color: var(--white);
+      padding: 0.14in 0.38in;
+      border-bottom: 3px solid var(--cipher-teal);
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.38rem;
+    }
+
+    .brand-mark { width: 30px; height: 30px; display: block; }
+    .brand-name { font-size: 11pt; font-weight: 800; letter-spacing: -0.02em; }
+
+    .header-meta .doc-type {
+      margin: 0;
+      font-size: 7pt;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--cipher-teal);
+    }
+
+    .title-band {
+      padding: 0.22in 0.38in 0.18in;
+      background: var(--lavender-white);
+      border-bottom: 1px solid rgba(45, 38, 96, 0.08);
+      flex-shrink: 0;
+    }
+
+    .title-band h1 {
+      margin: 0;
+      font-size: 22pt;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.02;
+      color: var(--dark-anchor);
+    }
+
+    .title-band p {
+      margin: 0.1rem 0 0;
+      font-size: 9.5pt;
+      color: var(--gray-500);
+      line-height: 1.35;
+      max-width: 9.5in;
+    }
+
+    .content {
+      flex: 1;
+      padding: 0.22in 0.38in 0.18in;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.2in;
+      min-height: 0;
+    }
+
+    .panel {
+      border-radius: 8px;
+      padding: 0.18in 0.2in;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .panel-what {
+      background: var(--teal-tint);
+      border: 2px solid var(--cipher-teal);
+    }
+
+    .panel-enable {
+      background: var(--lavender-white);
+      border: 2px solid var(--deep-violet);
+    }
+
+    .panel-benefits {
+      background: var(--chartreuse-tint);
+      border: 2px solid var(--electric-chartreuse);
+    }
+
+    .section-label {
+      margin: 0 0 0.1in;
+      font-size: 7pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .panel-what .section-label { color: var(--teal-tint-text); }
+    .panel-enable .section-label { color: var(--deep-violet); }
+    .panel-benefits .section-label { color: var(--chartreuse-tint-text); }
+
+    .panel h2 {
+      margin: 0 0 0.12in;
+      font-size: 11pt;
+      font-weight: 900;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+    }
+
+    .panel-what h2 { color: var(--teal-tint-text); }
+    .panel-enable h2 { color: var(--dark-anchor); }
+    .panel-benefits h2 { color: var(--chartreuse-tint-text); }
+
+    .panel p,
+    .panel li {
+      font-size: 7.75pt;
+      line-height: 1.32;
+    }
+
+    .panel-what p,
+    .panel-what li { color: var(--teal-tint-text); }
+
+    .panel ul {
+      margin: 0;
+      padding-left: 0.95rem;
+    }
+
+    .panel li { margin-bottom: 0.06rem; }
+    .panel strong { color: var(--dark-anchor); }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.08in;
+      margin-top: auto;
+      padding-top: 0.12in;
+    }
+
+    .workflow-step {
+      text-align: center;
+      font-size: 6.5pt;
+      font-weight: 700;
+      line-height: 1.2;
+      padding: 0.14rem 0.1rem;
+      border-radius: 4px;
+      color: var(--white);
+    }
+
+    .workflow-step:nth-child(1) { background: var(--deep-violet); }
+    .workflow-step:nth-child(2) { background: var(--cipher-teal); }
+    .workflow-step:nth-child(3) { background: var(--warm-amber); color: var(--dark-anchor); }
+    .workflow-step:nth-child(4) { background: var(--electric-chartreuse); color: var(--chartreuse-tint-text); }
+
+    .enable-steps {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.1in;
+      flex: 1;
+    }
+
+    .enable-step {
+      display: grid;
+      grid-template-columns: 0.38in 1fr;
+      gap: 0.12in;
+      align-items: start;
+    }
+
+    .enable-step .num {
+      width: 0.38in;
+      height: 0.38in;
+      border-radius: 50%;
+      background: var(--deep-violet);
+      color: var(--white);
+      font-size: 11pt;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .enable-step .text {
+      font-size: 7.5pt;
+      line-height: 1.32;
+      color: var(--gray-500);
+      padding-top: 0.04in;
+    }
+
+    .enable-step .text strong {
+      display: block;
+      font-size: 8pt;
+      color: var(--dark-anchor);
+      margin-bottom: 0.03rem;
+    }
+
+    .enable-note {
+      margin-top: auto;
+      padding: 0.1in 0.12in;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 5px;
+      font-size: 7pt;
+      line-height: 1.3;
+      color: var(--gray-500);
+    }
+
+    .enable-note strong { color: var(--deep-violet); }
+
+    .stat-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.14in;
+      flex: 1;
+    }
+
+    .stat {
+      background: rgba(255, 255, 255, 0.55);
+      border-radius: 6px;
+      padding: 0.14in 0.16in;
+    }
+
+    .stat .value {
+      margin: 0;
+      font-size: 16pt;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: var(--chartreuse-tint-text);
+    }
+
+    .stat .label {
+      margin: 0.06rem 0 0;
+      font-size: 7.25pt;
+      line-height: 1.28;
+      color: var(--dark-anchor);
+    }
+
+    .stat .detail {
+      margin: 0.04rem 0 0;
+      font-size: 6.5pt;
+      color: var(--gray-500);
+      line-height: 1.25;
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.1in 0.38in;
+      background: var(--dark-anchor);
+      color: var(--white);
+      flex-shrink: 0;
+    }
+
+    .footer .note {
+      font-size: 7pt;
+      line-height: 1.3;
+      opacity: 0.92;
+    }
+
+    .footer .note strong { color: var(--cipher-teal); }
+
+    .footer .contact {
+      font-size: 6.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--cipher-teal);
+      white-space: nowrap;
+    }
+
+    @media print {
+      body {
+        background: none;
+        padding: 0;
+      }
+
+      .edit-toolbar { display: none !important; }
+      .slide-wrap { width: auto; }
+      .slide {
+        box-shadow: none;
+        width: 13.333in;
+        height: 7.5in;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="slide-wrap">
+    <div class="edit-toolbar">
+      <div>
+        <strong>Overview slide</strong> — Drop into an existing kickoff deck. Print or save as PDF (16:9).
+      </div>
+      <button type="button" id="print-slide">Print / Save PDF</button>
+    </div>
+
+    <div class="slide">
+      <header class="header">
+        <div class="brand">
+          <img class="brand-mark" src="../assets/cipherhealth-logo-mark.svg" alt="CipherHealth">
+          <span class="brand-name">CipherHealth</span>
+        </div>
+        <div class="header-meta">
+          <p class="doc-type">Staff Self-Service Rounding</p>
+        </div>
+      </header>
+
+      <div class="title-band">
+        <h1>Your leaders can't be everywhere. Now every staff member has a voice.</h1>
+        <p>24/7 web-based staff feedback via QR code or URL — no app download. Continuous listening that complements leader-led staff rounding.</p>
+      </div>
+
+      <div class="content">
+        <section class="panel panel-what">
+          <p class="section-label">What it is</p>
+          <h2>Always-on staff feedback in CipherRounds</h2>
+          <ul>
+            <li><strong>Web-based surveys</strong> — staff scan a QR or open a URL on any device</li>
+            <li><strong>Simple auth</strong> — first name, last name, email, and employee ID</li>
+            <li><strong>Flexible programs</strong> — check-ins, satisfaction, new hire, exit, and more</li>
+            <li><strong>Complements rounding</strong> — fills gaps leaders can't reach on every shift</li>
+          </ul>
+          <div class="workflow">
+            <div class="workflow-step">Scan</div>
+            <div class="workflow-step">Authenticate</div>
+            <div class="workflow-step">Submit</div>
+            <div class="workflow-step">Alerts</div>
+          </div>
+        </section>
+
+        <section class="panel panel-enable">
+          <p class="section-label">How to turn it on</p>
+          <h2>Four steps in Evolve</h2>
+          <ol class="enable-steps">
+            <li class="enable-step">
+              <span class="num">1</span>
+              <div class="text">
+                <strong>Build a web-based program</strong>
+                Create a staff SSR script in the Web Based Programs configurator
+              </div>
+            </li>
+            <li class="enable-step">
+              <span class="num">2</span>
+              <div class="text">
+                <strong>Configure the experience</strong>
+                Set questions, anonymous mode, and program availability
+              </div>
+            </li>
+            <li class="enable-step">
+              <span class="num">3</span>
+              <div class="text">
+                <strong>Activate &amp; deploy QR</strong>
+                Activate with eligibility criteria; Cipher provides one org QR code
+              </div>
+            </li>
+            <li class="enable-step">
+              <span class="num">4</span>
+              <div class="text">
+                <strong>Verify reporting</strong>
+                Confirm submissions in the Staff SSR Insights dashboard
+              </div>
+            </li>
+          </ol>
+          <p class="enable-note"><strong>That's it.</strong> One QR code covers all staff SSR programs — place it at nursing stations, breakrooms, and shared workstations.</p>
+        </section>
+
+        <section class="panel panel-benefits">
+          <p class="section-label">Why use it</p>
+          <h2>Every shift, every staff member</h2>
+          <div class="stat-grid">
+            <div class="stat">
+              <p class="value">24/7</p>
+              <p class="label">Continuous listening</p>
+              <p class="detail">Capture nights, weekends, and off-peak feedback leaders miss on Monday morning</p>
+            </div>
+            <div class="stat">
+              <p class="value">No app</p>
+              <p class="label">Scan &amp; go</p>
+              <p class="detail">Browser-based on any device — no CipherRounds download or minimum OS required</p>
+            </div>
+            <div class="stat">
+              <p class="value">Real-time</p>
+              <p class="label">Service recovery</p>
+              <p class="detail">Structured questions trigger alerts and route issues to the right leaders immediately</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="footer">
+        <p class="note"><strong>One QR code. Every shift.</strong> Staff SSR doesn't replace your rounding culture — it gives every clinician a channel to be heard.</p>
+        <span class="contact">CipherRounds</span>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('print-slide').addEventListener('click', function () {
+      window.print();
+    });
+  </script>
+</body>
+</html>
