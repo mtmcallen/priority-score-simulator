@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive CipherRounds prototype for ambient listening background processing — modal, recording bar, toasts, and Needs Review flow.">
+  <meta property="og:title" content="Ambient Listening — Background Processing Prototype">
+  <meta property="og:description" content="Clickable mobile mockup for developers: blocking vs background processing, success modal, and worklist states.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-background-processing-prototype.html">
+  <title>Ambient Listening — Background Processing Prototype</title>
+  <style>
+    :root {
+      --teal: #1aab9c;
+      --teal-dark: #0f9989;
+      --teal-header: linear-gradient(180deg, #1aab9c 0%, #22b89e 100%);
+      --bar-dark: #3b3b3b;
+      --bar-footer: #5c5c5c;
+      --ai-banner: #f0b429;
+      --text: #1c1c1e;
+      --muted: #8e8e93;
+      --border: #e5e7eb;
+      --bg: #f2f2f7;
+      --card-border: #e8b4b8;
+      --score-red: #e53935;
+      --needs-review: #b45309;
+      --green: #34c759;
+      --red: #ff3b30;
+      --panel-dark: #2d2660;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: #f2f1f9;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page-header {
+      background: var(--panel-dark);
+      color: #fff;
+      padding: 1rem 1.5rem;
+      border-bottom: 4px solid var(--teal);
+    }
+    .page-header h1 { font-size: 1.1rem; font-weight: 700; }
+    .page-header p { font-size: 0.82rem; opacity: 0.9; margin-top: 0.35rem; max-width: 52rem; }
+    .share-row {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem;
+      margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.15);
+    }
+    .share-row .share-url {
+      flex: 1; min-width: 200px; font-size: 0.78rem; opacity: 0.85;
+      word-break: break-all; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .share-btn {
+      border: 1px solid rgba(255,255,255,0.45); background: rgba(255,255,255,0.12);
+      color: #fff; border-radius: 8px; padding: 0.45rem 0.85rem;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+    }
+    .share-btn:hover { background: rgba(255,255,255,0.2); }
+    .share-btn.copied { background: rgba(52, 199, 89, 0.25); border-color: #34c759; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr 280px;
+      gap: 1rem;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 1rem;
+      align-items: start;
+    }
+    @media (max-width: 1050px) { .layout { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem;
+    }
+    .panel h2 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .flow-steps { list-style: none; }
+    .flow-steps li {
+      display: flex; gap: 0.5rem; padding: 0.45rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.76rem; color: var(--muted);
+    }
+    .flow-steps li:last-child { border-bottom: none; }
+    .flow-steps .num {
+      width: 1.3rem; height: 1.3rem; border-radius: 50%;
+      background: #eee; font-size: 0.65rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .flow-steps li.active .num { background: var(--teal); color: #fff; }
+    .flow-steps li.active { color: var(--text); font-weight: 600; }
+    .flow-steps li.done .num { background: #dcfce7; color: #16a34a; }
+
+    .demo-btn {
+      display: block; width: 100%; margin-top: 0.4rem;
+      padding: 0.5rem 0.6rem; border-radius: 8px;
+      border: 1px solid var(--border); background: #fff;
+      font-size: 0.76rem; font-weight: 600; cursor: pointer; text-align: left;
+    }
+    .demo-btn.primary { background: var(--teal); color: #fff; border-color: var(--teal); }
+    .demo-btn.danger { background: #fee2e2; color: var(--red); border-color: #fecaca; }
+    .demo-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .hint {
+      font-size: 0.72rem; color: var(--muted); margin-top: 0.65rem;
+      padding: 0.5rem; background: #f8f8fc; border-radius: 8px; line-height: 1.45;
+    }
+
+    .screen-label {
+      text-align: center; font-size: 0.75rem; font-weight: 700;
+      color: var(--muted); margin-bottom: 0.45rem;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+
+    /* Phone */
+    .phone-wrap { display: flex; justify-content: center; }
+    .phone {
+      width: 390px;
+      height: 844px;
+      background: #000;
+      border-radius: 44px;
+      border: 10px solid #222;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone-inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+      position: relative;
+    }
+
+    .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
+    .screen.active { display: flex; }
+
+    /* Shared header */
+    .app-header {
+      background: var(--teal-header);
+      color: #fff;
+      padding: 48px 14px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .app-header.worklist-header {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 40px 12px 8px;
+      gap: 8px;
+    }
+    .app-header .nav-btn {
+      background: none; border: none; color: #fff;
+      font-size: 17px; cursor: pointer; padding: 0; min-width: 60px; text-align: left;
+    }
+    .app-header .nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .app-header .nav-btn.right { text-align: right; font-weight: 600; }
+    .app-header .title { font-size: 17px; font-weight: 600; text-align: center; flex: 1; }
+    .app-header .menu-row { display: flex; align-items: center; gap: 10px; }
+    .app-header .menu-icon { font-size: 22px; line-height: 1; }
+    .app-header .script-title { font-size: 16px; font-weight: 700; text-align: center; }
+    .app-header .script-sub { font-size: 12px; text-align: center; opacity: 0.9; }
+
+    .search-input {
+      background: #fff; border: none; border-radius: 10px;
+      padding: 8px 11px; font-size: 14px; width: 100%;
+      color: var(--muted);
+    }
+
+    .filter-row { display: flex; align-items: center; gap: 6px; }
+    .chip-btn {
+      background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.6);
+      color: #fff; border-radius: 8px; padding: 6px 10px;
+      font-size: 13px; font-weight: 600; white-space: nowrap;
+    }
+    .chip-btn.solid { background: rgba(255,255,255,0.95); color: var(--teal-dark); border-color: #fff; }
+    .chip-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.4); }
+
+    .admit-tabs {
+      display: flex; background: rgba(0,0,0,0.12); border-radius: 10px; padding: 3px;
+      margin: 0 12px 6px; flex-shrink: 0;
+    }
+    .admit-tabs button {
+      flex: 1; border: none; background: transparent;
+      padding: 7px 5px; border-radius: 8px;
+      font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85); cursor: pointer;
+    }
+    .admit-tabs button.active {
+      background: #fff; color: var(--teal-dark); box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    /* Worklist */
+    .worklist-scroll {
+      flex: 1; overflow: hidden; padding: 0 8px 8px;
+      display: flex; flex-direction: column;
+    }
+    .worklist-inner {
+      transform: scale(0.91);
+      transform-origin: top center;
+      width: 109.9%;
+      margin-left: -4.95%;
+    }
+
+    .patient-card {
+      background: #fff;
+      border: 2px solid var(--card-border);
+      border-radius: 11px;
+      padding: 11px 10px 8px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .patient-card.secondary {
+      border-color: var(--border);
+    }
+    .issue-badge {
+      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      background: var(--score-red); color: #fff;
+      font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 999px;
+      display: flex; align-items: center; gap: 4px; white-space: nowrap;
+    }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 4px; }
+    .patient-name { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; }
+    .flag-row { display: flex; gap: 3px; }
+    .flag-row span { width: 12px; height: 16px; border-radius: 2px; }
+    .loc-row { display: flex; gap: 6px; margin: 8px 0; }
+    .loc-chip {
+      border: 1px solid var(--border); border-radius: 7px;
+      padding: 3px 7px; font-size: 12px; font-weight: 600; color: #444;
+    }
+    .card-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 8px; margin-bottom: 8px; align-items: start; }
+    .card-grid .label { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+    .card-grid .val { font-size: 14px; font-weight: 700; }
+    .stat-row { display: flex; gap: 6px; align-items: stretch; }
+    .stat-box {
+      flex: 1; min-width: 0;
+      border: 2px solid var(--border); border-radius: 10px; overflow: hidden;
+      background: #fff;
+    }
+    .stat-box.red { border-color: var(--score-red); }
+    .stat-box.amber { border-color: #f59e0b; }
+    .stat-box .stat-head {
+      font-size: 10px; font-weight: 600; padding: 5px 6px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: #fff; color: #666;
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-box.red .stat-head { border-bottom-color: #fecaca; }
+    .stat-box.amber .stat-head { border-bottom-color: #fde68a; }
+    .stat-head .info-ico {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--score-red); color: #fff;
+      font-size: 9px; font-weight: 700; line-height: 1;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .stat-box.amber .info-ico { background: #f59e0b; }
+    .stat-head .sync-ico { font-size: 11px; color: #888; line-height: 1; }
+    .stat-box .stat-body {
+      padding: 6px 8px 8px; position: relative; min-height: 46px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .stat-box .big { font-size: 28px; font-weight: 800; line-height: 1; }
+    .stat-box.red .big { color: var(--score-red); }
+    .stat-box.amber .big { color: #d97706; }
+    .stat-box .sub {
+      position: absolute; bottom: 5px; right: 6px;
+      font-size: 10px; font-weight: 700;
+    }
+    .stat-box.red .sub { color: var(--score-red); }
+    .stat-box.amber .sub { color: #d97706; }
+    .stat-box .time {
+      font-size: 11px; font-weight: 700; color: #444;
+      text-align: center; line-height: 1.25;
+    }
+    .stat-box .time .time-num { font-size: 18px; font-weight: 800; display: block; }
+    .stat-box .time.review { color: var(--needs-review); font-size: 12px; font-weight: 800; }
+
+    .card-actions { display: flex; gap: 7px; margin-bottom: 8px; }
+    .btn-round {
+      flex: 1; border: 2px solid var(--teal); background: #fff;
+      color: var(--teal); border-radius: 9px; padding: 8px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-round:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-more {
+      width: 42px; border: 2px solid var(--teal); background: #fff;
+      color: var(--teal); border-radius: 9px; font-size: 18px; font-weight: 700;
+    }
+    .card-tabs {
+      display: flex; justify-content: space-between;
+      border-top: 1px solid var(--border); padding-top: 8px;
+    }
+    .card-tabs .ct { text-align: center; font-size: 9px; color: #555; font-weight: 600; flex: 1; }
+    .card-tabs .ico { font-size: 16px; margin-bottom: 1px; }
+
+    /* Round screen */
+    .recording-bar {
+      background: var(--bar-dark); color: #fff;
+      padding: 11px 14px; display: flex; align-items: center; gap: 8px;
+      flex-shrink: 0; min-height: 44px; font-size: 15px; font-weight: 600;
+    }
+    .recording-bar .center { flex: 1; text-align: center; }
+    .recording-bar .spinner {
+      width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.25);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .recording-bar .check {
+      width: 20px; height: 20px; border: 1.5px solid #7dd3c0; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: #7dd3c0;
+    }
+    .recording-bar .btn-start {
+      border: 1.5px solid #7dd3c0; color: #7dd3c0; background: transparent;
+      border-radius: 8px; padding: 4px 14px; font-size: 15px; font-weight: 600;
+    }
+
+    .ai-bar {
+      background: var(--ai-banner); padding: 10px 14px;
+      display: flex; align-items: center; gap: 6px;
+      font-size: 15px; font-weight: 600; flex-shrink: 0;
+    }
+    .ai-bar .link { margin-left: auto; font-size: 15px; font-weight: 500; color: #1c1c1e; text-decoration: underline; }
+
+    .jump-field {
+      margin: 10px 14px; padding: 10px 12px;
+      background: #fff; border-radius: 10px;
+      font-size: 15px; color: var(--muted); flex-shrink: 0;
+    }
+
+    .questions { flex: 1; overflow-y: auto; min-height: 0; }
+    .q-section {
+      font-size: 13px; font-weight: 600; color: var(--muted);
+      padding: 8px 14px 4px; text-transform: capitalize;
+    }
+    .q-row {
+      background: #fff; border-bottom: 1px solid var(--border);
+      padding: 14px; display: flex; align-items: center; gap: 10px;
+    }
+    .q-row .mark { width: 22px; color: var(--teal); font-size: 18px; text-align: center; flex-shrink: 0; }
+    .q-row .mark.empty { visibility: hidden; }
+    .q-row .txt { flex: 1; min-width: 0; }
+    .q-row .name { font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .q-row .ans { font-size: 14px; color: var(--muted); margin-top: 2px; }
+    .ai-tag {
+      background: var(--teal); color: #fff; font-size: 11px; font-weight: 700;
+      padding: 2px 5px; border-radius: 4px;
+    }
+    .q-row .chev { color: #c7c7cc; font-size: 20px; font-weight: 300; }
+
+    .script-footer {
+      background: var(--bar-footer); color: #fff;
+      padding: 10px 14px; display: flex; align-items: center;
+      flex-shrink: 0; font-size: 14px; font-weight: 500;
+    }
+    .script-footer .name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .script-footer .count { margin-right: 10px; font-weight: 600; }
+    .script-footer .close { background: none; border: none; color: #ccc; font-size: 20px; line-height: 1; }
+
+    /* Tab bar */
+    .tab-bar {
+      display: flex; background: #fff; border-top: 1px solid var(--border);
+      padding: 6px 0 20px; flex-shrink: 0;
+    }
+    .tab-bar button {
+      flex: 1; border: none; background: none; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 500; color: var(--muted); padding: 2px 0;
+    }
+    .tab-bar button:disabled { opacity: 0.35; cursor: not-allowed; }
+    .tab-bar button.active { color: var(--teal); font-weight: 600; }
+    .tab-bar .tab-ico {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tab-bar button.active .tab-ico { background: var(--teal); color: #fff; }
+    .tab-bar button:not(.active) .tab-ico { color: #999; }
+
+    /* Modal */
+    .modal {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 20; padding: 24px;
+    }
+    .modal.hidden { display: none; }
+    .modal-card {
+      background: #fff; border-radius: 16px; padding: 28px 22px 18px;
+      width: 100%; max-width: 300px; text-align: center;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    }
+    .modal-card h3 {
+      font-size: 20px; font-weight: 600; letter-spacing: 0.08em;
+      margin: 0 0 20px;
+    }
+    .modal-card .processing-icon {
+      width: 120px; height: auto; margin: 0 auto 20px;
+      display: block;
+    }
+    .modal-card .processing-icon.hidden,
+    .modal-success-icon.hidden { display: none; }
+    .modal-success-icon {
+      width: 84px; height: 84px; border-radius: 50%;
+      background: var(--green); color: #fff;
+      font-size: 46px; font-weight: 700; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 4px 18px rgba(52, 199, 89, 0.35);
+      animation: success-pop 0.35s ease-out;
+    }
+    @keyframes success-pop {
+      from { transform: scale(0.55); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .check-row.hidden { display: none; }
+    .check-row {
+      display: flex; gap: 10px; text-align: left; padding-top: 14px;
+      border-top: 1px solid var(--border); cursor: pointer; margin-top: 4px;
+    }
+    .check-box {
+      width: 22px; height: 22px; border: 2px solid var(--teal); border-radius: 4px;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #fff;
+    }
+    .check-box.on { background: var(--teal); }
+    .check-row strong { display: block; font-size: 14px; }
+    .check-row span { font-size: 12px; color: var(--muted); }
+
+    .toast {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 30;
+      padding: 14px 16px; color: #fff; font-size: 15px; font-weight: 600;
+    }
+    .toast.hidden { display: none; }
+    .toast.ok { background: var(--green); }
+    .toast.err { background: var(--red); }
+
+    .profile-body { flex: 1; overflow-y: auto; padding: 14px; }
+    .profile-card {
+      background: #fff; border: 2px solid var(--card-border);
+      border-radius: 12px; padding: 14px; margin-bottom: 12px;
+    }
+    .profile-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+    .pf { margin-bottom: 10px; }
+    .pf label { display: block; font-size: 13px; color: var(--muted); }
+    .pf span { font-size: 17px; font-weight: 700; }
+
+    .tag {
+      display: inline-block; padding: 2px 8px; border-radius: 999px;
+      font-size: 0.65rem; font-weight: 700; margin-left: 4px; vertical-align: middle;
+    }
+    .tag.bg { background: #dbeafe; color: #1e40af; }
+    .tag.done { background: #dcfce7; color: #16a34a; }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>Ambient Listening — Background Processing Prototype</h1>
+    <p>Interactive demo matching CipherRounds. Check <strong>Finish processing in the background</strong> to continue using the app.</p>
+    <div class="share-row">
+      <span class="share-url" id="shareUrl"></span>
+      <button type="button" class="share-btn" id="btnCopyLink">Copy link</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="panel">
+      <h2>Flow</h2>
+      <ol class="flow-steps" id="flowSteps">
+        <li data-step="processing"><span class="num">1</span><span>Processing modal</span></li>
+        <li data-step="background"><span class="num">2</span><span>Background — navigate freely</span></li>
+        <li data-step="toast"><span class="num">3</span><span>Toast on another screen</span></li>
+        <li data-step="review"><span class="num">4</span><span>Needs Review → filled answers</span></li>
+      </ol>
+      <div class="hint" id="flowHint">Processing modal is open. Bar shows Recording Processing.</div>
+    </aside>
+
+    <main>
+      <div class="screen-label" id="screenLabel">Round — Processing</div>
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="phone-inner">
+            <div class="toast hidden" id="toast"></div>
+
+            <!-- WORKLIST -->
+            <div class="screen" id="screenWorklist">
+              <div class="app-header worklist-header">
+                <div class="menu-row">
+                  <span class="menu-icon">☰</span>
+                  <div style="flex:1;text-align:center">
+                    <div class="script-title">BP - Nurse Leader Round ▾</div>
+                    <div class="script-sub">Tap to change the script</div>
+                  </div>
+                  <span style="width:22px"></span>
+                </div>
+                <input class="search-input" readonly placeholder="Search by full name" />
+                <div class="filter-row">
+                  <span class="chip-btn">Filters</span>
+                  <span class="chip-divider"></span>
+                  <span>🧹</span>
+                  <span class="chip-btn solid">Sort by: Priority Score ▾</span>
+                </div>
+              </div>
+              <div class="admit-tabs">
+                <button class="active">Currently Admitted (50)</button>
+                <button>Recently Discharged</button>
+              </div>
+              <div class="worklist-scroll">
+                <div class="worklist-inner">
+                <div class="patient-card">
+                  <div class="issue-badge">🔥 Has Issue</div>
+                  <div class="card-top">
+                    <div class="patient-name">B. Barrows</div>
+                    <div class="flag-row">
+                      <span style="background:#c5e17a"></span>
+                      <span style="background:#f5a623"></span>
+                      <span style="background:#b39ddb"></span>
+                    </div>
+                  </div>
+                  <div class="loc-row">
+                    <span class="loc-chip">🚪 958-8</span>
+                    <span class="loc-chip">🏥 W South</span>
+                  </div>
+                  <div class="card-grid">
+                    <div>
+                      <div class="label">Date Of Birth</div>
+                      <div class="val">02/12/1925</div>
+                      <div class="label" style="margin-top:6px">Arrival Date</div>
+                      <div class="val" style="font-size:12px">7/29/23, 8:22 AM</div>
+                    </div>
+                    <div class="stat-row">
+                      <div class="stat-box red">
+                        <div class="stat-head"><span>Priority Score</span><span class="info-ico">!</span></div>
+                        <div class="stat-body"><div class="big">82</div><div class="sub">High</div></div>
+                      </div>
+                      <div class="stat-box">
+                        <div class="stat-head"><span>Last Rounded</span><span class="sync-ico">↻</span></div>
+                        <div class="stat-body">
+                          <div class="time" id="lastRoundedText"><span class="time-num">~ 2</span> weeks ago</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-actions">
+                    <button class="btn-round" id="btnRoundPatient" disabled>📝 Round</button>
+                    <button class="btn-more">···</button>
+                  </div>
+                  <div class="card-tabs">
+                    <div class="ct"><div class="ico">📅</div>Activity Feed</div>
+                    <div class="ct"><div class="ico">🔥</div>Open Issues (0)</div>
+                    <div class="ct"><div class="ico">📋</div>Care Notes (0)</div>
+                    <div class="ct"><div class="ico">🚩</div>Flags (2)</div>
+                  </div>
+                </div>
+
+                <div class="patient-card secondary">
+                  <div class="card-top">
+                    <div class="patient-name">D. Smith</div>
+                    <div class="flag-row">
+                      <span style="background:#c5e17a"></span>
+                      <span style="background:#f5a623"></span>
+                      <span style="background:#7e57c2"></span>
+                      <span style="background:#3949ab"></span>
+                      <span style="background:#e53935"></span>
+                    </div>
+                  </div>
+                  <div class="loc-row">
+                    <span class="loc-chip">🚪 931-11</span>
+                    <span class="loc-chip">🏥 1 South</span>
+                  </div>
+                  <div class="card-grid">
+                    <div>
+                      <div class="label">Date Of Birth</div>
+                      <div class="val">11/04/1948</div>
+                      <div class="label" style="margin-top:6px">Arrival Date</div>
+                      <div class="val" style="font-size:12px">8/02/23, 2:15 PM</div>
+                    </div>
+                    <div class="stat-row">
+                      <div class="stat-box amber">
+                        <div class="stat-head"><span>Priority Score</span><span class="info-ico">!</span></div>
+                        <div class="stat-body"><div class="big">58</div><div class="sub">Medium</div></div>
+                      </div>
+                      <div class="stat-box">
+                        <div class="stat-head"><span>Last Rounded</span><span class="sync-ico">↻</span></div>
+                        <div class="stat-body">
+                          <div class="time"><span class="time-num">~ 3</span> weeks ago</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-actions">
+                    <button class="btn-round" disabled>📝 Round</button>
+                    <button class="btn-more">···</button>
+                  </div>
+                  <div class="card-tabs">
+                    <div class="ct"><div class="ico">📅</div>Activity Feed</div>
+                    <div class="ct"><div class="ico">🔥</div>Open Issues (1)</div>
+                    <div class="ct"><div class="ico">📋</div>Care Notes (2)</div>
+                    <div class="ct"><div class="ico">🚩</div>Flags (0)</div>
+                  </div>
+                </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROUND -->
+            <div class="screen active" id="screenRound">
+              <div class="app-header">
+                <button class="nav-btn" id="btnBack" disabled>Back</button>
+                <div class="title">B. Barrows</div>
+                <button class="nav-btn right">Submit</button>
+              </div>
+              <div id="recordingBar"></div>
+              <div class="ai-bar"><span>✦</span> AI Insights <span class="link">See Details</span></div>
+              <div class="jump-field">Jump to question</div>
+              <div class="questions" id="questions"></div>
+              <div class="script-footer">
+                <span class="name">BP - Nurse Leader Round</span>
+                <span class="count" id="progressText">0/18</span>
+                <button class="close">×</button>
+              </div>
+              <div class="tab-bar" id="tabBar">
+                <button class="active" data-tab="round"><span class="tab-ico">✎</span>Round</button>
+                <button disabled><span class="tab-ico">📅</span>History</button>
+                <button disabled><span class="tab-ico">🎙</span>Care Recordings</button>
+                <button disabled><span class="tab-ico">🚩</span>Flags</button>
+                <button data-tab="profile" id="tabProfile"><span class="tab-ico">👤</span>Profile</button>
+              </div>
+              <div class="modal" id="modal">
+                <div class="modal-card">
+                  <h3 id="modalTitle">Processing . . .</h3>
+                  <img class="processing-icon" id="modalProcessingIcon" src="ambient-listening-prototype-assets/processing-modal-icon.png" alt="Processing">
+                  <div class="modal-success-icon hidden" id="modalSuccessIcon">✓</div>
+                  <label class="check-row" id="checkRow">
+                    <span class="check-box" id="checkBox"></span>
+                    <span><strong>Finish processing in the background</strong><span>Continue using the app while processing completes</span></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- PROFILE -->
+            <div class="screen" id="screenProfile">
+              <div class="app-header">
+                <button class="nav-btn" id="btnBackProfile">Back</button>
+                <div class="title">B. Barrows</div>
+                <button class="nav-btn right" style="visibility:hidden">Submit</button>
+              </div>
+              <div class="profile-body">
+                <div class="profile-card">
+                  <h3>Patient Information</h3>
+                  <div class="pf"><label>Date Of Birth</label><span>02/12/1925</span></div>
+                  <div class="pf"><label>Room</label><span>958-8 · W South</span></div>
+                  <div class="pf"><label>Arrival Date</label><span>7/29/23, 8:22 AM</span></div>
+                </div>
+              </div>
+              <div class="script-footer">
+                <span class="name">BP - Nurse Leader Round</span>
+                <span class="count">0/18</span>
+                <button class="close">×</button>
+              </div>
+              <div class="tab-bar">
+                <button data-tab="round" id="tabProfileRound"><span class="tab-ico">✎</span>Round</button>
+                <button disabled><span class="tab-ico">📅</span>History</button>
+                <button disabled><span class="tab-ico">🎙</span>Care Recordings</button>
+                <button disabled><span class="tab-ico">🚩</span>Flags</button>
+                <button class="active"><span class="tab-ico">👤</span>Profile</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="panel">
+      <h2>Demo controls</h2>
+      <button class="demo-btn primary" id="btnRestart">↺ Restart demo</button>
+      <button class="demo-btn" id="btnSuccess">✓ Simulate success</button>
+      <button class="demo-btn danger" id="btnFailure" disabled>✕ Simulate failure</button>
+      <div class="hint">Stay on the page (don’t check background) and click <strong>Simulate success</strong> to see the modal checkmark. Or check background first, navigate away, then simulate success/failure for toasts.</div>
+    </aside>
+  </div>
+
+  <script>
+    const QUESTIONS = [
+      { section: 'Introduction', items: [
+        { id: 'q1', name: 'Ability to Round', ans: 'Yes - Round on patient' },
+      ]},
+      { section: 'Visual Sweep', items: [
+        { id: 'q2', name: 'Whiteboard', ans: 'Yes' },
+        { id: 'q3', name: 'Cleanliness', ans: 'None - Environment is acceptable' },
+        { id: 'q4', name: 'Facilities and Engineering', ans: null },
+      ]},
+      { section: 'Preference', items: [
+        { id: 'q5', name: 'Patient Preference', ans: null },
+      ]},
+      { section: 'Responsiveness', items: [
+        { id: 'q6', name: 'Care Team Responsiveness', ans: null },
+      ]},
+    ];
+
+    const state = {
+      screen: 'round',
+      phase: 'blocking', // blocking | background | complete | failed
+      modalStatus: 'processing', // processing | success
+      checked: false,
+      done: false,
+      finishing: false,
+    };
+
+    const $ = id => document.getElementById(id);
+
+    function renderQuestions(filled) {
+      $('questions').innerHTML = QUESTIONS.map(sec => `
+        <div class="q-section">${sec.section}</div>
+        ${sec.items.map(q => {
+          const has = filled && q.ans;
+          return `<div class="q-row">
+            <span class="mark ${has ? '' : 'empty'}">${has ? '✓' : ''}</span>
+            <div class="txt">
+              <div class="name">${q.name}${has ? ' <span class="ai-tag">AI</span>' : ''}</div>
+              ${has ? `<div class="ans">${q.ans}</div>` : ''}
+            </div>
+            <span class="chev">›</span>
+          </div>`;
+        }).join('')}
+      `).join('');
+    }
+
+    function renderBar() {
+      const bar = $('recordingBar');
+      const processing = (state.phase === 'blocking' || state.phase === 'background') && state.modalStatus !== 'success';
+      if (processing) {
+        bar.innerHTML = '<span class="spinner"></span><span class="center">Recording Processing</span><span style="width:20px"></span>';
+        bar.className = 'recording-bar';
+      } else if (state.phase === 'complete' || state.modalStatus === 'success') {
+        bar.innerHTML = '<span class="check">✓</span><span class="center">Recording Complete</span><button class="btn-start">Start</button>';
+        bar.className = 'recording-bar';
+      } else {
+        bar.innerHTML = '<span class="check">!</span><span class="center">Processing Failed</span><button class="btn-start" style="border-color:#fca5a5;color:#fca5a5">Retry</button>';
+        bar.className = 'recording-bar';
+      }
+    }
+
+    function setFlow(step) {
+      document.querySelectorAll('.flow-steps li').forEach(li => {
+        li.classList.remove('active', 'done');
+        const order = ['processing', 'background', 'toast', 'review'];
+        const i = order.indexOf(step), j = order.indexOf(li.dataset.step);
+        if (li.dataset.step === step) li.classList.add('active');
+        else if (j < i) li.classList.add('done');
+      });
+    }
+
+    function toast(type) {
+      if (state.screen === 'round') return;
+      const t = $('toast');
+      t.className = 'toast ' + (type === 'ok' ? 'ok' : 'err');
+      t.textContent = type === 'ok' ? '✓ Your recording finished processing' : '✕ Your recording failed to process';
+      setTimeout(() => { t.className = 'toast hidden'; }, 4000);
+    }
+
+    function renderModal() {
+      const showModal = state.phase === 'blocking' && !state.done;
+      $('modal').classList.toggle('hidden', !showModal);
+
+      const isSuccess = state.modalStatus === 'success';
+      $('modalTitle').textContent = isSuccess ? 'Success' : 'Processing . . .';
+      $('modalProcessingIcon').classList.toggle('hidden', isSuccess);
+      $('modalSuccessIcon').classList.toggle('hidden', !isSuccess);
+      $('checkRow').classList.toggle('hidden', isSuccess);
+    }
+
+    function update() {
+      const locked = state.phase === 'blocking' && !state.done;
+
+      $('screenWorklist').classList.toggle('active', state.screen === 'worklist');
+      $('screenRound').classList.toggle('active', state.screen === 'round');
+      $('screenProfile').classList.toggle('active', state.screen === 'profile');
+
+      renderModal();
+      $('checkBox').classList.toggle('on', state.checked);
+      $('checkBox').textContent = state.checked ? '✓' : '';
+
+      $('btnBack').disabled = locked;
+      $('tabProfile').disabled = locked;
+
+      const canSimulate = (state.phase === 'blocking' || state.phase === 'background') && !state.done && !state.finishing;
+      $('btnSuccess').disabled = !canSimulate;
+      $('btnFailure').disabled = !(state.phase === 'background' && !state.done && !state.finishing);
+
+      const lastRounded = $('lastRoundedText');
+      if (state.done) {
+        lastRounded.textContent = 'Needs Review';
+        lastRounded.classList.add('review');
+      } else {
+        lastRounded.classList.remove('review');
+        lastRounded.innerHTML = '<span class="time-num">~ 2</span> weeks ago';
+      }
+      $('btnRoundPatient').disabled = !state.done;
+
+      renderBar();
+      renderQuestions(state.phase === 'complete' || state.modalStatus === 'success');
+      $('progressText').textContent = (state.phase === 'complete' || state.modalStatus === 'success') ? '6/18' : '0/18';
+
+      const labels = {
+        round: {
+          blocking: state.modalStatus === 'success' ? 'Round — Recording Complete' : 'Round — Processing',
+          background: 'Round — Recording Processing',
+          complete: 'Round — Recording Complete',
+          failed: 'Round — Failed',
+        },
+        worklist: 'Patient worklist',
+        profile: 'Profile tab',
+      };
+      const tags = {
+        background: '<span class="tag bg">Background</span>',
+        complete: '<span class="tag done">Complete</span>',
+      };
+      let lbl = state.screen === 'round' ? labels.round[state.phase] : labels[state.screen];
+      let tag = '';
+      if (state.screen === 'round') {
+        if (state.modalStatus === 'success' || state.phase === 'complete') tag = tags.complete;
+        else if (state.phase === 'background') tag = tags.background;
+      }
+      $('screenLabel').innerHTML = lbl + tag;
+
+      if (state.phase === 'blocking' && state.modalStatus === 'success') {
+        $('flowHint').textContent = 'Processing complete — modal shows success checkmark, then dismisses to filled answers.';
+      } else if (state.phase === 'blocking') {
+        $('flowHint').textContent = 'Processing modal is open. Wait here or check background to navigate away.';
+      } else if (state.phase === 'background') {
+        $('flowHint').textContent = 'Recording processing in background. Navigate with Back or Profile tab.';
+      } else if (state.phase === 'complete' && state.screen === 'round') {
+        $('flowHint').textContent = 'Recording complete — AI-filled answers visible. Needs Review on worklist.';
+      } else {
+        $('flowHint').textContent = 'Processing finished. Return to worklist to see Needs Review or toast.';
+      }
+
+      if (state.phase === 'blocking') setFlow('processing');
+      else if (state.phase === 'background') setFlow('background');
+      else if (state.done && state.screen !== 'round') setFlow('toast');
+      else if (state.phase === 'complete' && state.screen === 'round') setFlow('review');
+    }
+
+    function go(screen) {
+      if (state.phase === 'blocking' && !state.done && screen !== 'round') return;
+      state.screen = screen;
+      update();
+    }
+
+    function finish(outcome) {
+      state.done = true;
+      state.finishing = false;
+      state.phase = outcome === 'ok' ? 'complete' : 'failed';
+      update();
+      if (state.screen !== 'round') toast(outcome);
+    }
+
+    function simulateSuccess() {
+      if (state.done || state.finishing) return;
+      if (state.phase === 'background') {
+        finish('ok');
+        return;
+      }
+      if (state.phase === 'blocking') {
+        state.finishing = true;
+        state.modalStatus = 'success';
+        update();
+        setTimeout(() => finish('ok'), 1400);
+      }
+    }
+
+    function restart() {
+      Object.assign(state, {
+        screen: 'round',
+        phase: 'blocking',
+        modalStatus: 'processing',
+        checked: false,
+        done: false,
+        finishing: false,
+      });
+      $('toast').classList.add('hidden');
+      update();
+    }
+
+    $('checkRow').onclick = () => {
+      if (state.phase !== 'blocking' || state.finishing) return;
+      state.checked = true;
+      state.phase = 'background';
+      update();
+    };
+    $('btnBack').onclick = () => go('worklist');
+    $('btnBackProfile').onclick = () => go('worklist');
+    $('tabProfile').onclick = () => go('profile');
+    $('tabProfileRound').onclick = () => go('round');
+    $('btnRoundPatient').onclick = () => { if (state.done) go('round'); };
+    $('btnSuccess').onclick = simulateSuccess;
+    $('btnFailure').onclick = () => finish('err');
+    $('btnRestart').onclick = restart;
+
+    const publishedUrl = 'https://mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-background-processing-prototype.html';
+    const shareUrl = (location.protocol === 'file:' || location.protocol === 'null:' || !location.hostname)
+      ? publishedUrl
+      : `${location.origin}${location.pathname}`.replace(/\/+$/, '');
+    $('shareUrl').textContent = shareUrl;
+    document.querySelector('meta[property="og:url"]')?.setAttribute('content', shareUrl);
+    $('btnCopyLink').onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        $('btnCopyLink').textContent = 'Copied!';
+        $('btnCopyLink').classList.add('copied');
+        setTimeout(() => {
+          $('btnCopyLink').textContent = 'Copy link';
+          $('btnCopyLink').classList.remove('copied');
+        }, 2000);
+      } catch {
+        window.prompt('Copy this link:', shareUrl);
+      }
+    };
+
+    renderQuestions(false);
+    update();
+  </script>
+</body>
+</html>

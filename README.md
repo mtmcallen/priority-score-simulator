@@ -50,6 +50,7 @@ Your team can then use a stable URL like `https://<org>.github.io/priority-score
 | **Automated Voice Talent and Language Enhancements Hype Flyer** (editable) | [mtmcallen.github.io/priority-score-simulator/docs/automated-voice-talent-language-enhancements-hype-flyer.html](https://mtmcallen.github.io/priority-score-simulator/docs/automated-voice-talent-language-enhancements-hype-flyer.html) |
 | **Ambient Listening Consent by Roundable Type** (design spec — Evolve settings, mobile modals, API) | [mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-consent-by-roundable-type-spec.html](https://mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-consent-by-roundable-type-spec.html) |
 | **Ambient Listening Background Processing** (design spec — processing modal, recording bar, toasts) | [mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-background-processing-spec.html](https://mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-background-processing-spec.html) |
+| **Ambient Listening Background Processing Prototype** (interactive mobile mockup — blocking vs background flow) | [mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-background-processing-prototype.html](https://mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-background-processing-prototype.html) |
 
 Open the flyer in a browser, click highlighted fields to customize for an account, paste a QR code image, then print or save as PDF.
 
