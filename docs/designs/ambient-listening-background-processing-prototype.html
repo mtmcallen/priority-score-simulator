@@ -147,7 +147,7 @@
       position: relative;
     }
 
-    .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
+    .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; position: relative; }
     .screen.active { display: flex; }
 
     /* Shared header */
@@ -159,6 +159,8 @@
       align-items: center;
       justify-content: space-between;
       flex-shrink: 0;
+      position: relative;
+      z-index: 25;
     }
     .app-header.worklist-header {
       flex-direction: column;
@@ -171,7 +173,8 @@
       font-size: 17px; cursor: pointer; padding: 0; min-width: 60px; text-align: left;
     }
     .app-header .nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-    .app-header .nav-btn.right { text-align: right; font-weight: 600; }
+    .app-header .nav-btn.right { text-align: right; font-weight: 600; cursor: pointer; }
+    .app-header .nav-btn.right:disabled { opacity: 0.35; cursor: not-allowed; }
     .app-header .title { font-size: 17px; font-weight: 600; text-align: center; flex: 1; }
     .app-header .menu-row { display: flex; align-items: center; gap: 10px; }
     .app-header .menu-icon { font-size: 22px; line-height: 1; }
@@ -451,6 +454,38 @@
     .toast.ok { background: var(--green); }
     .toast.err { background: var(--red); }
 
+    .alert-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 50; padding: 32px;
+    }
+    .alert-overlay.hidden { display: none; }
+    .alert-card {
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(12px);
+      border-radius: 14px;
+      width: 100%; max-width: 270px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.22);
+      text-align: center;
+    }
+    .alert-card .alert-body { padding: 20px 18px 16px; }
+    .alert-card .alert-title {
+      font-size: 17px; font-weight: 600; margin-bottom: 8px; line-height: 1.25;
+    }
+    .alert-card .alert-message {
+      font-size: 14px; color: #3a3a3c; line-height: 1.4;
+    }
+    .alert-card .alert-actions {
+      border-top: 1px solid rgba(60,60,67,0.18);
+    }
+    .alert-card .alert-btn {
+      width: 100%; border: none; background: none;
+      padding: 13px 16px; font-size: 17px; font-weight: 600;
+      color: var(--teal); cursor: pointer;
+    }
+    .alert-card .alert-btn:active { background: rgba(0,0,0,0.04); }
+
     .profile-body { flex: 1; overflow-y: auto; padding: 14px; }
     .profile-card {
       background: #fff; border: 2px solid var(--card-border);
@@ -497,6 +532,17 @@
         <div class="phone">
           <div class="phone-inner">
             <div class="toast hidden" id="toast"></div>
+            <div class="alert-overlay hidden" id="submitAlert" role="alertdialog" aria-modal="true" aria-labelledby="submitAlertTitle" aria-describedby="submitAlertMessage">
+              <div class="alert-card">
+                <div class="alert-body">
+                  <div class="alert-title" id="submitAlertTitle">Cannot submit round</div>
+                  <div class="alert-message" id="submitAlertMessage">You cannot submit this round until the recording has finished processing.</div>
+                </div>
+                <div class="alert-actions">
+                  <button type="button" class="alert-btn" id="btnDismissSubmitAlert">OK</button>
+                </div>
+              </div>
+            </div>
 
             <!-- WORKLIST -->
             <div class="screen" id="screenWorklist">
@@ -624,7 +670,7 @@
               <div class="app-header">
                 <button class="nav-btn" id="btnBack" disabled>Back</button>
                 <div class="title">B. Barrows</div>
-                <button class="nav-btn right">Submit</button>
+                <button class="nav-btn right" id="btnSubmit" type="button">Submit</button>
               </div>
               <div id="recordingBar"></div>
               <div class="ai-bar"><span>✦</span> AI Insights <span class="link">See Details</span></div>
@@ -693,7 +739,7 @@
       <button class="demo-btn primary" id="btnRestart">↺ Restart demo</button>
       <button class="demo-btn" id="btnSuccess">✓ Simulate success</button>
       <button class="demo-btn danger" id="btnFailure" disabled>✕ Simulate failure</button>
-      <div class="hint">Stay on the page (don’t check background) and click <strong>Simulate success</strong> to see the modal checkmark. Or check background first, navigate away, then simulate success/failure for toasts.</div>
+      <div class="hint">Tap <strong>Submit</strong> while processing is active to see the blocked-submit alert. Stay on the page (don’t check background) and click <strong>Simulate success</strong> to see the modal checkmark. Or check background first, navigate away, then simulate success/failure for toasts.</div>
     </aside>
   </div>
 
@@ -774,6 +820,32 @@
       t.className = 'toast ' + (type === 'ok' ? 'ok' : 'err');
       t.textContent = type === 'ok' ? '✓ Your recording finished processing' : '✕ Your recording failed to process';
       setTimeout(() => { t.className = 'toast hidden'; }, 4000);
+    }
+
+    function isRecordingProcessing() {
+      if (state.done || state.finishing) return true;
+      if (state.phase === 'complete' || state.phase === 'failed') return false;
+      return state.phase === 'blocking' || state.phase === 'background';
+    }
+
+    function showSubmitBlockedAlert() {
+      const alert = $('submitAlert');
+      alert.classList.remove('hidden');
+      alert.style.display = 'flex';
+    }
+
+    function hideSubmitBlockedAlert() {
+      const alert = $('submitAlert');
+      alert.classList.add('hidden');
+      alert.style.display = '';
+    }
+
+    function trySubmit(e) {
+      e?.preventDefault?.();
+      e?.stopPropagation?.();
+      if (isRecordingProcessing()) {
+        showSubmitBlockedAlert();
+      }
     }
 
     function renderModal() {
@@ -869,6 +941,7 @@
       state.done = true;
       state.finishing = false;
       state.phase = outcome === 'ok' ? 'complete' : 'failed';
+      hideSubmitBlockedAlert();
       update();
       if (state.screen !== 'round') toast(outcome);
     }
@@ -897,6 +970,7 @@
         finishing: false,
       });
       $('toast').classList.add('hidden');
+      hideSubmitBlockedAlert();
       update();
     }
 
@@ -911,6 +985,12 @@
     $('tabProfile').onclick = () => go('profile');
     $('tabProfileRound').onclick = () => go('round');
     $('btnRoundPatient').onclick = () => { if (state.done) go('round'); };
+    $('btnSubmit').onclick = trySubmit;
+    $('btnDismissSubmitAlert').onclick = hideSubmitBlockedAlert;
+    $('submitAlert').onclick = e => { if (e.target === $('submitAlert')) hideSubmitBlockedAlert(); };
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') hideSubmitBlockedAlert();
+    });
     $('btnSuccess').onclick = simulateSuccess;
     $('btnFailure').onclick = () => finish('err');
     $('btnRestart').onclick = restart;
