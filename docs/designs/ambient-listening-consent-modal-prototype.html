@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive CipherRounds prototype for the Ambient Listening consent modal with No Consent Needed third button.">
+  <meta property="og:title" content="Ambient Listening — Consent Modal Prototype">
+  <meta property="og:description" content="Clickable mobile mockup: Consent Given, Declined, and No Consent Needed by roundable type.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-consent-modal-prototype.html">
+  <title>Ambient Listening — Consent Modal Prototype</title>
+  <style>
+    :root {
+      --teal: #1aab9c;
+      --teal-dark: #0f9989;
+      --teal-header: linear-gradient(180deg, #1aab9c 0%, #22b89e 100%);
+      --bar-dark: #3b3b3b;
+      --bar-footer: #5c5c5c;
+      --ai-banner: #f0b429;
+      --text: #1c1c1e;
+      --muted: #8e8e93;
+      --border: #e5e7eb;
+      --bg: #f2f2f7;
+      --green: #34c759;
+      --red: #ff3b30;
+      --panel-dark: #2d2660;
+      --mustard: #fef3c7;
+      --violet: #5b4fb5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: #f2f1f9;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page-header {
+      background: var(--panel-dark);
+      color: #fff;
+      padding: 1rem 1.5rem;
+      border-bottom: 4px solid var(--teal);
+    }
+    .page-header h1 { font-size: 1.1rem; font-weight: 700; }
+    .page-header p { font-size: 0.82rem; opacity: 0.9; margin-top: 0.35rem; max-width: 52rem; }
+    .share-row {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem;
+      margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.15);
+    }
+    .share-row .share-url {
+      flex: 1; min-width: 200px; font-size: 0.78rem; opacity: 0.85;
+      word-break: break-all; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .share-btn {
+      border: 1px solid rgba(255,255,255,0.45); background: rgba(255,255,255,0.12);
+      color: #fff; border-radius: 8px; padding: 0.45rem 0.85rem;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+    }
+    .share-btn.copied { background: rgba(52, 199, 89, 0.25); border-color: #34c759; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr 280px;
+      gap: 1rem;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 1rem;
+      align-items: start;
+    }
+    @media (max-width: 1050px) { .layout { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem;
+    }
+    .panel h2 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
+    .hint {
+      font-size: 0.74rem; color: var(--muted); line-height: 1.45;
+      padding: 0.5rem; background: #f8f8fc; border-radius: 8px; margin-top: 0.5rem;
+    }
+    .outcome {
+      margin-top: 0.65rem; padding: 0.65rem 0.75rem; border-radius: 8px;
+      font-size: 0.76rem; line-height: 1.45; background: #f3f4f6; color: #444;
+    }
+    .outcome strong { color: var(--text); display: block; margin-bottom: 0.2rem; }
+    .outcome.given { background: #dcfce7; color: #166534; }
+    .outcome.declined { background: #fee2e2; color: #991b1b; }
+    .outcome.not-needed { background: #eef2ff; color: #3730a3; }
+
+    .demo-btn {
+      display: block; width: 100%; margin-top: 0.4rem;
+      padding: 0.5rem 0.6rem; border-radius: 8px;
+      border: 1px solid var(--border); background: #fff;
+      font-size: 0.76rem; font-weight: 600; cursor: pointer; text-align: left;
+    }
+    .demo-btn.primary { background: var(--teal); color: #fff; border-color: var(--teal); }
+    .demo-btn.active { outline: 2px solid var(--teal); outline-offset: 1px; }
+
+    .toggle-row {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      font-size: 0.76rem; margin-top: 0.55rem; cursor: pointer;
+    }
+    .toggle-box {
+      width: 18px; height: 18px; border: 2px solid var(--teal); border-radius: 4px;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff; margin-top: 1px;
+    }
+    .toggle-box.on { background: var(--teal); }
+
+    .screen-label {
+      text-align: center; font-size: 0.72rem; font-weight: 600;
+      color: var(--muted); margin-bottom: 0.5rem;
+    }
+
+    .phone-wrap { display: flex; justify-content: center; }
+    .phone {
+      width: 390px; height: 844px; background: #000;
+      border-radius: 44px; padding: 12px;
+      box-shadow: 0 20px 60px rgba(45, 38, 96, 0.18);
+    }
+    .phone-inner {
+      width: 100%; height: 100%; border-radius: 34px; overflow: hidden;
+      background: var(--bg); position: relative; display: flex; flex-direction: column;
+    }
+    .phone-inner.large-text .app-header .nav-btn,
+    .phone-inner.large-text .app-header .title { font-size: 26px; }
+    .phone-inner.large-text .app-header { padding-top: 44px; padding-bottom: 12px; }
+    .phone-inner.large-text .recording-bar { font-size: 24px; min-height: 58px; padding: 14px; }
+    .phone-inner.large-text .recording-bar .btn-start { font-size: 24px; padding: 8px 16px; }
+    .phone-inner.large-text .ai-bar { font-size: 24px; padding: 14px 16px; }
+    .phone-inner.large-text .jump-field { font-size: 24px; padding: 14px; margin: 12px 14px; }
+    .phone-inner.large-text .q-row { font-size: 28px; padding: 18px 14px; line-height: 1.25; }
+    .phone-inner.large-text .script-footer { font-size: 22px; padding: 14px; }
+    .phone-inner.large-text .consent-sheet { max-height: 90%; }
+    .phone-inner.large-text .sheet-header { font-size: 28px; padding: 16px; }
+    .phone-inner.large-text .sheet-header .icon { width: 28px; height: 28px; }
+    .phone-inner.large-text .sheet-header .close { font-size: 32px; }
+    .phone-inner.large-text .declined-banner { font-size: 22px; padding: 14px; }
+    .phone-inner.large-text .declined-banner strong { font-size: 24px; margin-bottom: 4px; }
+    .phone-inner.large-text .instruction { font-size: 26px; line-height: 1.35; }
+    .phone-inner.large-text .script-box .label { font-size: 18px; }
+    .phone-inner.large-text .script-line { font-size: 24px; line-height: 1.35; margin: 10px 0; }
+    .phone-inner.large-text .footnote { font-size: 20px; }
+    .phone-inner.large-text .consent-btn { font-size: 24px; padding: 16px 12px; line-height: 1.25; }
+    .phone-inner.large-text .sheet-footer { flex-direction: column; gap: 10px; padding: 14px 16px 28px; }
+    .phone-inner.large-text .sheet-footer .consent-btn { flex: none; width: 100%; }
+    .tag.large { background: #fef3c7; color: #92400e; }
+
+    .app-header {
+      background: var(--teal-header); color: #fff;
+      padding: 48px 14px 10px; display: flex; align-items: center;
+      justify-content: space-between; flex-shrink: 0;
+    }
+    .app-header .nav-btn {
+      background: none; border: none; color: #fff; font-size: 17px;
+      cursor: pointer; min-width: 60px; text-align: left;
+    }
+    .app-header .title { font-size: 17px; font-weight: 600; text-align: center; flex: 1; }
+
+    .recording-bar {
+      background: var(--bar-dark); color: #fff;
+      padding: 11px 14px; display: flex; align-items: center; gap: 8px;
+      flex-shrink: 0; min-height: 44px; font-size: 15px; font-weight: 600;
+    }
+    .recording-bar .center { flex: 1; text-align: center; }
+    .recording-bar .btn-start {
+      border: 1.5px solid #7dd3c0; color: #7dd3c0; background: transparent;
+      border-radius: 8px; padding: 4px 14px; font-size: 15px; font-weight: 600; cursor: pointer;
+    }
+    .recording-bar.recording .btn-start { display: none; }
+    .recording-bar.recording .dot {
+      width: 10px; height: 10px; background: #ff3b30; border-radius: 50%;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse { 50% { opacity: 0.4; } }
+
+    .round-body { flex: 1; overflow: hidden; background: var(--bg); }
+    .ai-bar {
+      background: var(--ai-banner); padding: 10px 14px;
+      font-size: 15px; font-weight: 600;
+    }
+    .jump-field {
+      margin: 10px 14px; padding: 10px 12px; background: #fff;
+      border-radius: 10px; font-size: 15px; color: var(--muted);
+    }
+    .q-row {
+      background: #fff; border-bottom: 1px solid var(--border);
+      padding: 14px; font-size: 17px; font-weight: 600;
+    }
+
+    .script-footer {
+      background: var(--bar-footer); color: #fff;
+      padding: 10px 14px; display: flex; align-items: center;
+      flex-shrink: 0; font-size: 14px;
+    }
+    .script-footer .name { flex: 1; }
+    .script-footer .count { margin-right: 10px; font-weight: 600; }
+
+    /* Consent sheet */
+    .overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.35);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      z-index: 10;
+    }
+    .overlay.hidden { display: none; }
+
+    .consent-sheet {
+      background: #fff; border-radius: 16px 16px 0 0;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
+      max-height: 78%; display: flex; flex-direction: column;
+    }
+    .sheet-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      font-size: 17px; font-weight: 700;
+    }
+    .sheet-header .icon {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--ai-banner); flex-shrink: 0;
+    }
+    .sheet-header .close {
+      margin-left: auto; background: none; border: none;
+      font-size: 22px; color: var(--muted); cursor: pointer; line-height: 1;
+    }
+    .sheet-body {
+      padding: 14px 16px 8px; overflow-y: auto;
+    }
+    .declined-banner {
+      background: var(--mustard); border-radius: 10px;
+      padding: 10px 12px; margin-bottom: 12px; font-size: 13px; line-height: 1.35;
+    }
+    .declined-banner strong { display: block; font-size: 14px; margin-bottom: 2px; }
+    .instruction { font-size: 15px; line-height: 1.4; margin-bottom: 12px; }
+    .script-box {
+      background: #f3f4f6; border-radius: 10px; padding: 12px;
+    }
+    .script-box .label {
+      font-size: 12px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px;
+    }
+    .script-line {
+      border-left: 3px solid var(--teal); padding-left: 10px;
+      margin: 6px 0; font-size: 14px; line-height: 1.35; color: #333;
+    }
+    .footnote { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.35; }
+
+    .sheet-footer {
+      display: flex; gap: 8px; padding: 12px 16px 24px;
+      border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    .sheet-footer.two-btn .consent-btn { flex: 1; }
+    .sheet-footer.three-btn { flex-wrap: wrap; }
+    .sheet-footer.three-btn .consent-btn { flex: 1 1 calc(33.333% - 6px); min-width: 0; }
+
+    .consent-btn {
+      border: none; border-radius: 10px; padding: 12px 6px;
+      font-size: 13px; font-weight: 700; cursor: pointer; line-height: 1.2;
+    }
+    .consent-btn.primary { background: var(--teal); color: #fff; }
+    .consent-btn.secondary {
+      background: #fff; color: #374151;
+      border: 1.5px solid #d1d5db;
+    }
+    .consent-btn.optional {
+      background: #f8fafc; color: var(--violet);
+      border: 1.5px solid #c7d2fe;
+    }
+    .consent-btn:active { opacity: 0.85; }
+
+    .tag {
+      display: inline-block; padding: 2px 8px; border-radius: 999px;
+      font-size: 0.65rem; font-weight: 700; margin-left: 4px; vertical-align: middle;
+    }
+    .tag.on { background: #dcfce7; color: #16a34a; }
+    .tag.off { background: #fee2e2; color: #991b1b; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>Ambient Listening — Consent Modal Prototype</h1>
+    <p>Interactive consent sheet before recording. Toggle <strong>No Consent Needed Button Enabled</strong> to show two vs three footer buttons.</p>
+    <div class="share-row">
+      <span class="share-url" id="shareUrl"></span>
+      <button type="button" class="share-btn" id="btnCopyLink">Copy link</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="panel">
+      <h2>Outcome</h2>
+      <div class="outcome" id="outcomeBox">
+        <strong>Waiting</strong>
+        Tap <em>Start</em> on the recording bar to open the consent modal.
+      </div>
+      <div class="hint" id="apiHint">API: no interaction attempt update yet.</div>
+    </aside>
+
+    <main>
+      <div class="screen-label" id="screenLabel">Patient round — consent modal</div>
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="phone-inner" id="phoneInner">
+            <div class="app-header">
+              <button class="nav-btn">Back</button>
+              <div class="title" id="headerTitle">B. Barrows</div>
+              <button class="nav-btn" style="text-align:right;font-weight:600">Submit</button>
+            </div>
+            <div class="recording-bar" id="recordingBar">
+              <span style="width:20px"></span>
+              <span class="center" id="barText">Ready to record</span>
+              <button type="button" class="btn-start" id="btnStart">Start</button>
+            </div>
+            <div class="round-body">
+              <div class="ai-bar">✦ AI Insights</div>
+              <div class="jump-field">Jump to question</div>
+              <div class="q-row">Ability to Round</div>
+              <div class="q-row">Whiteboard</div>
+              <div class="q-row">Cleanliness</div>
+            </div>
+            <div class="script-footer">
+              <span class="name">BP - Nurse Leader Round</span>
+              <span class="count">0/18</span>
+            </div>
+
+            <div class="overlay hidden" id="overlay">
+              <div class="consent-sheet">
+                <div class="sheet-header">
+                  <span class="icon"></span>
+                  Consent Required
+                  <button type="button" class="close" id="btnCloseModal" aria-label="Close">×</button>
+                </div>
+                <div class="sheet-body">
+                  <div class="declined-banner hidden" id="declinedBanner">
+                    <strong id="declinedTitle">B. Barrows previously declined recording</strong>
+                    Opted out of audio recording on their last round.
+                  </div>
+                  <p class="instruction" id="instructionText"></p>
+                  <div class="script-box">
+                    <div class="label">Suggested Script</div>
+                    <div id="scriptLines"></div>
+                  </div>
+                  <p class="footnote hidden" id="footnoteText"></p>
+                </div>
+                <div class="sheet-footer three-btn" id="sheetFooter">
+                  <button type="button" class="consent-btn primary" data-action="given">Consent Given</button>
+                  <button type="button" class="consent-btn secondary" data-action="declined">Declined</button>
+                  <button type="button" class="consent-btn optional" data-action="not_needed" id="btnNoConsent">No Consent Needed</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="panel">
+      <h2>Demo controls</h2>
+      <div style="font-size:0.72rem;font-weight:700;color:var(--muted);margin-top:0.25rem">Roundable type</div>
+      <button type="button" class="demo-btn active" data-type="patient">Patient</button>
+      <button type="button" class="demo-btn" data-type="location">Location</button>
+      <button type="button" class="demo-btn" data-type="staff">Staff</button>
+
+      <label class="toggle-row" id="toggleNoConsent">
+        <span class="toggle-box on" id="boxNoConsent">✓</span>
+        <span><strong>No Consent Needed button enabled</strong><span style="display:block;color:var(--muted);font-size:0.7rem;margin-top:2px">Evolve CP checkbox for this roundable type</span></span>
+      </label>
+      <label class="toggle-row" id="toggleDeclined">
+        <span class="toggle-box" id="boxDeclined"></span>
+        <span><strong>Previously declined banner</strong><span style="display:block;color:var(--muted);font-size:0.7rem;margin-top:2px">Show opt-out warning above instruction</span></span>
+      </label>
+
+      <label class="toggle-row" id="toggleLargeText">
+        <span class="toggle-box" id="boxLargeText"></span>
+        <span><strong>Large accessibility text (iOS XXXL)</strong><span style="display:block;color:var(--muted);font-size:0.7rem;margin-top:2px">Simulates max Dynamic Type — footer buttons stack vertically</span></span>
+      </label>
+
+      <button type="button" class="demo-btn primary" id="btnRestart">↺ Restart demo</button>
+      <div class="hint">Turn on large text and open the consent modal to review layout with three stacked action buttons.</div>
+    </aside>
+  </div>
+
+  <script>
+    const TYPES = {
+      patient: {
+        header: 'B. Barrows',
+        instruction: 'Please ask the patient for verbal consent before starting the recording.',
+        script: [
+          "I'd like to use a digital assistant to help document our conversation.",
+          'Your privacy is protected. The recording is used to fill in your survey.',
+          'Is it okay if I record our visit today?',
+        ],
+        declinedName: 'B. Barrows',
+        footnote: null,
+        label: 'Patient round',
+      },
+      location: {
+        header: '1 South',
+        instruction: 'If rounding on staff, ask for permission to record.',
+        script: [
+          "I'd like to use a digital assistant to help document our conversation.",
+          'Is it okay if I record while we talk?',
+        ],
+        declinedName: '1 South',
+        footnote: 'Use when staff are present during the location round.',
+        label: 'Location round',
+      },
+      staff: {
+        header: 'J. Martinez',
+        instruction: 'If rounding on a staff member, ask for permission to record.',
+        script: [
+          "I'd like to use a digital assistant to help document our conversation.",
+          'Is it okay if I record while we talk?',
+        ],
+        declinedName: 'J. Martinez',
+        footnote: null,
+        label: 'Staff round',
+      },
+    };
+
+    const state = {
+      type: 'patient',
+      noConsentEnabled: true,
+      showDeclined: false,
+      modalOpen: false,
+      recording: false,
+      outcome: null,
+      largeText: false,
+    };
+
+    const $ = id => document.getElementById(id);
+
+    function renderType() {
+      const cfg = TYPES[state.type];
+      $('headerTitle').textContent = cfg.header;
+      $('instructionText').textContent = cfg.instruction;
+      $('scriptLines').innerHTML = cfg.script.map(line => `<div class="script-line">"${line}"</div>`).join('');
+      $('declinedTitle').textContent = `${cfg.declinedName} previously declined recording`;
+      $('footnoteText').textContent = cfg.footnote || '';
+      $('footnoteText').classList.toggle('hidden', !cfg.footnote);
+      $('declinedBanner').classList.toggle('hidden', !state.showDeclined);
+    }
+
+    function renderFooter() {
+      const footer = $('sheetFooter');
+      const btn = $('btnNoConsent');
+      footer.classList.toggle('three-btn', state.noConsentEnabled);
+      footer.classList.toggle('two-btn', !state.noConsentEnabled);
+      btn.classList.toggle('hidden', !state.noConsentEnabled);
+    }
+
+    function renderBar() {
+      const bar = $('recordingBar');
+      const startBtn = $('btnStart');
+      if (state.recording) {
+        bar.classList.add('recording');
+        $('barText').textContent = 'Recording…';
+        startBtn.style.display = 'none';
+        if (!bar.querySelector('.dot')) {
+          const dot = document.createElement('span');
+          dot.className = 'dot';
+          bar.insertBefore(dot, $('barText'));
+        }
+      } else {
+        bar.classList.remove('recording');
+        const dot = bar.querySelector('.dot');
+        if (dot) dot.remove();
+        startBtn.style.display = '';
+        if (state.outcome === 'declined') {
+          $('barText').textContent = 'Recording unavailable';
+          startBtn.style.display = 'none';
+        } else if (state.outcome === 'given' || state.outcome === 'not_needed') {
+          $('barText').textContent = 'Recording Complete';
+          startBtn.textContent = 'Start';
+          startBtn.style.display = '';
+        } else {
+          $('barText').textContent = 'Ready to record';
+          startBtn.textContent = 'Start';
+        }
+      }
+    }
+
+    function renderOutcome() {
+      const box = $('outcomeBox');
+      const api = $('apiHint');
+      box.className = 'outcome';
+      if (!state.outcome) {
+        box.innerHTML = '<strong>Waiting</strong>Tap <em>Start</em> on the recording bar to open the consent modal.';
+        api.textContent = 'API: no interaction attempt update yet.';
+        return;
+      }
+      if (state.outcome === 'given') {
+        box.classList.add('given');
+        box.innerHTML = '<strong>Consent Given</strong>Modal dismissed. Recording started. Sets <code>recording_verbal_consent_status: "given"</code>.';
+        api.textContent = 'API: PATCH interaction attempt → given. Roundable not marked declined.';
+      } else if (state.outcome === 'declined') {
+        box.classList.add('declined');
+        box.innerHTML = '<strong>Declined</strong>Modal dismissed. Recording blocked. Sets <code>recording_verbal_consent_status: "declined"</code> and updates roundable declined flag.';
+        api.textContent = 'API: PATCH interaction attempt → declined. ambient_listening_declined_to_record = true.';
+      } else if (state.outcome === 'not_needed') {
+        box.classList.add('not-needed');
+        box.innerHTML = '<strong>No Consent Needed</strong>Modal dismissed. Recording started without verbal consent. Sets <code>recording_verbal_consent_status: "not_needed"</code>.';
+        api.textContent = 'API: PATCH interaction attempt → not_needed. Does not mark roundable as declined.';
+      }
+    }
+
+    function renderScreenLabel() {
+      const cfg = TYPES[state.type];
+      const tag = state.noConsentEnabled
+        ? '<span class="tag on">3 buttons</span>'
+        : '<span class="tag off">2 buttons</span>';
+      const largeTag = state.largeText ? '<span class="tag large">XXXL text</span>' : '';
+      $('screenLabel').innerHTML = `${cfg.label} — consent modal ${tag}${largeTag}`;
+    }
+
+    function update() {
+      renderType();
+      renderFooter();
+      renderBar();
+      renderOutcome();
+      renderScreenLabel();
+      $('phoneInner').classList.toggle('large-text', state.largeText);
+      $('overlay').classList.toggle('hidden', !state.modalOpen);
+      $('boxNoConsent').classList.toggle('on', state.noConsentEnabled);
+      $('boxNoConsent').textContent = state.noConsentEnabled ? '✓' : '';
+      $('boxDeclined').classList.toggle('on', state.showDeclined);
+      $('boxDeclined').textContent = state.showDeclined ? '✓' : '';
+      $('boxLargeText').classList.toggle('on', state.largeText);
+      $('boxLargeText').textContent = state.largeText ? '✓' : '';
+      document.querySelectorAll('[data-type]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === state.type);
+      });
+    }
+
+    function openModal() {
+      if (state.recording || state.outcome === 'declined') return;
+      state.modalOpen = true;
+      state.outcome = null;
+      update();
+    }
+
+    function closeModal() {
+      state.modalOpen = false;
+      update();
+    }
+
+    function choose(action) {
+      state.modalOpen = false;
+      state.outcome = action;
+      if (action === 'given' || action === 'not_needed') {
+        state.recording = true;
+        setTimeout(() => {
+          state.recording = false;
+          update();
+        }, 1800);
+      }
+      update();
+    }
+
+    function restart() {
+      Object.assign(state, {
+        modalOpen: false,
+        recording: false,
+        outcome: null,
+      });
+      update();
+    }
+
+    $('btnStart').onclick = openModal;
+    $('btnCloseModal').onclick = closeModal;
+    $('overlay').addEventListener('click', e => {
+      if (e.target === $('overlay')) closeModal();
+    });
+    document.querySelectorAll('.consent-btn').forEach(btn => {
+      btn.onclick = () => choose(btn.dataset.action);
+    });
+    document.querySelectorAll('[data-type]').forEach(btn => {
+      btn.onclick = () => {
+        state.type = btn.dataset.type;
+        restart();
+      };
+    });
+    $('toggleNoConsent').onclick = () => {
+      state.noConsentEnabled = !state.noConsentEnabled;
+      update();
+    };
+    $('toggleDeclined').onclick = () => {
+      state.showDeclined = !state.showDeclined;
+      update();
+    };
+    $('toggleLargeText').onclick = () => {
+      state.largeText = !state.largeText;
+      if (state.largeText) {
+        state.modalOpen = true;
+        state.outcome = null;
+        state.recording = false;
+      }
+      update();
+    };
+    $('btnRestart').onclick = restart;
+
+    const publishedUrl = 'https://mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-consent-modal-prototype.html';
+    const shareUrl = (location.protocol === 'file:' || location.protocol === 'null:' || !location.hostname)
+      ? publishedUrl
+      : `${location.origin}${location.pathname}`.replace(/\/+$/, '');
+    $('shareUrl').textContent = shareUrl;
+    $('btnCopyLink').onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        $('btnCopyLink').textContent = 'Copied!';
+        $('btnCopyLink').classList.add('copied');
+        setTimeout(() => {
+          $('btnCopyLink').textContent = 'Copy link';
+          $('btnCopyLink').classList.remove('copied');
+        }, 2000);
+      } catch {
+        window.prompt('Copy this link:', shareUrl);
+      }
+    };
+
+    update();
+  </script>
+</body>
+</html>
