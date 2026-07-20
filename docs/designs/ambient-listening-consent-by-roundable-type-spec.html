@@ -418,7 +418,7 @@
       <strong>CipherHealth</strong>
     </div>
     <h1>Ambient Listening Consent by Roundable Type — Design Spec</h1>
-    <p>Extend Ambient Listening consent configuration and mobile consent modals to support patient, location, and staff rounding — with separate suggested scripts per roundable type and API parameters for mobile clients.</p>
+    <p>Extend Ambient Listening consent configuration and mobile consent modals to support patient, location, and staff rounding — with separate suggested scripts per roundable type and an optional <strong>No Consent Needed</strong> action per type.</p>
   </header>
 
   <main>
@@ -427,16 +427,17 @@
       <span class="tag tag-violet">CipherRounds Mobile</span>
       <span class="tag tag-amber">Ambient Listening</span>
       <span class="tag tag-violet">Patient · Location · Staff</span>
+      <a class="tag tag-teal" href="ambient-listening-consent-modal-prototype.html" style="text-decoration:none">Interactive prototype ↗</a>
     </div>
 
     <section>
       <h2>Summary</h2>
       <p>Today, care providers configure a single <strong>Ambient Listening Consent Suggested Script</strong> in Provider Settings. Mobile shows a patient-specific consent modal with hardcoded default script lines and the instruction <em>“Please ask the patient for verbal consent before starting the recording.”</em></p>
-      <p>This spec splits consent configuration by roundable type (patient, location, staff), updates the mobile consent modal copy per type, and defines the API contract mobile needs to render the correct instruction, suggested script, and action buttons.</p>
+      <p>This spec splits consent configuration by roundable type (patient, location, staff), updates the mobile consent modal copy per type, and adds an optional third footer button — <strong>No Consent Needed</strong> — that organizations can enable independently for each type.</p>
       <ul>
         <li><strong>Evolve:</strong> Three type-specific consent script fields, each with its own <strong>No Consent Needed Button Enabled</strong> checkbox directly below (patient, location, staff).</li>
-        <li><strong>Mobile:</strong> Select instruction + script based on script type; stop using hardcoded script lines.</li>
-        <li><strong>Backend:</strong> Resolve consent fields on script payloads; extend declined-to-record tracking for staff and location roundables.</li>
+        <li><strong>Mobile:</strong> Show the instruction and suggested script that match the roundable type; stop using hardcoded script lines.</li>
+        <li><strong>Previously declined:</strong> Show the existing opt-out banner for patient, staff, and location roundables when applicable.</li>
       </ul>
     </section>
 
@@ -527,81 +528,72 @@
         </div>
         <div class="settings-panel">
           <h4>Checkbox placement</h4>
-          <p style="margin:0;font-size:0.78rem;">Each <strong>No Consent Needed Button</strong> checkbox sits immediately below its matching consent script text area — not grouped at the bottom of the section. Default: <code>false</code> for all three.</p>
+          <p style="margin:0;font-size:0.78rem;">Each <strong>No Consent Needed Button</strong> checkbox sits immediately below its matching consent script text area — not grouped at the bottom of the section. Default: off for all three.</p>
         </div>
       </div>
 
-      <h3>Field rules</h3>
+      <h3>Configuration fields</h3>
       <table>
         <thead>
           <tr>
-            <th>Field label (Evolve)</th>
-            <th>Care provider attribute</th>
-            <th>Type</th>
+            <th>Setting (Evolve)</th>
+            <th>Applies to</th>
             <th>Notes</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>Patient Ambient Listening Consent Suggested Script</td>
-            <td><code>patient_ambient_listening_consent_suggested_script</code></td>
-            <td>String (multiline)</td>
-            <td>Used when script type is <code>admitted_patients</code>. Migrate value from legacy <code>ambient_listening_consent_suggested_script</code>.</td>
+            <td>Patient rounds</td>
+            <td>Multiline free text. Replaces the legacy single consent script field for patient rounding. Existing patient script values should carry forward on rollout.</td>
           </tr>
           <tr>
             <td>Patient Ambient Listening No Consent Needed Button Enabled</td>
-            <td><code>patient_ambient_listening_no_consent_needed_button_enabled</code></td>
-            <td>Boolean</td>
-            <td>Directly under patient script field. When <code>true</code>, patient AL modals show third button. Default <code>false</code>.</td>
+            <td>Patient rounds</td>
+            <td>Checkbox directly under the patient script field. When on, patient consent modals show a third footer button. Default off.</td>
           </tr>
           <tr>
             <td>Location Ambient Listening Consent Suggested Script</td>
-            <td><code>location_ambient_listening_consent_suggested_script</code></td>
-            <td>String (multiline)</td>
-            <td>Used when script type is <code>location</code> (mobile may still receive <code>unit</code> for compatibility).</td>
+            <td>Location / unit rounds</td>
+            <td>Multiline free text for location rounding scenarios.</td>
           </tr>
           <tr>
             <td>Location Ambient Listening No Consent Needed Button Enabled</td>
-            <td><code>location_ambient_listening_no_consent_needed_button_enabled</code></td>
-            <td>Boolean</td>
-            <td>Directly under location script field. When <code>true</code>, location AL modals show third button. Default <code>false</code>.</td>
+            <td>Location / unit rounds</td>
+            <td>Checkbox directly under the location script field. When on, location consent modals show a third footer button. Default off.</td>
           </tr>
           <tr>
             <td>Staff Ambient Listening Consent Suggested Script</td>
-            <td><code>staff_ambient_listening_consent_suggested_script</code></td>
-            <td>String (multiline)</td>
-            <td>Used when script type is <code>staff</code>.</td>
+            <td>Staff rounds</td>
+            <td>Multiline free text for staff rounding scenarios.</td>
           </tr>
           <tr>
             <td>Staff Ambient Listening No Consent Needed Button Enabled</td>
-            <td><code>staff_ambient_listening_no_consent_needed_button_enabled</code></td>
-            <td>Boolean</td>
-            <td>Directly under staff script field. When <code>true</code>, staff AL modals show third button. Default <code>false</code>.</td>
-          </tr>
-          <tr>
-            <td class="removed">Ambient Listening No Consent Needed Button Enabled</td>
-            <td><code>ambient_listening_no_consent_needed_button_enabled</code></td>
-            <td>Deprecated</td>
-            <td>Replaced by three per-type fields above. Do not use on CP model.</td>
+            <td>Staff rounds</td>
+            <td>Checkbox directly under the staff script field. When on, staff consent modals show a third footer button. Default off.</td>
           </tr>
           <tr>
             <td class="removed">Ambient Listening Consent Suggested Script</td>
-            <td><code>ambient_listening_consent_suggested_script</code></td>
-            <td>Deprecated</td>
-            <td>Read/write alias to patient field during migration; remove after all clients updated.</td>
+            <td>—</td>
+            <td class="removed">Deprecated — replaced by the three type-specific script fields above.</td>
+          </tr>
+          <tr>
+            <td class="removed">Ambient Listening No Consent Needed Button Enabled</td>
+            <td>—</td>
+            <td class="removed">Deprecated — replaced by the three per-type checkboxes above.</td>
           </tr>
         </tbody>
       </table>
 
-      <p><strong>Multiline behavior:</strong> Each script field accepts free text. Mobile splits on newline characters into separate suggested-script lines (same behavior as today’s single field). Empty lines are ignored.</p>
+      <p><strong>Multiline behavior:</strong> Each script field accepts free text. Mobile splits on line breaks into separate suggested-script lines (same behavior as today’s single field). Empty lines are ignored.</p>
     </section>
 
     <section>
       <h2>Mobile Consent Modal — By Roundable Type</h2>
-      <p>Modal structure: header → instruction → suggested script block → footer buttons. Instruction text and script content vary by roundable type. Footer button count is controlled per type by the matching CP checkbox under each script field.</p>
+      <p>Modal structure: header → instruction → suggested script block → footer buttons. Instruction text and script content vary by roundable type. Footer button count is controlled per type by the matching Evolve checkbox under each script field.</p>
 
       <h3>Footer buttons — per-type setting ON vs OFF</h3>
-      <p>Each roundable type independently shows two or three buttons based on its own CP setting. Below: patient example (same rule applies to location and staff).</p>
+      <p>Each roundable type independently shows two or three buttons based on its own setting. Below: patient example (same rule applies to location and staff).</p>
 
       <div class="modal-grid-2">
         <div>
@@ -654,7 +646,7 @@
       </div>
 
       <h3>When to use each button</h3>
-      <p>Only shown when that roundable type’s CP checkbox is on. Instruction copy does not mention the third button — internal training / workflow docs cover when to use it.</p>
+      <p>Only shown when that roundable type’s Evolve checkbox is on. Instruction copy does not mention the third button — internal training / workflow docs cover when to use it.</p>
       <table>
         <thead>
           <tr>
@@ -679,7 +671,7 @@
           </tr>
           <tr>
             <td><strong>No Consent Needed</strong></td>
-            <td colspan="3">Only visible when that roundable type’s CP checkbox is enabled. Instruction text never references this button.</td>
+            <td colspan="3">Only visible when that roundable type’s Evolve checkbox is enabled. Instruction text never references this button.</td>
           </tr>
         </tbody>
       </table>
@@ -769,25 +761,25 @@
 
       <p style="font-size:0.82rem;color:var(--gray-500);">When a type’s checkbox is <strong>OFF</strong>, that roundable’s modal renders with two footer buttons only. Other types follow their own setting.</p>
 
-      <h3>Default instruction copy (server-provided)</h3>
+      <h3>Default instruction copy</h3>
       <table>
         <thead>
           <tr>
-            <th>Script type</th>
-            <th><code>ambient_listening_consent_instruction</code> default</th>
+            <th>Roundable type</th>
+            <th>Default instruction</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><code>admitted_patients</code></td>
+            <td>Patient</td>
             <td>Please ask the patient for verbal consent before starting the recording.</td>
           </tr>
           <tr>
-            <td><code>location</code> / <code>unit</code></td>
+            <td>Location / unit</td>
             <td>If rounding on staff, ask for permission to record.</td>
           </tr>
           <tr>
-            <td><code>staff</code></td>
+            <td>Staff</td>
             <td>If rounding on a staff member, ask for permission to record.</td>
           </tr>
         </tbody>
@@ -800,270 +792,38 @@
       <p>Location and staff share the same default suggested script when a conversation is involved. Care providers may customize each field independently in Evolve.</p>
 
       <h3>Previously declined banner</h3>
-      <p>When the roundable previously declined recording, show the existing banner above the instruction:</p>
+      <p>When the roundable previously declined recording, show the existing banner above the instruction for patient, staff, and location roundables:</p>
       <ul>
-        <li><strong>Title:</strong> <code>{RoundableName} previously declined recording</code> (unchanged)</li>
-        <li><strong>Body:</strong> <code>Opted out of audio recording on their last round.</code> (unchanged)</li>
+        <li><strong>Title:</strong> <em>{Roundable name} previously declined recording</em></li>
+        <li><strong>Body:</strong> <em>Opted out of audio recording on their last round.</em></li>
       </ul>
-      <p>Today only patients expose <code>ambient_listening_declined_to_record</code> on the worklist API. Staff and location roundables need the same flag (see API section).</p>
 
       <h3>“No Consent Needed” button behavior</h3>
-      <p>Controlled per roundable type by the checkbox under each consent script field. When enabled for a type, that type’s AL modals include a third footer button. Instruction text never tells the rounder to select it.</p>
+      <p>Controlled per roundable type by the checkbox under each consent script field in Evolve. When enabled for a type, that type’s consent modals include a third footer button. Instruction text never tells the rounder to select it.</p>
       <ul>
-        <li>Does <strong>not</strong> set <code>ambient_listening_declined_to_record</code> on the roundable.</li>
-        <li>Sets <code>recording_verbal_consent_status: "not_needed"</code> on the interaction attempt.</li>
-        <li>Allows recording to start without verbal consent capture.</li>
+        <li>Does <strong>not</strong> mark the roundable as having declined recording.</li>
+        <li>Allows recording to start without capturing verbal consent.</li>
+        <li>Used for workflows where consent is not applicable (e.g., empty location walk-through audits).</li>
       </ul>
-      <p><strong>Layout (when enabled):</strong> Three equal-width footer buttons — Consent Given · Declined · No Consent Needed. When disabled, two equal-width buttons — Consent Given · Declined.</p>
-    </section>
+      <p><strong>Layout (when enabled):</strong> Three equal-width footer buttons — Consent Given · Declined · No Consent Needed. When disabled, two equal-width buttons — Consent Given · Declined. At large accessibility text sizes, buttons stack vertically.</p>
 
-    <section>
-      <h2>API Contract — Mobile Parameters</h2>
-
-      <h3>1. Script payload (Cipher Rounds API v9+)</h3>
-      <p>Sent on script list/show when <code>ambient_listening_enabled</code> is true. Backend resolves values from the care provider based on script type.</p>
-      <p>Patient script example (patient checkbox on):</p>
-      <pre>{
-  "id": "…",
-  "type": "admitted_patients",
-  "ambient_listening_enabled": true,
-  "ambient_listening_consent_instruction": "Please ask the patient for verbal consent before starting the recording.",
-  "ambient_listening_consent_suggested_script": "I'd like to use a digital assistant…\n…\nIs it okay if I record our visit today?",
-  "ambient_listening_no_consent_needed_button_enabled": true
-}</pre>
-      <p>Location script example (location checkbox on):</p>
-      <pre>{
-  "id": "…",
-  "type": "location",
-  "ambient_listening_enabled": true,
-  "ambient_listening_consent_instruction": "If rounding on staff, ask for permission to record.",
-  "ambient_listening_consent_suggested_script": "I'd like to use a digital assistant…\nIs it okay if I record while we talk?",
-  "ambient_listening_no_consent_needed_button_enabled": true
-}</pre>
-      <p>Staff script example (staff checkbox off):</p>
-      <pre>{
-  "id": "…",
-  "type": "staff",
-  "ambient_listening_enabled": true,
-  "ambient_listening_consent_instruction": "If rounding on a staff member, ask for permission to record.",
-  "ambient_listening_consent_suggested_script": "I'd like to use a digital assistant…\nIs it okay if I record while we talk?",
-  "ambient_listening_no_consent_needed_button_enabled": false
-}</pre>
-      <p>Script payload always uses <code>ambient_listening_no_consent_needed_button_enabled</code> (singular) — backend resolves from the matching per-type CP field.</p>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Field</th>
-            <th>Type</th>
-            <th>When included</th>
-            <th>Mobile usage</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>ambient_listening_enabled</code></td>
-            <td>boolean</td>
-            <td>Always on script</td>
-            <td>Gate AL recording bar. Existing field.</td>
-          </tr>
-          <tr>
-            <td><code>ambient_listening_consent_instruction</code></td>
-            <td>string</td>
-            <td>When AL enabled</td>
-            <td><strong>NEW.</strong> Replace hardcoded <code>recordingConsentMessage</code> in consent modal.</td>
-          </tr>
-          <tr>
-            <td><code>ambient_listening_consent_suggested_script</code></td>
-            <td>string</td>
-            <td>When AL enabled and CP script configured</td>
-            <td>Split on <code>\n</code> into suggested-script lines. Type-resolved from CP. Mobile must decode this field (currently hardcoded in iOS).</td>
-          </tr>
-          <tr>
-            <td><code>ambient_listening_no_consent_needed_button_enabled</code></td>
-            <td>boolean</td>
-            <td>When AL enabled</td>
-            <td><strong>NEW.</strong> Resolved from matching CP field by script type (<code>patient_</code> / <code>location_</code> / <code>staff_</code> prefix). When <code>true</code>, show third footer button for that type only.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Resolution logic (backend)</h3>
-      <pre>case script.type
-when admitted_patients
-  instruction: DEFAULT_PATIENT_INSTRUCTION
-  script:      cp.patient_ambient_listening_consent_suggested_script
-  no_consent_needed_enabled: cp.patient_ambient_listening_no_consent_needed_button_enabled
-when location, unit
-  instruction: DEFAULT_LOCATION_INSTRUCTION
-  script:      cp.location_ambient_listening_consent_suggested_script
-  no_consent_needed_enabled: cp.location_ambient_listening_no_consent_needed_button_enabled
-when staff
-  instruction: DEFAULT_STAFF_INSTRUCTION
-  script:      cp.staff_ambient_listening_consent_suggested_script
-  no_consent_needed_enabled: cp.staff_ambient_listening_no_consent_needed_button_enabled
-end
-
-# Emit on script JSON as ambient_listening_no_consent_needed_button_enabled</pre>
-
-      <h3>2. Roundable worklist — declined-to-record flag</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Roundable</th>
-            <th>Endpoint (existing pattern)</th>
-            <th>Field</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Patient</td>
-            <td><code>GET …/patients/admitted</code></td>
-            <td><code>ambient_listening_declined_to_record</code></td>
-            <td>Exists today. Used to pre-set consent modal declined state.</td>
-          </tr>
-          <tr>
-            <td>Staff member</td>
-            <td><code>GET …/staff_members</code> (index)</td>
-            <td><code>ambient_listening_declined_to_record</code></td>
-            <td><strong>NEW.</strong> Mirror patient behavior on <code>StaffMember</code> model.</td>
-          </tr>
-          <tr>
-            <td>Location / unit</td>
-            <td><code>GET …/units</code> or location index</td>
-            <td><code>ambient_listening_declined_to_record</code></td>
-            <td><strong>NEW.</strong> Mirror patient behavior on location roundable model.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>3. Interaction draft — consent outcome</h3>
-      <p>Send <code>not_needed</code> only when the third button is visible for that script type (matching CP checkbox on).</p>
-      <pre>POST/PATCH …/interaction_drafts/{attempt_id}
-
-// Consent Given
-{ "recording_verbal_consent_status": "given" }
-
-// Declined
-{ "recording_verbal_consent_status": "declined" }
-
-// No Consent Needed
-{ "recording_verbal_consent_status": "not_needed" }</pre>
-      <p>Backend side effects:</p>
-      <ul>
-        <li><code>given</code> → clear <code>ambient_listening_declined_to_record</code> on the roundable (patient/staff; N/A for location no-op or omit)</li>
-        <li><code>declined</code> → set <code>ambient_listening_declined_to_record = true</code> where applicable</li>
-        <li><code>not_needed</code> → do not change declined flags; allow recording without verbal consent</li>
-        <li>Legacy boolean param omitted → do not change declined flag (existing behavior)</li>
-      </ul>
-
-      <h3>Deprecated: boolean-only consent</h3>
-      <pre>{ "recording_verbal_consent": true | false }</pre>
-      <p>Still supported for backward compatibility during rollout. New clients should send <code>recording_verbal_consent_status</code> for all roundable types.</p>
-
-      <h3>4. Evolve provider settings API</h3>
-      <p><code>GET/PATCH /vue/provider_settings</code> — add three script + three no-consent checkbox fields to serializer and permitted params.</p>
-      <pre>{
-  "care_provider": {
-    "ambient_listening": true,
-    "patient_ambient_listening_consent_suggested_script": "…",
-    "patient_ambient_listening_no_consent_needed_button_enabled": false,
-    "location_ambient_listening_consent_suggested_script": "…",
-    "location_ambient_listening_no_consent_needed_button_enabled": true,
-    "staff_ambient_listening_consent_suggested_script": "…",
-    "staff_ambient_listening_no_consent_needed_button_enabled": false,
-    "ambient_listening_audio_retention_enabled": false,
-    "ambient_listening_audio_retention_boundary_months": 36
-  }
-}</pre>
-    </section>
-
-    <section>
-      <h2>Mobile Implementation Checklist</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Platform</th>
-            <th>Change</th>
-            <th>Current state</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>iOS</td>
-            <td>Decode <code>ambient_listening_consent_suggested_script</code> on <code>ResponseScript</code> / <code>RealmScript</code></td>
-            <td>Field exists in API but not decoded; hardcoded lines in <code>AudioRecordingBar.swift</code></td>
-          </tr>
-          <tr>
-            <td>iOS</td>
-            <td>Decode <code>ambient_listening_consent_instruction</code>; pass into recording bar view model</td>
-            <td>Hardcoded <code>recordingConsentMessage</code> in <code>K.swift</code></td>
-          </tr>
-          <tr>
-            <td>iOS</td>
-            <td>Read <code>ambient_listening_declined_to_record</code> for staff + location roundables</td>
-            <td>Only checked for <code>RealmPatient</code> today</td>
-          </tr>
-          <tr>
-            <td>iOS</td>
-            <td>Update declined flag locally for staff/location on consent response</td>
-            <td>Patient-only in <code>InteractionTableViewController+Extensions</code></td>
-          </tr>
-          <tr>
-            <td>Android</td>
-            <td>Same script + instruction decoding and modal copy by script type</td>
-            <td>Align with iOS parity</td>
-          </tr>
-          <tr>
-            <td>Both</td>
-            <td>Honor per-type <code>ambient_listening_no_consent_needed_button_enabled</code> on script — render 2 or 3 footer buttons</td>
-            <td>—</td>
-          </tr>
-          <tr>
-            <td>Both</td>
-            <td>Remove hardcoded default script lines; use API script or hide script block if null/empty</td>
-            <td>—</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section>
-      <h2>Backend Implementation Checklist (Banff)</h2>
-      <ol>
-        <li>Add three CP fields on <code>CareProvider</code>; data migration copies legacy field → patient field.</li>
-        <li>Add three CP fields for per-type no-consent checkboxes; wire each under its script field in <code>CareProviderSettings.vue</code>.</li>
-        <li>Update <code>ProviderSettingsCareProviderSerializer</code> and <code>provider_settings_params</code>.</li>
-        <li>Update <code>Rounding::ScriptSerializer</code> (and location-scoped variant) to emit <code>ambient_listening_consent_instruction</code> and type-resolved script.</li>
-        <li>Add <code>ambient_listening_declined_to_record</code> to <code>StaffMember</code> and location roundable models.</li>
-        <li>Extend interaction draft handler to set/clear declined flag for staff + location (same as patient).</li>
-        <li>Update Swagger v9 script schema; bump mobile contract tests.</li>
-      </ol>
-    </section>
-
-    <section>
-      <h2>Migration &amp; Backward Compatibility</h2>
-      <ul>
-        <li><strong>Data:</strong> On deploy, copy <code>ambient_listening_consent_suggested_script</code> → <code>patient_ambient_listening_consent_suggested_script</code> where patient field is blank.</li>
-        <li><strong>API read:</strong> If type-specific script is blank, fall back to legacy single field (temporary).</li>
-        <li><strong>API write (Evolve):</strong> Writing legacy field updates patient field until field is removed.</li>
-        <li><strong>Mobile:</strong> If <code>ambient_listening_consent_instruction</code> missing (old API), use platform default by script type table above.</li>
-        <li><strong>Mobile:</strong> If suggested script missing, hide suggested-script block; still show instruction + buttons.</li>
-      </ul>
+      <h3>Large accessibility text</h3>
+      <p>When the rounder uses maximum iOS Dynamic Type (or equivalent), consent modal text scales up and footer buttons stack full-width. See the <a href="ambient-listening-consent-modal-prototype.html">interactive prototype</a> to review this layout.</p>
     </section>
 
     <section>
       <h2>Acceptance Criteria</h2>
       <ol>
         <li>Evolve shows three script fields; each has a <strong>No Consent Needed Button</strong> checkbox directly below it.</li>
-        <li>Each roundable type independently shows 2 or 3 footer buttons based on its CP checkbox.</li>
+        <li>Each roundable type independently shows 2 or 3 footer buttons based on its Evolve checkbox.</li>
         <li>Instruction copy never references the No Consent Needed button.</li>
-        <li>Patient / location / staff modals show type-appropriate instruction + suggested script.</li>
-        <li>No Consent Needed (when enabled) sets <code>recording_verbal_consent_status: not_needed</code> and does not mark the roundable as declined.</li>
-        <li>Consent Given / Declined updates consent status and roundable declined flag for all three roundable types.</li>
-        <li>Previously declined roundables show the declined banner on next AL round attempt.</li>
-        <li>Mobile no longer uses hardcoded suggested script lines when API provides a script.</li>
+        <li>Patient, location, and staff modals show type-appropriate instruction and suggested script.</li>
+        <li><strong>Consent Given</strong> dismisses the modal and allows recording to proceed.</li>
+        <li><strong>Declined</strong> dismisses the modal, blocks recording, and marks the roundable as declined for future rounds.</li>
+        <li><strong>No Consent Needed</strong> (when enabled) dismisses the modal and allows recording without marking the roundable as declined.</li>
+        <li>Previously declined roundables show the declined banner on the next consent attempt.</li>
+        <li>Mobile no longer uses hardcoded suggested script lines when a configured script is available.</li>
+        <li>If no suggested script is configured, hide the script block; still show instruction and action buttons.</li>
       </ol>
     </section>
   </main>
