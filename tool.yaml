@@ -2,6 +2,6 @@
 #
 # App name must be lowercase with hyphens (no spaces). Display title: Patient Prioritization Simulator.
 # Use `runtime: static` for this HTML app. Use `runtime: node` only with package.json + build/start scripts.
-name: patient-prioritization-simulator
+name: priority-score-sim-mcarroll
 runtime: static
 source_dir: deploy
