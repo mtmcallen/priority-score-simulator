@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ambient Listening Metrics Dashboard · CipherHealth 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark-anchor:#2d2660; --deep-violet:#5b4fb5; --cipher-teal:#00b4a4; --electric-chartreuse:#b5cc2e;
+      --warm-amber:#e8a020; --lavender-white:#f2f1f9; --teal-tint:#d0f4f1; --violet-bg:#f2f1f9;
+      --amber-tint:#fdefd0; --amber-text:#5c3800; --chartreuse-tint:#e8f4a8; --chartreuse-text:#2a3200;
+      --gray:#6b7280; --white:#fff; --border:#e5e4ed;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,sans-serif; background:#eceaf3; color:var(--dark-anchor); }
+    .toolbar {
+      position:sticky; top:0; z-index:10; background:var(--dark-anchor); color:var(--white);
+      border-bottom:3px solid var(--cipher-teal); padding:.85rem 1.25rem; display:flex; flex-wrap:wrap; gap:.75rem; align-items:end;
+    }
+    .toolbar h1 { margin:0; font-size:1rem; font-weight:800; flex:1 1 100%; }
+    .toolbar label { display:flex; flex-direction:column; gap:.25rem; font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:#cbd5e1; }
+    .toolbar input[type=file], .toolbar select, .toolbar button {
+      font:inherit; border-radius:8px; border:1px solid rgba(255,255,255,.15); padding:.5rem .65rem; background:rgba(255,255,255,.08); color:var(--white);
+    }
+    .toolbar select { min-width:240px; max-width:320px; }
+    .toolbar select option { color:var(--dark-anchor); }
+    .toolbar button { cursor:pointer; font-weight:700; background:var(--cipher-teal); border-color:var(--cipher-teal); color:var(--white); }
+    .toolbar button.secondary { background:transparent; border-color:rgba(255,255,255,.35); }
+    .toolbar button:disabled { opacity:.45; cursor:not-allowed; }
+    .status { flex:1 1 100%; font-size:.78rem; color:#cbd5e1; min-height:1.1rem; }
+    .deck-wrap { padding:1rem; display:flex; flex-direction:column; align-items:center; gap:1rem; }
+    .empty {
+      width:min(960px,100%); background:var(--white); border:2px dashed var(--border); border-radius:12px;
+      padding:3rem 2rem; text-align:center; color:var(--gray);
+    }
+    .slide {
+      width:min(1200px,100%); background:var(--white); border-radius:10px; overflow:hidden;
+      box-shadow:0 10px 30px rgba(45,38,96,.12); border:1px solid var(--border);
+    }
+    .slide-header { display:flex; justify-content:space-between; align-items:center; background:var(--dark-anchor); color:var(--white); padding:.65rem 1rem; border-bottom:3px solid var(--cipher-teal); }
+    .brand { font-weight:800; }
+    .header-meta { text-align:right; }
+    .header-meta .customer { margin:0; font-weight:800; font-size:.85rem; }
+    .header-meta .doc-type { margin:.15rem 0 0; font-size:.65rem; color:var(--cipher-teal); text-transform:uppercase; letter-spacing:.08em; }
+    .title-band { padding:.75rem 1rem; background:var(--lavender-white); border-bottom:1px solid var(--border); }
+    .title-band h2 { margin:0; font-size:1.1rem; }
+    .subtitle { margin:.25rem 0 0; font-size:.78rem; color:var(--gray); }
+    .summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem; padding:1rem; }
+    .hospital-card { border-radius:8px; padding:.75rem; border-top:4px solid; }
+    .hospital-teal { background:var(--teal-tint); border-color:var(--cipher-teal); }
+    .hospital-violet { background:var(--violet-bg); border-color:var(--deep-violet); }
+    .hospital-amber, .hospital-amber-soft { background:var(--amber-tint); border-color:var(--warm-amber); }
+    .hospital-card h3, .compare-col h3 { margin:0; font-size:.95rem; }
+    .total { margin:.2rem 0 .5rem; font-size:.75rem; color:var(--gray); }
+    .metric-pills { display:grid; grid-template-columns:repeat(3,1fr); gap:.4rem; }
+    .metric-pills.compact .pill { padding:.35rem; }
+    .pill { background:var(--white); border:1px solid var(--border); border-radius:6px; padding:.45rem; text-align:center; }
+    .pill span { display:block; font-size:.62rem; font-weight:700; text-transform:uppercase; color:var(--gray); }
+    .pill strong { display:block; font-size:1rem; margin-top:.15rem; }
+    .counts { margin:.65rem 0 0; padding-left:1rem; font-size:.75rem; line-height:1.5; }
+    .insights { margin:0 1rem 1rem; background:var(--chartreuse-tint); border:2px solid var(--electric-chartreuse); border-radius:8px; padding:.65rem .85rem; font-size:.78rem; color:var(--chartreuse-text); }
+    .insights strong { display:block; text-transform:uppercase; font-size:.65rem; margin-bottom:.2rem; }
+    .slide-footer { background:var(--dark-anchor); color:var(--white); font-size:.72rem; padding:.55rem 1rem; display:flex; justify-content:space-between; }
+    .hospital-body { padding:1rem; }
+    .unit-table { width:100%; border-collapse:collapse; font-size:.72rem; margin-top:.5rem; }
+    .unit-table th { background:var(--dark-anchor); color:var(--white); padding:.35rem; text-align:left; }
+    .unit-table th:not(:first-child), .unit-table td:not(:first-child) { text-align:center; }
+    .unit-table td { padding:.3rem .35rem; border-bottom:1px solid var(--border); }
+    .table-note { font-size:.7rem; color:var(--gray); margin:.35rem 0 0; }
+    .compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; padding:1rem; }
+    .compare-col { border-radius:8px; padding:1rem; border:1.5px solid rgba(45,38,96,.12); border-top-width:4px; }
+    .period { font-size:.72rem; color:var(--gray); margin:.15rem 0 .35rem; }
+    @media (max-width:900px) {
+      .summary-grid, .compare-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <h1>Ambient Listening Metrics</h1>
+    <label>Upload CSV
+      <input type="file" id="csvFile" accept=".csv,text/csv">
+    </label>
+    <label>Care Provider
+      <select id="careProviderSelect">
+        <option value="">All hospitals…</option>
+      </select>
+    </label>
+    <label>Rounder
+      <select id="rounderSelect" disabled>
+        <option value="">All rounders…</option>
+      </select>
+    </label>
+    <label>Unit
+      <select id="unitSelect" disabled>
+        <option value="">All units…</option>
+      </select>
+    </label>
+    <button type="button" id="resetBtn" class="secondary" disabled>Reset</button>
+    <button type="button" id="downloadBtn" disabled>Download PowerPoint</button>
+    <div class="status" id="status">Upload an interaction CSV to begin.</div>
+  </div>
+
+  <div class="deck-wrap">
+    <div class="empty" id="emptyState">
+      <p><strong>No data loaded.</strong></p>
+      <p>Upload a compatible interaction export. Filter by care provider, rounder, or unit, then download the PowerPoint.</p>
+    </div>
+    <div id="deck" hidden></div>
+  </div>
+
+  <script src="prisma-ambient-metrics-dashboard.js"></script>
+  <script>
+    const state = { csvText: null, fileName: null };
+    const els = {
+      file: document.getElementById("csvFile"),
+      careProvider: document.getElementById("careProviderSelect"),
+      rounder: document.getElementById("rounderSelect"),
+      unit: document.getElementById("unitSelect"),
+      reset: document.getElementById("resetBtn"),
+      download: document.getElementById("downloadBtn"),
+      status: document.getElementById("status"),
+      deck: document.getElementById("deck"),
+      empty: document.getElementById("emptyState"),
+    };
+
+    function setStatus(msg) { els.status.textContent = msg; }
+
+    function populateCareProviders() {
+      for (const name of PrismaAmbientMetrics.CARE_PROVIDER_OPTIONS) {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        els.careProvider.appendChild(opt);
+      }
+    }
+
+    function populateSelect(selectEl, values, placeholder) {
+      selectEl.innerHTML = "";
+      const blank = document.createElement("option");
+      blank.value = "";
+      blank.textContent = placeholder;
+      selectEl.appendChild(blank);
+      for (const name of values) {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        selectEl.appendChild(opt);
+      }
+      selectEl.disabled = !values.length;
+    }
+
+    function currentFilters() {
+      return {
+        careProvider: els.careProvider.value.trim(),
+        rounder: els.rounder.value.trim(),
+        unit: els.unit.value.trim(),
+      };
+    }
+
+    function render() {
+      if (!state.csvText) {
+        els.deck.hidden = true;
+        els.empty.hidden = false;
+        els.download.disabled = true;
+        els.reset.disabled = true;
+        return;
+      }
+
+      try {
+        const filters = currentFilters();
+        const metrics = PrismaAmbientMetrics.computeMetrics(state.csvText, filters);
+        const label = PrismaAmbientMetrics.formatProviderLabel(filters.careProvider);
+        els.deck.innerHTML = PrismaAmbientMetrics.renderDashboard(metrics, label);
+        els.deck.hidden = false;
+        els.empty.hidden = true;
+        els.download.disabled = false;
+        els.reset.disabled = false;
+        const filterNote = PrismaAmbientMetrics.formatFilterStatus(filters);
+        const note = filterNote ? ` · ${filterNote}` : "";
+        setStatus(
+          `${state.fileName} · ${PrismaAmbientMetrics.fmt(metrics._report.row_count)} rounds${note} · ${metrics._report.date_range_label}`
+        );
+      } catch (err) {
+        setStatus(`Error: ${err.message}`);
+      }
+    }
+
+    populateCareProviders();
+
+    els.file.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      state.fileName = file.name;
+      state.csvText = await file.text();
+      try {
+        const options = PrismaAmbientMetrics.listFilterOptions(state.csvText);
+        populateSelect(els.rounder, options.rounders, "All rounders…");
+        populateSelect(els.unit, options.units, "All units…");
+        render();
+      } catch (err) {
+        setStatus(`Error parsing CSV: ${err.message}`);
+      }
+    });
+
+    for (const el of [els.careProvider, els.rounder, els.unit]) {
+      el.addEventListener("change", () => {
+        if (state.csvText) render();
+      });
+    }
+
+    els.reset.addEventListener("click", () => {
+      state.csvText = null;
+      state.fileName = null;
+      els.file.value = "";
+      els.careProvider.value = "";
+      populateSelect(els.rounder, [], "All rounders…");
+      populateSelect(els.unit, [], "All units…");
+      els.deck.innerHTML = "";
+      els.deck.hidden = true;
+      els.empty.hidden = false;
+      els.download.disabled = true;
+      els.reset.disabled = true;
+      setStatus("Reset complete. Upload a new CSV to begin.");
+    });
+
+    els.download.addEventListener("click", async () => {
+      if (!state.csvText) return;
+      els.download.disabled = true;
+      setStatus("Generating PowerPoint…");
+      try {
+        const filters = currentFilters();
+        const res = await fetch("/api/pptx", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            csv: state.csvText,
+            careProvider: filters.careProvider || null,
+            rounder: filters.rounder || null,
+            unit: filters.unit || null,
+            fileName: state.fileName,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || `Server error ${res.status}`);
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const slug = (filters.careProvider || "ambient-listening").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        a.download = `${slug}-metrics.pptx`;
+        a.click();
+        URL.revokeObjectURL(url);
+        setStatus("PowerPoint downloaded.");
+      } catch (err) {
+        setStatus(`Download failed: ${err.message}. Run: python3 docs/prisma-ambient-dashboard-server.py`);
+      } finally {
+        els.download.disabled = !state.csvText;
+      }
+    });
+  </script>
+</body>
+</html>
