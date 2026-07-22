@@ -1,7 +1,7 @@
 # tool.yaml — Cipher app manifest. Commit this to your repo, then connect it or `paas deploy`.
 #
-# `runtime: static` serves HTML/JS from this directory behind Google SSO (no build step).
-# Use `runtime: node` only if the app has a package.json and npm build/start scripts.
-name: priority-score-simulator
+# App name must be lowercase with hyphens (no spaces). Display title: Patient Prioritization Simulator.
+# Use `runtime: static` for this HTML app. Use `runtime: node` only with package.json + build/start scripts.
+name: patient-prioritization-simulator
 runtime: static
 source_dir: deploy
