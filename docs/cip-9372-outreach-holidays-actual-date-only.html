@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Outreach on These Holidays — Actual Date Only — CipherHealth</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark-anchor: #2d2660;
+      --deep-violet: #5b4fb5;
+      --cipher-teal: #00b4a4;
+      --electric-chartreuse: #b5cc2e;
+      --warm-amber: #e8a020;
+      --lavender-white: #f2f1f9;
+      --teal-tint: #d0f4f1;
+      --teal-tint-text: #004e48;
+      --amber-tint: #fdefd0;
+      --amber-tint-text: #5c3800;
+      --chartreuse-tint: #e8f4a8;
+      --chartreuse-tint-text: #2a3200;
+      --gray-500: #6b7280;
+      --white: #ffffff;
+    }
+
+    @page { size: letter; margin: 0.45in; }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 9pt;
+      line-height: 1.38;
+      color: var(--dark-anchor);
+      background: var(--white);
+    }
+
+    .page { max-width: 8.5in; margin: 0 auto; padding: 0 0.36in 0.4in; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--dark-anchor);
+      color: var(--white);
+      padding: 0.45rem 0.36in;
+      border-bottom: 3px solid var(--cipher-teal);
+      margin: 0 -0.36in 0.35rem;
+    }
+
+    .brand { display: flex; align-items: center; gap: 0.45rem; }
+    .brand-mark { width: 36px; height: 36px; display: block; }
+    .brand-name { font-size: 13pt; font-weight: 800; letter-spacing: -0.03em; }
+
+    .header-text { text-align: right; }
+    .header-text h1 { margin: 0; font-size: 12.5pt; font-weight: 700; line-height: 1.15; }
+    .header-text p { margin: 0.08rem 0 0; font-size: 8.25pt; opacity: 0.92; }
+
+    .meta-bar {
+      background: var(--lavender-white);
+      border: 1px solid rgba(91, 79, 181, 0.2);
+      border-radius: 6px;
+      padding: 0.35rem 0.45rem;
+      margin-bottom: 0.35rem;
+      text-align: center;
+      font-size: 8.25pt;
+      color: var(--gray-500);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 0.05rem 0.38rem;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 7.75pt;
+      margin: 0 0.08rem;
+    }
+
+    .tag-teal { background: var(--teal-tint); color: var(--teal-tint-text); }
+    .tag-violet { background: rgba(91, 79, 181, 0.15); color: var(--deep-violet); }
+    .tag-green { background: var(--chartreuse-tint); color: var(--chartreuse-tint-text); }
+
+    .hero {
+      padding: 0.35rem 0.5rem;
+      background: linear-gradient(135deg, var(--lavender-white) 0%, var(--teal-tint) 100%);
+      border-left: 3px solid var(--cipher-teal);
+      border-radius: 0 6px 6px 0;
+      font-size: 9pt;
+      margin-bottom: 0.35rem;
+    }
+
+    .hero strong { color: var(--deep-violet); }
+
+    h2 {
+      margin: 0.5rem 0 0.2rem;
+      font-size: 10.25pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--deep-violet);
+      border-bottom: 2px solid var(--cipher-teal);
+      padding-bottom: 0.1rem;
+      break-after: avoid;
+    }
+
+    h3 {
+      margin: 0.32rem 0 0.12rem;
+      font-size: 9.25pt;
+      font-weight: 700;
+      color: var(--dark-anchor);
+      break-after: avoid;
+    }
+
+    p { margin: 0 0 0.22rem; }
+    ul, ol { margin: 0.12rem 0 0.25rem; padding-left: 1.1rem; }
+    li { margin-bottom: 0.1rem; }
+
+    .note {
+      background: var(--amber-tint);
+      color: var(--amber-tint-text);
+      border-radius: 4px;
+      padding: 0.22rem 0.35rem;
+      font-size: 8.25pt;
+      margin: 0.2rem 0 0.3rem;
+    }
+
+    .callout {
+      background: var(--teal-tint);
+      color: var(--teal-tint-text);
+      border-radius: 6px;
+      padding: 0.28rem 0.4rem;
+      font-size: 8.5pt;
+      margin: 0.25rem 0 0.35rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.25pt;
+      margin: 0.2rem 0 0.35rem;
+      break-inside: avoid;
+    }
+
+    th, td {
+      border: 1px solid rgba(45, 38, 96, 0.15);
+      padding: 0.28rem 0.35rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--dark-anchor);
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) td { background: var(--lavender-white); }
+
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+      margin: 0.25rem 0 0.35rem;
+    }
+
+    .scenario {
+      background: var(--lavender-white);
+      border: 1px solid rgba(91, 79, 181, 0.18);
+      border-radius: 6px;
+      padding: 0.3rem 0.38rem;
+      break-inside: avoid;
+    }
+
+    .scenario .label {
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--deep-violet);
+      margin-bottom: 0.12rem;
+    }
+
+    .scenario h3 {
+      margin: 0 0 0.15rem;
+      font-size: 8.75pt;
+      line-height: 1.25;
+    }
+
+    .scenario ol {
+      margin: 0;
+      padding-left: 1rem;
+      font-size: 8.25pt;
+      color: var(--gray-500);
+    }
+
+    .scenario ol strong { color: var(--dark-anchor); }
+
+    .scenario .result {
+      margin-top: 0.15rem;
+      font-size: 8pt;
+      color: var(--gray-500);
+    }
+
+    .scenario .result strong { color: var(--dark-anchor); }
+
+    .scenario.likely {
+      border-left: 3px solid var(--cipher-teal);
+    }
+
+    .footer {
+      margin-top: 0.45rem;
+      padding-top: 0.25rem;
+      border-top: 1px solid rgba(45, 38, 96, 0.12);
+      font-size: 7.5pt;
+      color: var(--gray-500);
+      text-align: center;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      header { margin: 0 0 0.35rem; }
+      .scenario-grid { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <img class="brand-mark" src="../assets/cipherhealth-logo-mark.svg" alt="CipherHealth">
+        <span class="brand-name">CipherHealth</span>
+      </div>
+      <div class="header-text">
+        <h1>Outreach on These Holidays — Actual Date Only</h1>
+        <p>Evolve · Implementation Guide · CIP-9372 · July 2026</p>
+      </div>
+    </header>
+
+    <div class="meta-bar">
+      <span class="tag tag-green">Closed / Done</span>
+      <span class="tag tag-teal">Evolve v26.24.0</span>
+      <span class="tag tag-violet">Implementation Team</span>
+      · Reporter: Mykela McAllen · Engineering: Gregory Bowman · Created June 3, 2026
+    </div>
+
+    <div class="hero">
+      Holidays in <strong>Outreach on These Holidays</strong> now reflect only the <strong>actual holiday date</strong>, not the observed holiday date. This gives customers more control over which days outreach calls go out.
+    </div>
+
+    <h2>Background</h2>
+    <p>
+      A prior change (<strong>CIP-9068: Ability to Override Holiday Blockages for Outreach</strong>) partially addressed holiday configuration issues, but Support still had to do significant manual work. The root problem was that actual and observed dates were bundled into a single holiday, which confused customers.
+    </p>
+    <div class="note">
+      <strong>Important:</strong> The fixes from CIP-9068 should remain in place. This release builds on that work.
+    </div>
+    <p>
+      CIP-9068 loosened validation so customers can add a date to <strong>No Outreach on These Dates</strong> even when that date falls within a holiday — as long as that holiday is in the <strong>Outreach on These Holidays</strong> allowlist. For example, if Independence Day is in the allowlist, a customer can add July 4 to <strong>No Outreach on These Dates</strong> to block outreach on the 4th while still allowing it on the 3rd.
+    </p>
+
+    <h2>What Changed</h2>
+    <p>
+      The system now uses <strong>only the actual holiday date</strong> in the holiday list. Observed dates are no longer included as part of the holiday definition.
+    </p>
+    <div class="callout">
+      If outreach needs to be blocked on an observed date, add that date manually in <strong>No Outreach on These Dates</strong>.
+    </div>
+
+    <h2>Expected Behavior</h2>
+
+    <h3>1. Holidays block only the actual date</h3>
+    <p>When a holiday is configured, it applies only to its actual calendar date — not any observed date.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Holiday</th>
+          <th>Actual Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Independence Day</td><td>July 4 only</td></tr>
+        <tr><td>Juneteenth National Independence Day</td><td>June 19 only</td></tr>
+        <tr><td>Veteran's Day</td><td>November 11 only</td></tr>
+        <tr><td>Christmas Day</td><td>December 25 only</td></tr>
+        <tr><td>Christmas Eve</td><td>December 24 only</td></tr>
+        <tr><td>New Year's Day</td><td>January 1 only</td></tr>
+        <tr><td>New Year's Eve</td><td>December 31 only</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      If Independence Day is in <strong>Outreach on These Holidays</strong>, outreach will go out on <strong>7/4 only</strong>. It will not affect any other day (including 7/3).
+    </p>
+
+    <h3>2. Observed dates are not treated as holidays</h3>
+    <p>
+      Observed dates are <strong>not</strong> holidays in the system. They can be added to <strong>No Outreach on These Dates</strong> without validation issues.
+    </p>
+    <p>
+      For example, to block outreach on <strong>7/3/2026</strong> (the observed date for Independence Day in 2026), add <strong>7/3/2026</strong> to <strong>No Outreach on These Dates</strong>. If you do not add it, outreach proceeds as usual on that date.
+    </p>
+
+    <h2>Configuration Guide — Independence Day 2026</h2>
+    <p>
+      Independence Day 2026: <strong>actual date = 7/4</strong>, <strong>observed date = 7/3</strong> (Friday). Use the two fields together:
+    </p>
+    <ul>
+      <li><strong>Outreach on These Holidays</strong> — allows outreach on a holiday's actual date</li>
+      <li><strong>No Outreach on These Dates</strong> — blocks outreach on specific dates (including observed dates)</li>
+    </ul>
+
+    <div class="scenario-grid">
+      <div class="scenario">
+        <div class="label">Scenario 1</div>
+        <h3>Customer wants outreach on BOTH 7/3 and 7/4</h3>
+        <ol>
+          <li>Add <strong>Independence Day</strong> to <strong>Outreach on These Holidays</strong></li>
+        </ol>
+        <p class="result"><strong>Result:</strong> No other changes needed. Outreach is allowed on both days.</p>
+      </div>
+
+      <div class="scenario">
+        <div class="label">Scenario 2</div>
+        <h3>Customer does NOT want outreach on 7/3 OR 7/4</h3>
+        <ol>
+          <li>Ensure <strong>Independence Day</strong> is <strong>NOT</strong> in <strong>Outreach on These Holidays</strong></li>
+          <li>Add <strong>7/3/2026</strong> to <strong>No Outreach on These Dates</strong></li>
+        </ol>
+        <p class="result"><strong>Result:</strong> 7/4 is blocked automatically; 7/3 is blocked via the date list.</p>
+      </div>
+
+      <div class="scenario likely">
+        <div class="label">Scenario 3 · Most Common</div>
+        <h3>Customer wants outreach on 7/3 but NOT 7/4</h3>
+        <ol>
+          <li>Ensure <strong>Independence Day</strong> is <strong>NOT</strong> in <strong>Outreach on These Holidays</strong></li>
+          <li>Ensure <strong>7/3/2026</strong> is <strong>NOT</strong> in <strong>No Outreach on These Dates</strong></li>
+        </ol>
+        <p class="result"><strong>Result:</strong> Normal outreach on 7/3; 7/4 blocked because Independence Day is not in the allowlist.</p>
+      </div>
+
+      <div class="scenario">
+        <div class="label">Scenario 4 · Least Common</div>
+        <h3>Customer wants outreach on 7/4 but NOT 7/3</h3>
+        <ol>
+          <li>Add <strong>Independence Day</strong> to <strong>Outreach on These Holidays</strong></li>
+          <li>Add <strong>7/3/2026</strong> to <strong>No Outreach on These Dates</strong></li>
+        </ol>
+        <p class="result"><strong>Result:</strong> Outreach allowed on 7/4; 7/3 is explicitly blocked.</p>
+      </div>
+    </div>
+
+    <h2>Static-Date Holidays</h2>
+    <p>These holidays have fixed calendar dates and are affected by this change:</p>
+    <ul>
+      <li>Veteran's Day</li>
+      <li>Juneteenth National Independence Day</li>
+      <li>Independence Day</li>
+      <li>Christmas Day</li>
+      <li>Christmas Eve</li>
+      <li>New Year's Day</li>
+      <li>New Year's Eve</li>
+    </ul>
+    <p>
+      For holidays with <strong>variable dates</strong> (e.g., Thanksgiving, Memorial Day), the same principle applies: only the actual date is in the holiday definition. Use <strong>No Outreach on These Dates</strong> for any observed or adjacent dates as needed.
+    </p>
+
+    <h2>Quick Reference</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Customer Goal</th>
+          <th>Outreach on These Holidays</th>
+          <th>No Outreach on These Dates</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Outreach on both actual + observed dates</td>
+          <td>Add the holiday</td>
+          <td>Leave observed date out</td>
+        </tr>
+        <tr>
+          <td>No outreach on actual or observed dates</td>
+          <td>Remove the holiday</td>
+          <td>Add observed date</td>
+        </tr>
+        <tr>
+          <td>Outreach on observed only, not actual</td>
+          <td>Remove the holiday</td>
+          <td>Do not block observed date</td>
+        </tr>
+        <tr>
+          <td>Outreach on actual only, not observed</td>
+          <td>Add the holiday</td>
+          <td>Add observed date to block list</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Production Deployment</h2>
+    <div class="callout">
+      Deployed to production on <strong>Tuesday, July 8, 2026</strong> as part of <strong>Evolve 26.24.0</strong>.
+    </div>
+
+    <div class="footer">
+      CipherHealth Inc. · Internal · For Implementation Team use · Questions: Mykela McAllen (Product) or Gregory Bowman (Engineering)
+    </div>
+  </div>
+</body>
+</html>
