@@ -41,7 +41,7 @@ Your team can then use a stable URL like `https://<org>.github.io/priority-score
 This repo includes a `tool.yaml` manifest for [Cipher PaaS](https://console.tools.cipherhealth.dev).
 
 1. **Connect the repo** in the Cipher console (grants you deploy access).
-2. **Sync the deploy bundle** (simulator only — excludes large mockup assets):
+2. **Sync the deploy bundle** (simulator + hype flyers — excludes large mockup assets):
 
    ```bash
    ./scripts/sync-paas-deploy.sh
@@ -53,7 +53,15 @@ This repo includes a `tool.yaml` manifest for [Cipher PaaS](https://console.tool
    paas deploy
    ```
 
-The manifest uses `source_dir: deploy` so only `index.html` and logo assets are uploaded (~68 KB), not the full repo.
+The manifest uses `source_dir: deploy` so only the simulator, logo assets, and three hype flyers are uploaded — not the full repo.
+
+After deploy, hype flyers are available at paths like:
+
+- `https://<your-app>.tools.cipherhealth.dev/docs/staff-ssr-hype-flyer.html`
+- `https://<your-app>.tools.cipherhealth.dev/docs/ambient-listening-hype-flyer.html`
+- `https://<your-app>.tools.cipherhealth.dev/docs/patient-prioritization-hype-flyer.html`
+
+Browse all flyers: `https://<your-app>.tools.cipherhealth.dev/docs/`
 
 ## Customer-facing templates
 

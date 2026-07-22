@@ -1,6 +1,8 @@
 # tool.yaml — Cipher app manifest. Commit this to your repo, then connect it or `paas deploy`.
 #
 # App name must be lowercase with hyphens (no spaces). Display title: Patient Prioritization Simulator.
+# Deploy bundle (./scripts/sync-paas-deploy.sh): simulator + Staff SSR, Ambient Listening, and
+# Patient Prioritization hype flyers under /docs/.
 # Use `runtime: static` for this HTML app. Use `runtime: node` only with package.json + build/start scripts.
 name: priority-score-sim-mcarroll
 runtime: static
