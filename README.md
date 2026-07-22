@@ -36,6 +36,25 @@ Built-in preset IDs: `builtin-central-hospital`, `builtin-default-program`, `bui
 
 Your team can then use a stable URL like `https://<org>.github.io/priority-score-simulator/`.
 
+### Host on Cipher PaaS (SSO-gated)
+
+This repo includes a `tool.yaml` manifest for [Cipher PaaS](https://console.tools.cipherhealth.dev).
+
+1. **Connect the repo** in the Cipher console (grants you deploy access).
+2. **Sync the deploy bundle** (simulator only — excludes large mockup assets):
+
+   ```bash
+   ./scripts/sync-paas-deploy.sh
+   ```
+
+3. **Deploy:**
+
+   ```bash
+   paas deploy
+   ```
+
+The manifest uses `source_dir: deploy` so only `index.html` and logo assets are uploaded (~68 KB), not the full repo.
+
 ## Customer-facing templates
 
 | Template | Public URL |
