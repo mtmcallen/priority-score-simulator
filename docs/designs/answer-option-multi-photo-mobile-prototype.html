@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mobile prototype — multiple photos per answer option with multi-select photo picker (up to 10).">
+  <title>Multi-Photo Answer Option — Mobile Prototype</title>
+  <style>
+    :root {
+      --teal: #1aab9c;
+      --teal-dark: #159a8c;
+      --teal-header: linear-gradient(180deg, #1aab9c 0%, #22b89e 100%);
+      --bar-dark: #3b3b3b;
+      --text: #1c1c1e;
+      --muted: #8e8e93;
+      --border: #e5e7eb;
+      --bg: #f2f2f7;
+      --ios-blue: #007aff;
+      --android-green: #1aab9c;
+      --panel-dark: #2d2660;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
+      background: #f2f1f9;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page-header {
+      background: var(--panel-dark);
+      color: #fff;
+      padding: 1rem 1.5rem;
+      border-bottom: 4px solid var(--teal);
+    }
+    .page-header h1 { font-size: 1.05rem; font-weight: 700; }
+    .page-header p { font-size: 0.82rem; opacity: 0.9; margin-top: 0.35rem; max-width: 56rem; line-height: 1.45; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr 260px;
+      gap: 1rem;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1rem;
+      align-items: start;
+    }
+    @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem;
+    }
+    .panel h2 {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.55rem;
+    }
+    .flow-steps { list-style: none; }
+    .flow-steps li {
+      display: flex; gap: 0.45rem; padding: 0.4rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.74rem; color: var(--muted); line-height: 1.35;
+    }
+    .flow-steps li:last-child { border-bottom: none; }
+    .flow-steps .num {
+      width: 1.25rem; height: 1.25rem; border-radius: 50%;
+      background: #eee; font-size: 0.62rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .flow-steps li.active .num { background: var(--teal); color: #fff; }
+    .flow-steps li.active { color: var(--text); font-weight: 600; }
+    .flow-steps li.done .num { background: #dcfce7; color: #16a34a; }
+
+    .hint {
+      font-size: 0.72rem; color: var(--muted); margin-top: 0.55rem;
+      padding: 0.5rem; background: #f8f8fc; border-radius: 8px; line-height: 1.45;
+    }
+
+    .platform-toggle {
+      display: flex; gap: 0.4rem; margin-bottom: 0.65rem;
+    }
+    .platform-toggle button {
+      flex: 1; border: 1px solid var(--border); background: #fff;
+      border-radius: 8px; padding: 0.45rem; font-size: 0.76rem;
+      font-weight: 600; cursor: pointer;
+    }
+    .platform-toggle button.active {
+      background: var(--teal); color: #fff; border-color: var(--teal);
+    }
+
+    .screen-label {
+      text-align: center; font-size: 0.72rem; font-weight: 700;
+      color: var(--muted); margin-bottom: 0.4rem;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+
+    .phone-wrap { display: flex; justify-content: center; }
+    .phone {
+      width: 390px;
+      height: 844px;
+      background: #000;
+      border-radius: 44px;
+      border: 10px solid #222;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .phone.android-frame { border-color: #444; border-radius: 28px; }
+
+    .phone-inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+      position: relative;
+    }
+
+    /* ── Round screen ── */
+    .status-bar {
+      height: 44px;
+      padding: 12px 18px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 15px;
+      font-weight: 600;
+      background: var(--teal);
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .status-bar .icons { display: flex; gap: 5px; align-items: center; font-size: 13px; }
+
+    .round-header {
+      background: var(--teal-header);
+      color: #fff;
+      padding: 4px 14px 8px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .round-header button {
+      background: none; border: none; color: #fff;
+      font-size: 17px; cursor: pointer; min-width: 44px;
+    }
+    .round-header .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; }
+    .round-header .submit { font-weight: 600; text-align: right; }
+
+    .assistant-bar {
+      background: var(--bar-dark);
+      color: #fff;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .assistant-bar .start {
+      background: var(--teal);
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      padding: 4px 14px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .progress-dots {
+      display: flex; justify-content: center; gap: 5px;
+      padding: 8px 0; background: #fff; flex-shrink: 0;
+    }
+    .progress-dots span {
+      width: 7px; height: 7px; border-radius: 50%; background: #d1d5db;
+    }
+    .progress-dots span.on { background: var(--teal); }
+
+    .section-bar {
+      background: #e8e8ed;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+      flex-shrink: 0;
+    }
+
+    .question-scroll {
+      flex: 1;
+      overflow-y: auto;
+      background: #fff;
+      padding: 14px 16px 120px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .category { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .question-text {
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-bottom: 16px;
+    }
+
+    .check-item {
+      margin-bottom: 14px;
+    }
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .check-box {
+      width: 26px; height: 26px;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      background: #fff;
+    }
+    .check-item.checked .check-box {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .check-label {
+      flex: 1;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.25;
+      cursor: pointer;
+    }
+    .camera-icon {
+      width: 28px; height: 28px;
+      flex-shrink: 0;
+      opacity: 0.25;
+      cursor: pointer;
+    }
+    .check-item.checked .camera-icon { opacity: 1; }
+
+    .item-tags {
+      display: flex; gap: 10px;
+      margin: 4px 0 0 36px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .photo-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0 36px;
+    }
+    .photo-row:empty { display: none; }
+
+    .attached-photo {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .attached-photo img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .attached-photo .remove {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 22px;
+      height: 22px;
+      border: none;
+      background: none;
+      color: #999;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .prev-responses {
+      position: absolute;
+      left: 12px; right: 12px;
+      bottom: 72px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .bottom-nav {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      background: #fff;
+      border-top: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+    .answered-bar {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 6px;
+      background: #fafafa;
+      border-bottom: 1px solid var(--border);
+    }
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      padding-top: 6px;
+    }
+    .tab {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 2px; font-size: 10px; color: var(--muted);
+    }
+    .tab.active { color: var(--teal); font-weight: 600; }
+    .tab .icon { font-size: 22px; }
+
+    /* ── Overlays ── */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+    }
+    .overlay.open { display: flex; }
+
+    /* iOS action sheet */
+    .action-sheet.ios {
+      width: 100%;
+      padding: 0 8px 28px;
+    }
+    .action-sheet.ios .sheet-group {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .action-sheet.ios .prompt {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 14px 16px 10px;
+      border-bottom: 0.5px solid rgba(0,0,0,0.12);
+    }
+    .action-sheet.ios button {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 16px;
+      font-size: 20px;
+      color: var(--ios-blue);
+      cursor: pointer;
+      border-top: 0.5px solid rgba(0,0,0,0.12);
+    }
+    .action-sheet.ios button:first-of-type { border-top: none; }
+    .action-sheet.ios .cancel-btn {
+      font-weight: 700;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.95);
+    }
+
+    /* Android bottom sheet */
+    .action-sheet.android {
+      width: 100%;
+      background: #fff;
+      border-radius: 16px 16px 0 0;
+      padding: 8px 0 24px;
+    }
+    .action-sheet.android .handle {
+      width: 32px; height: 4px; background: #ddd;
+      border-radius: 2px; margin: 8px auto 12px;
+    }
+    .action-sheet.android .prompt {
+      padding: 0 24px 12px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .action-sheet.android button {
+      display: block;
+      width: 100%;
+      border: none;
+      background: none;
+      padding: 16px 24px;
+      font-size: 16px;
+      text-align: left;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .action-sheet.android button.primary { color: var(--android-green); font-weight: 600; }
+    .action-sheet.android .cancel-btn {
+      margin-top: 8px;
+      border-top: 8px solid #f0f0f0;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* Photo picker */
+    .picker-screen {
+      position: absolute;
+      inset: 0;
+      background: #fff;
+      z-index: 60;
+      display: none;
+      flex-direction: column;
+    }
+    .picker-screen.open { display: flex; }
+
+    .picker-header {
+      padding: 48px 12px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 0.5px solid var(--border);
+      flex-shrink: 0;
+    }
+    .picker-header .close-btn {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: #eee;
+      font-size: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .picker-header .tabs-seg {
+      flex: 1;
+      display: flex;
+      background: #eee;
+      border-radius: 8px;
+      padding: 2px;
+    }
+    .picker-header .tabs-seg button {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 6px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .picker-header .tabs-seg button.on {
+      background: #fff;
+      color: var(--text);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    }
+    .picker-header .choose-btn {
+      border: none;
+      background: none;
+      color: var(--ios-blue);
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 8px;
+      flex-shrink: 0;
+      min-width: 72px;
+      text-align: right;
+    }
+    .picker-header .choose-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    body.platform-android .picker-header .choose-btn { color: var(--android-green); }
+
+    .picker-limit {
+      padding: 6px 14px;
+      font-size: 12px;
+      color: var(--muted);
+      background: #fafafa;
+      border-bottom: 0.5px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .picker-grid {
+      flex: 1;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: #fff;
+    }
+    .picker-cell {
+      aspect-ratio: 1;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .picker-cell img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .picker-cell.selected::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(26, 171, 156, 0.35);
+      border: 3px solid var(--teal);
+    }
+    .picker-cell .badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--teal);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .picker-cell.selected .badge { display: flex; }
+
+    .picker-footer {
+      background: rgba(30,30,30,0.92);
+      color: #fff;
+      padding: 10px 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .picker-footer .circle-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: #fff;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>Multi-Photo Answer Option — Mobile Prototype</h1>
+    <p>Interactive iOS &amp; Android mockup based on Rounding Assistant. Check an answer, tap the camera icon, choose up to 10 existing photos, then see thumbnails listed under the answer with × to remove.</p>
+  </header>
+
+  <div class="layout">
+    <aside class="panel">
+      <h2>Flow</h2>
+      <ol class="flow-steps" id="flow-steps">
+        <li class="active"><span class="num">1</span><span>Check an answer (e.g. Bathroom not clean)</span></li>
+        <li><span class="num">2</span><span>Tap camera icon → action sheet</span></li>
+        <li><span class="num">3</span><span>Choose existing → multi-select picker</span></li>
+        <li><span class="num">4</span><span>Tap Choose (top right) — up to 10 photos</span></li>
+        <li><span class="num">5</span><span>Thumbnails appear under answer; tap × to remove</span></li>
+      </ol>
+      <p class="hint">Toggle iOS / Android on the right. Picker enforces 10 photos max per answer and per selection batch.</p>
+    </aside>
+
+    <div>
+      <div class="screen-label" id="screen-label">Round — Cleanliness</div>
+      <div class="phone-wrap">
+        <div class="phone" id="phone">
+          <div class="phone-inner" id="phone-inner">
+            <div class="status-bar">
+              <span>4:07</span>
+              <span class="icons">▮▮▮▮ 📶 🔋 63</span>
+            </div>
+
+            <div class="round-header">
+              <button type="button" aria-label="Back">‹ D.</button>
+              <span class="title">3 of 18</span>
+              <button type="button" class="submit">Submit</button>
+            </div>
+
+            <div class="assistant-bar">
+              <span>◎ Rounding Assistant</span>
+              <button type="button" class="start">Start</button>
+            </div>
+
+            <div class="progress-dots" id="progress-dots"></div>
+            <div class="section-bar">Visual Sweep</div>
+
+            <div class="question-scroll">
+              <div class="category">Cleanliness</div>
+              <div class="question-text">Please indicate any issues identified in the patient's room.</div>
+              <div id="checklist"></div>
+            </div>
+
+            <div class="prev-responses">
+              <span>🔥 😞 Previous Responses (6)</span>
+              <span>⌃</span>
+            </div>
+
+            <div class="bottom-nav">
+              <div class="answered-bar">5/18 answered</div>
+              <div class="tabs">
+                <div class="tab active"><span class="icon">✎</span>Round</div>
+                <div class="tab"><span class="icon">📅</span>History</div>
+                <div class="tab"><span class="icon">🎙</span>Care Recordings</div>
+                <div class="tab"><span class="icon">🏷</span>Flags</div>
+                <div class="tab"><span class="icon">👤</span>Profile</div>
+              </div>
+            </div>
+
+            <!-- Action sheet -->
+            <div class="overlay" id="action-overlay">
+              <div class="action-sheet ios" id="action-sheet">
+                <div class="sheet-group">
+                  <div class="prompt">Would you like to upload an image with your answer?</div>
+                  <button type="button" id="btn-choose-existing">Choose existing</button>
+                  <button type="button" id="btn-take-photo">Take Photo</button>
+                </div>
+                <button type="button" class="cancel-btn" id="btn-cancel-sheet">Cancel</button>
+              </div>
+            </div>
+
+            <!-- Photo picker -->
+            <div class="picker-screen" id="picker-screen">
+              <div class="picker-header">
+                <button type="button" class="close-btn" id="picker-close" aria-label="Close">✕</button>
+                <div class="tabs-seg">
+                  <button type="button" class="on">Photos</button>
+                  <button type="button">Collections</button>
+                </div>
+                <button type="button" class="choose-btn" id="picker-choose" disabled>Choose</button>
+              </div>
+              <div class="picker-limit" id="picker-limit">Select up to 10 photos · 0 selected</div>
+              <div class="picker-grid" id="picker-grid"></div>
+              <div class="picker-footer">
+                <button type="button" class="circle-btn">☰</button>
+                <span>↗ Location Is Included</span>
+                <button type="button" class="circle-btn">🔍</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="panel">
+      <h2>Platform</h2>
+      <div class="platform-toggle">
+        <button type="button" class="active" data-platform="ios">iOS</button>
+        <button type="button" data-platform="android">Android</button>
+      </div>
+      <p class="hint" id="platform-note">
+        iOS: system action sheet with blue actions. Photo picker uses Photos / Collections segmented control and <strong>Choose</strong> top right.
+      </p>
+      <h2 style="margin-top:0.75rem">Attached photos</h2>
+      <p class="hint" id="photo-summary">Bathroom not clean: 0 photos</p>
+    </aside>
+  </div>
+
+  <script>
+    const MAX_PHOTOS = 10;
+
+    const ITEMS = [
+      { id: "none", label: "None - Environment is acceptable", tags: [] },
+      { id: "bathroom", label: "Bathroom not clean", tags: ["🔥 EVS Issue", "🔔 EVS Alert"] },
+      { id: "clutter", label: "Clutter", tags: ["🔥 EVS Issue", "🔔 EVS Alert"] },
+      { id: "floor", label: "Floor not clean", tags: ["🔥 EVS Issue", "🔔 EVS Alert"] },
+      { id: "sanitizer", label: "Hand sanitizer empty", tags: ["🔥 EVS Issue", "🔔 EVS Alert"] }
+    ];
+
+    // Demo gallery — gradient placeholders mimicking camera roll
+    const GALLERY = Array.from({ length: 24 }, (_, i) => {
+      const hues = [30, 45, 200, 160, 280, 15, 340];
+      const h = hues[i % hues.length];
+      return {
+        id: `gallery-${i}`,
+        dataUrl: `data:image/svg+xml,${encodeURIComponent(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">
+            <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="hsl(${h},35%,82%)"/>
+              <stop offset="100%" stop-color="hsl(${h},25%,65%)"/>
+            </linearGradient></defs>
+            <rect width="400" height="400" fill="url(#g)"/>
+            <ellipse cx="280" cy="120" rx="90" ry="60" fill="rgba(0,0,0,0.12)"/>
+          </svg>`
+        )}`
+      };
+    });
+
+    const state = {
+      platform: "ios",
+      checked: { bathroom: true },
+      photos: { bathroom: [] },
+      activeItemId: null,
+      pickerSelection: []
+    };
+
+    function remainingSlots(itemId) {
+      return MAX_PHOTOS - (state.photos[itemId]?.length || 0);
+    }
+
+    function renderDots() {
+      document.getElementById("progress-dots").innerHTML = Array.from({ length: 18 }, (_, i) =>
+        `<span class="${i === 2 ? "on" : ""}"></span>`
+      ).join("");
+    }
+
+    function renderChecklist() {
+      document.getElementById("checklist").innerHTML = ITEMS.map((item) => {
+        const checked = !!state.checked[item.id];
+        const photos = state.photos[item.id] || [];
+        const tags = item.tags.length
+          ? `<div class="item-tags">${item.tags.map((t) => `<span>${t}</span>`).join("")}</div>`
+          : "";
+        const thumbs = photos.map((p, idx) => `
+          <div class="attached-photo">
+            <img src="${p.dataUrl}" alt="">
+            <button type="button" class="remove" aria-label="Remove photo"
+              data-remove="${item.id}" data-photo-id="${p.id}">×</button>
+          </div>
+        `).join("");
+
+        return `
+          <div class="check-item ${checked ? "checked" : ""}" data-id="${item.id}">
+            <div class="check-row">
+              <div class="check-box" data-toggle="${item.id}">${checked ? "✓" : ""}</div>
+              <div class="check-label" data-toggle="${item.id}">${item.label}</div>
+              <svg class="camera-icon" data-camera="${item.id}" viewBox="0 0 24 24" fill="${checked ? "#1aab9c" : "#999"}">
+                <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/>
+                <path d="M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9Zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5Z"/>
+              </svg>
+            </div>
+            ${tags}
+            <div class="photo-row">${thumbs}</div>
+          </div>
+        `;
+      }).join("");
+
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const count = (state.photos.bathroom || []).length;
+      document.getElementById("photo-summary").textContent =
+        `Bathroom not clean: ${count} photo${count === 1 ? "" : "s"} (max ${MAX_PHOTOS})`;
+    }
+
+    function setFlowStep(step) {
+      document.querySelectorAll(".flow-steps li").forEach((li, i) => {
+        li.classList.remove("active", "done");
+        if (i < step) li.classList.add("done");
+        if (i === step) li.classList.add("active");
+      });
+    }
+
+    function openActionSheet(itemId) {
+      if (!state.checked[itemId]) return;
+      state.activeItemId = itemId;
+      document.getElementById("action-overlay").classList.add("open");
+      setFlowStep(1);
+    }
+
+    function closeActionSheet() {
+      document.getElementById("action-overlay").classList.remove("open");
+    }
+
+    function openPicker() {
+      closeActionSheet();
+      state.pickerSelection = [];
+      const slots = remainingSlots(state.activeItemId);
+      document.getElementById("picker-limit").textContent =
+        `Select up to ${Math.min(slots, MAX_PHOTOS)} photos · 0 selected`;
+      renderPickerGrid();
+      updateChooseButton();
+      document.getElementById("picker-screen").classList.add("open");
+      document.getElementById("screen-label").textContent = "Photo picker — Choose existing";
+      setFlowStep(2);
+    }
+
+    function closePicker() {
+      document.getElementById("picker-screen").classList.remove("open");
+      document.getElementById("screen-label").textContent = "Round — Cleanliness";
+      state.pickerSelection = [];
+      setFlowStep(state.photos[state.activeItemId]?.length ? 4 : 0);
+    }
+
+    function renderPickerGrid() {
+      const slots = remainingSlots(state.activeItemId);
+      document.getElementById("picker-grid").innerHTML = GALLERY.map((photo) => {
+        const selIdx = state.pickerSelection.indexOf(photo.id);
+        const selected = selIdx >= 0;
+        return `
+          <div class="picker-cell ${selected ? "selected" : ""}" data-pick="${photo.id}">
+            <img src="${photo.dataUrl}" alt="">
+            ${selected ? `<span class="badge">${selIdx + 1}</span>` : ""}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function updateChooseButton() {
+      const btn = document.getElementById("picker-choose");
+      const count = state.pickerSelection.length;
+      const slots = remainingSlots(state.activeItemId);
+      btn.textContent = count ? `Choose (${count})` : "Choose";
+      btn.disabled = count === 0;
+      document.getElementById("picker-limit").textContent =
+        `Select up to ${Math.min(slots, MAX_PHOTOS)} photos · ${count} selected`;
+    }
+
+    function togglePickerPhoto(photoId) {
+      const slots = remainingSlots(state.activeItemId);
+      const idx = state.pickerSelection.indexOf(photoId);
+      if (idx >= 0) {
+        state.pickerSelection.splice(idx, 1);
+      } else if (state.pickerSelection.length < Math.min(slots, MAX_PHOTOS)) {
+        state.pickerSelection.push(photoId);
+      }
+      renderPickerGrid();
+      updateChooseButton();
+    }
+
+    function confirmPickerSelection() {
+      const itemId = state.activeItemId;
+      if (!itemId || !state.pickerSelection.length) return;
+      const existing = state.photos[itemId] || [];
+      const toAdd = state.pickerSelection.map((gid) => {
+        const g = GALLERY.find((p) => p.id === gid);
+        return {
+          id: `${itemId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          dataUrl: g.dataUrl
+        };
+      });
+      state.photos[itemId] = [...existing, ...toAdd].slice(0, MAX_PHOTOS);
+      closePicker();
+      renderChecklist();
+      setFlowStep(4);
+    }
+
+    function removePhoto(itemId, photoId) {
+      state.photos[itemId] = (state.photos[itemId] || []).filter((p) => p.id !== photoId);
+      if (!state.photos[itemId].length) delete state.photos[itemId];
+      renderChecklist();
+    }
+
+    function setPlatform(platform) {
+      state.platform = platform;
+      document.body.classList.toggle("platform-android", platform === "android");
+      document.getElementById("phone").classList.toggle("android-frame", platform === "android");
+
+      const sheet = document.getElementById("action-sheet");
+      sheet.className = `action-sheet ${platform}`;
+
+      if (platform === "android") {
+        sheet.innerHTML = `
+          <div class="handle"></div>
+          <div class="prompt">Would you like to upload an image with your answer?</div>
+          <button type="button" class="primary" id="btn-choose-existing">Choose existing</button>
+          <button type="button" id="btn-take-photo">Take Photo</button>
+          <button type="button" class="cancel-btn" id="btn-cancel-sheet">Cancel</button>
+        `;
+        document.getElementById("platform-note").innerHTML =
+          "Android: Material bottom sheet with teal primary action. Same multi-select picker with <strong>Choose</strong> top right.";
+      } else {
+        sheet.innerHTML = `
+          <div class="sheet-group">
+            <div class="prompt">Would you like to upload an image with your answer?</div>
+            <button type="button" id="btn-choose-existing">Choose existing</button>
+            <button type="button" id="btn-take-photo">Take Photo</button>
+          </div>
+          <button type="button" class="cancel-btn" id="btn-cancel-sheet">Cancel</button>
+        `;
+        document.getElementById("platform-note").innerHTML =
+          "iOS: system action sheet with blue actions. Photo picker uses Photos / Collections segmented control and <strong>Choose</strong> top right.";
+      }
+      wireSheetButtons();
+    }
+
+    function wireSheetButtons() {
+      document.getElementById("btn-choose-existing").addEventListener("click", openPicker);
+      document.getElementById("btn-cancel-sheet").addEventListener("click", closeActionSheet);
+      document.getElementById("btn-take-photo").addEventListener("click", () => {
+        closeActionSheet();
+        if (!state.activeItemId || remainingSlots(state.activeItemId) <= 0) return;
+        const photo = GALLERY[Math.floor(Math.random() * GALLERY.length)];
+        const itemId = state.activeItemId;
+        state.photos[itemId] = [...(state.photos[itemId] || []), {
+          id: `${itemId}-${Date.now()}`,
+          dataUrl: photo.dataUrl
+        }].slice(0, MAX_PHOTOS);
+        renderChecklist();
+        setFlowStep(4);
+      });
+    }
+
+    document.getElementById("checklist").addEventListener("click", (e) => {
+      const toggle = e.target.closest("[data-toggle]");
+      if (toggle) {
+        const id = toggle.dataset.toggle;
+        state.checked[id] = !state.checked[id];
+        if (!state.checked[id]) delete state.photos[id];
+        renderChecklist();
+        return;
+      }
+      const camera = e.target.closest("[data-camera]");
+      if (camera) {
+        openActionSheet(camera.dataset.camera);
+        return;
+      }
+      const remove = e.target.closest("[data-remove]");
+      if (remove) {
+        removePhoto(remove.dataset.remove, remove.dataset.photoId);
+      }
+    });
+
+    document.getElementById("picker-grid").addEventListener("click", (e) => {
+      const cell = e.target.closest("[data-pick]");
+      if (cell) togglePickerPhoto(cell.dataset.pick);
+    });
+
+    document.getElementById("picker-choose").addEventListener("click", confirmPickerSelection);
+    document.getElementById("picker-close").addEventListener("click", closePicker);
+
+    document.querySelectorAll(".platform-toggle button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".platform-toggle button").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        setPlatform(btn.dataset.platform);
+      });
+    });
+
+    renderDots();
+    renderChecklist();
+    setPlatform("ios");
+  </script>
+</body>
+</html>

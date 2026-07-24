@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive CipherRounds prototype — multiple photo uploads per answer option with removable thumbnails.">
+  <title>Nurse Leader Rounding</title>
+  <style>
+    :root {
+      --teal: #1aab9c;
+      --teal-dark: #159a8c;
+      --teal-nav: #1aab9c;
+      --title-purple: #3d2e7a;
+      --text: #333333;
+      --muted: #767676;
+      --line: #d9d9d9;
+      --sidebar-bg: #fafafa;
+      --sidebar-active: #ececec;
+      --selected-orange: #f5a623;
+      --camera-blue: #4a90d9;
+      --submit-teal: #1aab9c;
+      --check-green: #1aab9c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: #fff;
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+    }
+
+    /* ── Top nav ── */
+    .app-nav {
+      background: var(--teal-nav);
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      color: #fff;
+    }
+    .app-nav .links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+    .app-nav a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+    }
+    .app-nav a.active {
+      color: #fff;
+      font-weight: 700;
+    }
+    .app-nav .right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .app-nav .hospital-select {
+      font-size: 13px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: default;
+    }
+    .app-nav .icon-btn {
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.9;
+      font-size: 16px;
+      color: #fff;
+    }
+
+    /* ── Round sub-header ── */
+    .round-bar {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .round-bar .script-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--title-purple);
+      margin-right: 8px;
+    }
+    .round-bar .patient {
+      font-size: 14px;
+      color: var(--text);
+    }
+    .round-bar .progress-text {
+      font-size: 13px;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+    .round-bar .spacer { flex: 1; }
+    .round-bar .actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .round-bar .actions button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .round-bar .actions button.submit {
+      background: var(--submit-teal);
+      border-color: var(--submit-teal);
+      color: #fff;
+      font-weight: 600;
+    }
+    .round-bar .actions button svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    /* ── Layout ── */
+    .round-layout {
+      display: flex;
+      min-height: calc(100vh - 80px);
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 175px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--line);
+      background: var(--sidebar-bg);
+      padding-top: 4px;
+    }
+    .sidebar-item {
+      padding: 10px 14px 10px 12px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: default;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.3;
+    }
+    .sidebar-item .check {
+      color: var(--check-green);
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .sidebar-item .item-body { flex: 1; min-width: 0; }
+    .sidebar-item .item-title { font-weight: 400; }
+    .sidebar-item .item-answer {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .sidebar-item.active {
+      background: var(--sidebar-active);
+    }
+    .sidebar-item.active .item-title {
+      font-weight: 600;
+    }
+
+    /* ── Main question area ── */
+    .main {
+      flex: 1;
+      padding: 20px 32px 80px;
+      position: relative;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .section-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .section-progress {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 480px;
+    }
+    .step-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--teal);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .progress-track {
+      flex: 1;
+      height: 6px;
+      background: #e0e0e0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 30%;
+      background: var(--teal);
+      border-radius: 3px;
+    }
+
+    .question-text {
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    /* ── Answer options ── */
+    .answer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 640px;
+    }
+
+    .answer-option {
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+    .answer-option.selected {
+      border: 2px solid var(--selected-orange);
+      padding: 11px 13px;
+    }
+
+    .answer-top-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .answer-top-row input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--teal);
+      flex-shrink: 0;
+      margin: 0;
+    }
+
+    .answer-label {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .camera-btn {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 0;
+    }
+    .answer-option.selected .camera-btn {
+      border: 2px solid var(--selected-orange);
+      width: 33px;
+      height: 33px;
+    }
+    .camera-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .camera-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--camera-blue);
+    }
+
+    .answer-flag {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 8px;
+      margin-left: 28px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .answer-flag .flag-icon {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .photo-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      margin-left: 28px;
+    }
+    .photo-grid:empty { display: none; }
+
+    .photo-thumb {
+      position: relative;
+      width: 56px;
+      height: 80px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      overflow: hidden;
+      background: #f0f0f0;
+      flex-shrink: 0;
+    }
+    .photo-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .photo-thumb .remove-btn {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 18px;
+      height: 18px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.65);
+      color: #fff;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .photo-thumb .remove-btn:hover {
+      background: rgba(200, 0, 0, 0.85);
+    }
+
+    /* ── Footer ── */
+    .status-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 28px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .staging-badge {
+      background: #f5a623;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 2px;
+      letter-spacing: 0.03em;
+    }
+
+    .next-btn {
+      position: fixed;
+      right: 24px;
+      bottom: 40px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: var(--camera-blue);
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .toast {
+      position: fixed;
+      top: 60px;
+      right: 16px;
+      background: #333;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-size: 13px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <nav class="app-nav" aria-label="Main navigation">
+    <div class="links">
+      <a href="#">Resolve</a>
+      <a href="#" class="active">Engage</a>
+      <a href="#">Search</a>
+      <a href="#">Report</a>
+      <a href="#">Manage</a>
+    </div>
+    <div class="right">
+      <span class="hospital-select">Central Hospital ▾</span>
+      <span class="icon-btn" aria-hidden="true">⚗</span>
+      <span class="icon-btn" aria-hidden="true">🔔</span>
+      <span class="icon-btn" aria-hidden="true">?</span>
+      <span class="icon-btn" aria-hidden="true">👤</span>
+      <span class="icon-btn" aria-hidden="true">⏻</span>
+    </div>
+  </nav>
+
+  <header class="round-bar">
+    <span class="script-name">Nurse Leader Rounding</span>
+    <span class="patient">Ellen Chalfant Facility A-Unit A</span>
+    <span class="progress-text">1 / 10</span>
+    <span class="spacer"></span>
+    <div class="actions">
+      <button type="button">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.64 14.42 17 12 17s-4.52-2.36-4.93-5.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3.31 3.28 6 6.91 6s6.42-2.69 6.91-6c.09-.6-.39-1.14-1-1.14z"/></svg>
+        Record Conversation
+      </button>
+      <button type="button" id="clear-round">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        Clear Round
+      </button>
+      <button type="button" class="submit" id="submit-round">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        Submit
+      </button>
+    </div>
+  </header>
+
+  <div class="round-layout">
+    <aside class="sidebar" id="sidebar" aria-label="Round sections"></aside>
+
+    <main class="main">
+      <div class="section-header">
+        <span class="section-name" id="section-label">Introduction</span>
+        <div class="section-progress">
+          <span class="step-badge">3</span>
+          <div class="progress-track"><div class="progress-fill"></div></div>
+        </div>
+      </div>
+      <h1 class="question-text" id="question-text">How's it going?</h1>
+      <div class="answer-list" id="answer-list" role="radiogroup" aria-label="Answer options"></div>
+    </main>
+  </div>
+
+  <button type="button" class="next-btn" aria-label="Next question">→</button>
+
+  <footer class="status-bar">
+    <span>Signed in as: Mykela Carroll</span>
+    <span class="staging-badge">staging</span>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const MAX_PHOTOS_PER_ANSWER = 5;
+    const STORAGE_KEY = "answer-option-multi-photo-prototype-v2";
+
+    const QUESTION = {
+      id: "intro-how-going",
+      section: "Introduction",
+      sidebarSection: "Image",
+      text: "How's it going?",
+      answers: [
+        { id: "great", label: "Great", flag: "ED Flag", flagType: "bookmark" },
+        { id: "not-good", label: "Really not good", flag: "Test Issue Panel", flagType: "dropdown" }
+      ]
+    };
+
+    const SIDEBAR_SECTIONS = [
+      { id: "introduction", label: "Introduction", done: true },
+      { id: "patient-comfort", label: "Patient Comfort", done: true },
+      { id: "resource-access", label: "Resource Access", done: true },
+      { id: "image", label: "Image", done: false, active: true },
+      { id: "caregran", label: "Caregran", done: false },
+      { id: "dynamic-question", label: "Dynamic Question", done: false },
+      { id: "question-title", label: "Question Title", done: false }
+    ];
+
+    const state = {
+      selectedAnswerId: "great",
+      photos: {}
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        if (saved.selectedAnswerId) state.selectedAnswerId = saved.selectedAnswerId;
+        if (saved.photos && typeof saved.photos === "object") state.photos = saved.photos;
+      } catch (_) { /* ignore */ }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        selectedAnswerId: state.selectedAnswerId,
+        photos: state.photos
+      }));
+    }
+
+    function getPhotos(answerId) {
+      return state.photos[answerId] || [];
+    }
+
+    function setPhotos(answerId, photos) {
+      if (photos.length === 0) {
+        delete state.photos[answerId];
+      } else {
+        state.photos[answerId] = photos;
+      }
+      saveState();
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function flagIcon(type) {
+      if (type === "bookmark") {
+        return `<svg class="flag-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>`;
+      }
+      return `<svg class="flag-icon" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>`;
+    }
+
+    async function compressImage(file, maxDim = 1200, quality = 0.82) {
+      const bitmap = await createImageBitmap(file);
+      let { width, height } = bitmap;
+      if (width > maxDim || height > maxDim) {
+        if (width >= height) {
+          height = Math.round((height / width) * maxDim);
+          width = maxDim;
+        } else {
+          width = Math.round((width / height) * maxDim);
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext("2d").drawImage(bitmap, 0, 0, width, height);
+      bitmap.close();
+      return canvas.toDataURL("image/jpeg", quality);
+    }
+
+    async function addPhoto(answerId, file) {
+      if (!file || !file.type.startsWith("image/")) return;
+      const existing = getPhotos(answerId);
+      if (existing.length >= MAX_PHOTOS_PER_ANSWER) {
+        showToast(`Maximum ${MAX_PHOTOS_PER_ANSWER} photos per answer`);
+        return;
+      }
+      const dataUrl = await compressImage(file);
+      setPhotos(answerId, [...existing, {
+        id: `${answerId}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        dataUrl,
+        addedAt: Date.now()
+      }]);
+      render();
+    }
+
+    function removePhoto(answerId, photoId) {
+      setPhotos(answerId, getPhotos(answerId).filter((p) => p.id !== photoId));
+      render();
+    }
+
+    function renderSidebar() {
+      const selected = QUESTION.answers.find((a) => a.id === state.selectedAnswerId);
+      document.getElementById("sidebar").innerHTML = SIDEBAR_SECTIONS.map((section) => {
+        const answerText = section.active && selected ? selected.label : "";
+        return `
+          <div class="sidebar-item ${section.active ? "active" : ""}">
+            ${section.done ? `<span class="check" aria-hidden="true">✓</span>` : `<span class="check" style="visibility:hidden">✓</span>`}
+            <div class="item-body">
+              <div class="item-title">${section.label}</div>
+              ${answerText ? `<div class="item-answer">${answerText}</div>` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderAnswers() {
+      document.getElementById("answer-list").innerHTML = QUESTION.answers.map((answer) => {
+        const photos = getPhotos(answer.id);
+        const selected = state.selectedAnswerId === answer.id;
+        const atLimit = photos.length >= MAX_PHOTOS_PER_ANSWER;
+        const thumbs = photos.map((photo) => `
+          <div class="photo-thumb">
+            <img src="${photo.dataUrl}" alt="">
+            <button type="button" class="remove-btn" aria-label="Remove photo"
+              data-remove-photo="${photo.id}" data-answer-id="${answer.id}">×</button>
+          </div>
+        `).join("");
+
+        return `
+          <div class="answer-option ${selected ? "selected" : ""}">
+            <div class="answer-top-row">
+              <input type="radio" name="answer" value="${answer.id}" id="answer-${answer.id}" ${selected ? "checked" : ""}>
+              <label class="answer-label" for="answer-${answer.id}">${answer.label}</label>
+              ${selected ? `
+                <button type="button" class="camera-btn" aria-label="Add photo"
+                  data-add-photo="${answer.id}" ${atLimit ? "disabled" : ""}>
+                  <svg viewBox="0 0 24 24"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/><path d="M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9Zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5Z"/></svg>
+                </button>
+              ` : ""}
+            </div>
+            <div class="answer-flag">${flagIcon(answer.flagType)} ${answer.flag}</div>
+            <div class="photo-grid">${thumbs}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function render() {
+      document.getElementById("section-label").textContent = QUESTION.section;
+      document.getElementById("question-text").textContent = QUESTION.text;
+      renderSidebar();
+      renderAnswers();
+    }
+
+    function wireEvents() {
+      document.getElementById("answer-list").addEventListener("change", (event) => {
+        if (event.target.name !== "answer") return;
+        state.selectedAnswerId = event.target.value;
+        saveState();
+        render();
+      });
+
+      document.getElementById("answer-list").addEventListener("click", (event) => {
+        const removeBtn = event.target.closest("[data-remove-photo]");
+        if (removeBtn) {
+          removePhoto(removeBtn.dataset.answerId, removeBtn.dataset.removePhoto);
+          return;
+        }
+        const addBtn = event.target.closest("[data-add-photo]");
+        if (addBtn) {
+          const input = document.createElement("input");
+          input.type = "file";
+          input.accept = "image/*";
+          input.addEventListener("change", () => {
+            const file = input.files && input.files[0];
+            if (file) addPhoto(addBtn.dataset.addPhoto, file);
+            input.remove();
+          });
+          input.click();
+        }
+      });
+
+      document.getElementById("clear-round").addEventListener("click", () => {
+        if (!confirm("Clear all answers and photos?")) return;
+        state.selectedAnswerId = "great";
+        state.photos = {};
+        saveState();
+        render();
+      });
+
+      document.getElementById("submit-round").addEventListener("click", () => {
+        const selected = QUESTION.answers.find((a) => a.id === state.selectedAnswerId);
+        console.log("Submit payload:", {
+          selectedAnswer: selected?.label,
+          photosByAnswer: Object.fromEntries(
+            QUESTION.answers.map((a) => [a.id, getPhotos(a.id).length])
+          )
+        });
+        showToast(`Submitted — ${selected?.label || "No answer"}`);
+      });
+    }
+
+    loadState();
+    render();
+    wireEvents();
+  </script>
+</body>
+</html>
