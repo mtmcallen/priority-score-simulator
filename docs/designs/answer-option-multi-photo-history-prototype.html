@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mobile prototype — view all submitted photo thumbnails on past rounding interactions (History / Activity Feed).">
+  <title>Multi-Photo History View — Mobile Prototype</title>
+  <style>
+    :root {
+      --teal: #1aab9c;
+      --teal-dark: #159a8c;
+      --teal-header: linear-gradient(180deg, #1aab9c 0%, #22b89e 100%);
+      --text: #1c1c1e;
+      --muted: #8e8e93;
+      --border: #e5e7eb;
+      --bg: #f2f2f7;
+      --ios-blue: #007aff;
+      --issue-red: #e53935;
+      --issue-bg: #fff5f5;
+      --issue-border: #ffcdd2;
+      --panel-dark: #2d2660;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
+      background: #f2f1f9;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page-header {
+      background: var(--panel-dark);
+      color: #fff;
+      padding: 1rem 1.5rem;
+      border-bottom: 4px solid var(--teal);
+    }
+    .page-header h1 { font-size: 1.05rem; font-weight: 700; }
+    .page-header p { font-size: 0.82rem; opacity: 0.9; margin-top: 0.35rem; max-width: 56rem; line-height: 1.45; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr 280px;
+      gap: 1rem;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1rem;
+      align-items: start;
+    }
+    @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem;
+    }
+    .panel h2 {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.55rem;
+    }
+
+    .nav-path { list-style: none; }
+    .nav-path li {
+      font-size: 0.76rem;
+      color: var(--muted);
+      padding: 0.45rem 0;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.4;
+    }
+    .nav-path li:last-child { border-bottom: none; }
+    .nav-path li strong { color: var(--text); display: block; font-size: 0.78rem; }
+    .nav-path li.active { color: var(--teal-dark); font-weight: 600; }
+    .nav-path li.active strong { color: var(--teal-dark); }
+
+    .hint {
+      font-size: 0.72rem; color: var(--muted); margin-top: 0.55rem;
+      padding: 0.5rem; background: #f8f8fc; border-radius: 8px; line-height: 1.45;
+    }
+
+    .screen-toggle {
+      display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.65rem;
+    }
+    .screen-toggle button {
+      border: 1px solid var(--border); background: #fff;
+      border-radius: 8px; padding: 0.55rem 0.65rem; font-size: 0.76rem;
+      font-weight: 600; cursor: pointer; text-align: left;
+    }
+    .screen-toggle button.active {
+      background: var(--teal); color: #fff; border-color: var(--teal);
+    }
+
+    .count-toggle {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem;
+    }
+    .count-toggle button {
+      border: 1px solid var(--border); background: #fff;
+      border-radius: 8px; padding: 0.45rem 0; font-size: 0.76rem;
+      font-weight: 600; cursor: pointer;
+    }
+    .count-toggle button.active {
+      background: #eefaf8; color: var(--teal-dark); border-color: var(--teal);
+    }
+
+    .compare-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.55rem;
+    }
+    .compare-box {
+      border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem;
+      font-size: 0.68rem; color: var(--muted); line-height: 1.35;
+    }
+    .compare-box h3 { font-size: 0.68rem; color: var(--text); margin-bottom: 0.25rem; }
+    .compare-box.current { border-color: #ffcdd2; background: #fff8f8; }
+    .compare-box.new { border-color: #b2dfdb; background: #f1faf9; }
+
+    .phone-wrap { display: flex; justify-content: center; }
+    .phone {
+      width: 390px;
+      height: 844px;
+      background: #000;
+      border-radius: 44px;
+      border: 10px solid #222;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone-inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .status-bar {
+      height: 44px;
+      padding: 12px 18px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 15px;
+      font-weight: 600;
+      background: var(--teal);
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .app-header {
+      background: var(--teal-header);
+      color: #fff;
+      padding: 2px 8px 10px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .app-header button {
+      background: none; border: none; color: #fff;
+      font-size: 22px; cursor: pointer; min-width: 44px; line-height: 1;
+    }
+    .app-header .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; }
+
+    .sub-bar {
+      background: #fff;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .sub-bar .filter-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 8px;
+    }
+
+    /* ── History list cards ── */
+    .history-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin: 10px 12px 0;
+      padding: 10px 12px 8px;
+      position: relative;
+    }
+    .history-card .issue-pill {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      border: 1px solid var(--issue-red);
+      color: var(--issue-red);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+    .history-card .issue-pill::before { content: "🔥 "; }
+    .history-card .patient-name {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      margin-top: 4px;
+    }
+    .loc-row {
+      display: flex; gap: 6px; margin-bottom: 8px;
+    }
+    .loc-chip {
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 11px;
+      padding: 2px 6px;
+      color: #555;
+      display: flex; align-items: center; gap: 3px;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 10px;
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+    .meta-grid .label { color: #888; display: block; margin-bottom: 1px; }
+    .meta-grid .value { color: var(--text); font-weight: 500; }
+    .meta-grid .value.issue { color: var(--issue-red); font-weight: 600; }
+    .card-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid #eee; padding-top: 6px; margin-top: 4px;
+    }
+    .round-tag {
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 10px;
+      padding: 2px 6px;
+      color: #666;
+    }
+    .view-details {
+      color: var(--ios-blue);
+      font-size: 13px;
+      font-weight: 500;
+      background: none; border: none; cursor: pointer;
+    }
+
+    /* thumbnail strip on list card (optional preview) */
+    .list-thumb-strip {
+      display: flex; gap: 4px; margin: 6px 0 4px; overflow-x: auto;
+      padding-bottom: 2px;
+    }
+    .list-thumb-strip img {
+      width: 44px; height: 44px; border-radius: 4px;
+      object-fit: cover; flex-shrink: 0; border: 1px solid #ddd;
+    }
+    .list-thumb-strip .more {
+      width: 44px; height: 44px; border-radius: 4px;
+      background: #f0f0f0; border: 1px solid #ddd;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #666; flex-shrink: 0;
+    }
+
+    /* ── Details view ── */
+    .detail-header-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      margin: 10px 12px 0;
+      padding: 10px 12px;
+    }
+    .detail-header-card .top-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .detail-header-card .patient-name { font-size: 16px; font-weight: 700; }
+    .detail-header-card .collapse-btn {
+      background: none; border: none; color: #999; font-size: 18px; cursor: pointer;
+    }
+
+    .section-row {
+      background: #fff;
+      border: 1px solid #ddd;
+      margin: 8px 12px 0;
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex; align-items: center;
+      padding: 11px 12px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+    }
+    .section-header .chevron {
+      margin-left: auto;
+      color: #aaa;
+      font-size: 14px;
+      transition: transform 0.2s;
+    }
+    .section-header.open .chevron { transform: rotate(90deg); }
+    .section-header .ai-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--teal);
+      border: 1px solid var(--teal);
+      border-radius: 3px;
+      padding: 1px 4px;
+      margin-left: 6px;
+    }
+    .section-header .issue-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--issue-red);
+      border: 1px solid var(--issue-red);
+      border-radius: 3px;
+      padding: 1px 5px;
+      margin-left: 6px;
+    }
+    .section-header .issue-badge::before { content: "🔥 "; }
+
+    .section-row.issue-section { border-color: var(--issue-border); }
+    .section-row.issue-section .section-header { background: var(--issue-bg); }
+
+    .section-body {
+      display: none;
+      padding: 0 12px 12px;
+      border-top: 1px solid #eee;
+    }
+    .section-body.open { display: block; }
+
+    .recording-player {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 0 4px; font-size: 13px; color: #666;
+    }
+    .recording-player .play {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--teal); color: #fff; border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; cursor: pointer;
+    }
+    .recording-player .bar {
+      flex: 1; height: 4px; background: #ddd; border-radius: 2px; position: relative;
+    }
+    .recording-player .bar::after {
+      content: ""; position: absolute; left: 0; top: 0; height: 100%;
+      width: 35%; background: var(--teal); border-radius: 2px;
+    }
+
+    .answer-prompt {
+      font-size: 13px; color: #666; margin: 10px 0 4px; line-height: 1.35;
+    }
+    .answer-value {
+      font-size: 15px; font-weight: 700; color: var(--issue-red);
+      margin-bottom: 8px;
+    }
+    .answer-tags {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .answer-tag {
+      font-size: 11px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 2px 7px;
+      color: #555;
+      background: #fafafa;
+    }
+
+    /* ── Photo grid (the key change) ── */
+    .photo-section-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .photo-section-label span.count {
+      font-size: 11px; color: var(--teal-dark); font-weight: 600;
+      text-transform: none; letter-spacing: 0;
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .photo-grid .thumb {
+      aspect-ratio: 1;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      position: relative;
+      background: #eee;
+    }
+    .photo-grid .thumb img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .photo-grid .thumb:active { opacity: 0.85; }
+
+    /* single photo — current state */
+    .photo-grid.single-photo {
+      grid-template-columns: 1fr;
+      max-width: 160px;
+    }
+
+    .current-state-note {
+      font-size: 11px;
+      color: var(--issue-red);
+      background: #fff3f3;
+      border: 1px dashed #ffcdd2;
+      border-radius: 6px;
+      padding: 6px 8px;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    .new-state-note {
+      font-size: 11px;
+      color: var(--teal-dark);
+      background: #eefaf8;
+      border: 1px dashed #b2dfdb;
+      border-radius: 6px;
+      padding: 6px 8px;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    /* bottom tab bar */
+    .tab-bar {
+      display: flex;
+      background: #fff;
+      border-top: 1px solid #ddd;
+      flex-shrink: 0;
+      padding-bottom: env(safe-area-inset-bottom, 8px);
+    }
+    .tab-bar button {
+      flex: 1;
+      background: none; border: none;
+      padding: 6px 0 4px;
+      font-size: 10px;
+      color: #999;
+      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+    }
+    .tab-bar button.active { color: var(--teal); }
+    .tab-bar button .icon { font-size: 20px; line-height: 1; }
+
+    /* fullscreen viewer */
+    .lightbox {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 92vw; max-height: 75vh;
+      border-radius: 8px; object-fit: contain;
+    }
+    .lightbox .lb-header {
+      position: absolute; top: 0; left: 0; right: 0;
+      padding: 16px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      color: #fff;
+    }
+    .lightbox .lb-close {
+      background: rgba(255,255,255,0.15); border: none; color: #fff;
+      width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer;
+    }
+    .lightbox .lb-counter { font-size: 14px; font-weight: 600; }
+    .lightbox .lb-nav {
+      position: absolute; bottom: 30px;
+      display: flex; gap: 20px;
+    }
+    .lightbox .lb-nav button {
+      background: rgba(255,255,255,0.15); border: none; color: #fff;
+      width: 44px; height: 44px; border-radius: 50%; font-size: 22px; cursor: pointer;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>Multi-Photo History View — Mobile Prototype</h1>
+    <p>
+      Mockup for viewing <strong>all submitted photos</strong> on past rounding interactions.
+      Navigate via <strong>Activity Feed</strong> (patient census) or <strong>History</strong> (patient profile).
+      Tap any thumbnail to preview full size.
+    </p>
+  </header>
+
+  <div class="layout">
+    <aside class="panel">
+      <h2>Navigation paths</h2>
+      <ul class="nav-path">
+        <li><strong>Path A — Activity Feed</strong>Patient census → tap Activity Feed icon on card → Patient Rounds list → View Details</li>
+        <li class="active"><strong>Path B — History tab</strong>Patient profile → History tab → Patient Rounds list → View Details</li>
+      </ul>
+      <p class="hint">Both paths land on the same <em>Patient Rounds Details</em> screen where photos appear under each answered question.</p>
+
+      <h2 style="margin-top:0.9rem">Screen</h2>
+      <div class="screen-toggle">
+        <button type="button" data-screen="list" class="active">Patient Rounds (list)</button>
+        <button type="button" data-screen="details">Patient Rounds Details</button>
+      </div>
+
+      <h2 style="margin-top:0.9rem">Photo count demo</h2>
+      <div class="count-toggle">
+        <button type="button" data-count="1">1</button>
+        <button type="button" data-count="3">3</button>
+        <button type="button" data-count="6" class="active">6</button>
+        <button type="button" data-count="10">10</button>
+      </div>
+      <p class="hint">Toggle to see how the grid adapts from the current single-photo state up to the max of 10.</p>
+
+      <div class="compare-row">
+        <div class="compare-box current">
+          <h3>Current</h3>
+          Single thumbnail per answer. Additional photos not visible in history.
+        </div>
+        <div class="compare-box new">
+          <h3>Proposed</h3>
+          3-column grid of all thumbnails. Tap to view full size with swipe navigation.
+        </div>
+      </div>
+    </aside>
+
+    <main class="phone-wrap">
+      <div class="phone" id="phone">
+        <div class="phone-inner">
+          <div class="status-bar"><span>1:24</span><span>●●●○ 📶 🔋</span></div>
+
+          <!-- LIST SCREEN -->
+          <div id="screen-list">
+            <div class="app-header">
+              <button type="button" aria-label="Back">‹</button>
+              <div class="title">Patient Rounds</div>
+              <button type="button" aria-hidden="true" style="visibility:hidden">‹</button>
+            </div>
+            <div class="sub-bar">
+              <button type="button" class="filter-btn">Filters</button>
+              <span style="font-size:16px;color:#888">🧹</span>
+            </div>
+            <div class="scroll-area">
+              <div class="history-card">
+                <div class="issue-pill">Has Issue</div>
+                <div class="patient-name">D. Smith - 931-11</div>
+                <div class="loc-row">
+                  <span class="loc-chip">🚪 931</span>
+                  <span class="loc-chip">🏥 1 South</span>
+                  <span class="loc-chip">📍 Central Hospital</span>
+                </div>
+                <div class="meta-grid">
+                  <div><span class="label">Created by</span><span class="value">Mykela Mcallen</span></div>
+                  <div><span class="label">Known Issue(s)</span><span class="value issue">EVS Alert</span></div>
+                  <div><span class="label">Time of Round</span><span class="value">7/28/26, 12:46 PM</span></div>
+                  <div><span class="label">Rounding Script</span><span class="value">BP - Nurse Leader Round</span></div>
+                </div>
+                <div class="list-thumb-strip" id="list-thumbs"></div>
+                <div class="card-footer">
+                  <span class="round-tag">✏ Rounding</span>
+                  <button type="button" class="view-details" id="go-details">View Details</button>
+                </div>
+              </div>
+
+              <div class="history-card" style="margin-top:18px">
+                <div class="issue-pill">Has Issue</div>
+                <div class="patient-name">D. Smith - 931-11</div>
+                <div class="loc-row">
+                  <span class="loc-chip">🚪 931</span>
+                  <span class="loc-chip">🏥 1 South</span>
+                  <span class="loc-chip">📍 Central Hospital</span>
+                </div>
+                <div class="meta-grid">
+                  <div><span class="label">Created by</span><span class="value">Kenny Iannuzzi</span></div>
+                  <div><span class="label">Known Issue(s)</span><span class="value issue">EVS Alert</span></div>
+                  <div><span class="label">Time of Round</span><span class="value">7/27/26, 3:15 PM</span></div>
+                  <div><span class="label">Rounding Script</span><span class="value">BP - Nurse Leader Round</span></div>
+                </div>
+                <div class="card-footer">
+                  <span class="round-tag">✏ Rounding</span>
+                  <button type="button" class="view-details">View Details</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DETAILS SCREEN -->
+          <div id="screen-details" class="hidden">
+            <div class="app-header">
+              <button type="button" aria-label="Back" id="back-list">‹</button>
+              <div class="title">Patient Rounds Details</div>
+              <button type="button" aria-hidden="true" style="visibility:hidden">‹</button>
+            </div>
+            <div class="scroll-area">
+              <div class="detail-header-card">
+                <div class="top-row">
+                  <div class="patient-name">D. Smith - 931-11</div>
+                  <button type="button" class="collapse-btn" aria-label="Collapse">∧</button>
+                </div>
+                <div class="loc-row">
+                  <span class="loc-chip">🚪 931</span>
+                  <span class="loc-chip">🏥 1 South</span>
+                  <span class="loc-chip">📍 Central Hospital</span>
+                </div>
+                <div class="meta-grid">
+                  <div><span class="label">Created by</span><span class="value">Mykela Mcallen</span></div>
+                  <div><span class="label">Known Issue(s)</span><span class="value issue">EVS Alert</span></div>
+                  <div><span class="label">Time of Round</span><span class="value">7/28/26, 12:46 PM</span></div>
+                  <div><span class="label">Rounding Script</span><span class="value">BP - Nurse Leader Round</span></div>
+                </div>
+                <div style="margin-top:6px"><span class="round-tag">✏ Rounding</span></div>
+              </div>
+
+              <div class="section-row">
+                <div class="section-header open" data-section="recording">
+                  <span>Recording</span>
+                  <span class="chevron">›</span>
+                </div>
+                <div class="section-body open" id="body-recording">
+                  <div class="recording-player">
+                    <button type="button" class="play" aria-label="Play">▶</button>
+                    <div class="bar"></div>
+                    <span>00:25</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section-row">
+                <div class="section-header" data-section="ability">
+                  <span>Ability to Round</span>
+                  <span class="ai-badge">AI</span>
+                  <span class="chevron">›</span>
+                </div>
+                <div class="section-body" id="body-ability"></div>
+              </div>
+
+              <div class="section-row">
+                <div class="section-header" data-section="whiteboard">
+                  <span>Whiteboard</span>
+                  <span class="ai-badge">AI</span>
+                  <span class="chevron">›</span>
+                </div>
+                <div class="section-body" id="body-whiteboard"></div>
+              </div>
+
+              <div class="section-row issue-section">
+                <div class="section-header open" data-section="cleanliness">
+                  <span>Cleanliness</span>
+                  <span class="issue-badge">Issue</span>
+                  <span class="chevron">›</span>
+                </div>
+                <div class="section-body open" id="body-cleanliness">
+                  <p class="answer-prompt">Please indicate any issues identified in the patient's room</p>
+                  <p class="answer-value">Bathroom not clean</p>
+                  <div class="answer-tags">
+                    <span class="answer-tag">💧 EVS Issue</span>
+                    <span class="answer-tag">🔔 EVS Alert</span>
+                  </div>
+
+                  <div id="state-note"></div>
+
+                  <div class="photo-section-label">
+                    Attached photos
+                    <span class="count" id="photo-count-label"></span>
+                  </div>
+                  <div class="photo-grid" id="photo-grid"></div>
+                </div>
+              </div>
+
+              <div class="section-row">
+                <div class="section-header" data-section="preference">
+                  <span>Patient Preference</span>
+                  <span class="ai-badge">AI</span>
+                  <span class="chevron">›</span>
+                </div>
+                <div class="section-body" id="body-preference"></div>
+              </div>
+
+              <div class="section-row">
+                <div class="section-header" data-section="careteam">
+                  <span>Care Team Responsiveness</span>
+                  <span class="ai-badge">AI</span>
+                  <span class="chevron">›</span>
+                </div>
+                <div class="section-body" id="body-careteam"></div>
+              </div>
+            </div>
+          </div>
+
+          <nav class="tab-bar">
+            <button type="button"><span class="icon">✏️</span>Round</button>
+            <button type="button" class="active"><span class="icon">📅</span>History</button>
+            <button type="button"><span class="icon">🎙</span>Care Recordings</button>
+            <button type="button"><span class="icon">🔖</span>Flags</button>
+            <button type="button"><span class="icon">👤</span>Profile</button>
+          </nav>
+        </div>
+      </div>
+    </main>
+
+    <aside class="panel">
+      <h2>Design notes</h2>
+      <p class="hint" style="margin-top:0">
+        <strong>Grid layout:</strong> 3 columns, square thumbnails with 6px gap. Scales from 1–10 photos — partial last row for 4, 7, or 10 photos.<br><br>
+        <strong>Backend needs:</strong> Return <code>orchid_image_urls[]</code> on completed interaction answers (not just a single URL).<br><br>
+        <strong>Tap behavior:</strong> Opens full-screen viewer with swipe/arrows to browse all photos for that answer.<br><br>
+        <strong>List preview (optional):</strong> First card shows a horizontal strip of up to 4 thumbnails + "+N" overflow on the history list — helps users spot photo-documented rounds at a glance.
+      </p>
+    </aside>
+  </div>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo preview">
+    <div class="lb-header">
+      <button type="button" class="lb-close" id="lb-close" aria-label="Close">×</button>
+      <span class="lb-counter" id="lb-counter"></span>
+      <span style="width:36px"></span>
+    </div>
+    <img id="lb-img" src="" alt="Full size photo">
+    <div class="lb-nav">
+      <button type="button" id="lb-prev" aria-label="Previous">‹</button>
+      <button type="button" id="lb-next" aria-label="Next">›</button>
+    </div>
+  </div>
+
+  <script>
+    const PHOTO_SETS = {
+      1: ["bathroom-floor"],
+      3: ["bathroom-floor", "bathroom-sink", "bathroom-tile"],
+      6: ["bathroom-floor", "bathroom-sink", "bathroom-tile", "bathroom-shower", "bathroom-trash", "bathroom-mirror"],
+      10: ["bathroom-floor", "bathroom-sink", "bathroom-tile", "bathroom-shower", "bathroom-trash",
+           "bathroom-mirror", "bathroom-towel", "bathroom-toilet", "bathroom-corner", "bathroom-supplies"]
+    };
+
+    const PHOTO_LABELS = {
+      "bathroom-floor": "Floor area",
+      "bathroom-sink": "Sink & counter",
+      "bathroom-tile": "Wall tile",
+      "bathroom-shower": "Shower stall",
+      "bathroom-trash": "Trash area",
+      "bathroom-mirror": "Mirror",
+      "bathroom-towel": "Towel rack",
+      "bathroom-toilet": "Toilet area",
+      "bathroom-corner": "Corner detail",
+      "bathroom-supplies": "Supply shelf"
+    };
+
+    const PHOTO_COLORS = {
+      "bathroom-floor": ["#8d6e63", "#6d4c41"],
+      "bathroom-sink": ["#90caf9", "#42a5f5"],
+      "bathroom-tile": ["#b0bec5", "#78909c"],
+      "bathroom-shower": ["#80cbc4", "#00897b"],
+      "bathroom-trash": ["#ffcc80", "#fb8c00"],
+      "bathroom-mirror": ["#ce93d8", "#8e24aa"],
+      "bathroom-towel": ["#ef9a9a", "#e53935"],
+      "bathroom-toilet": ["#a5d6a7", "#43a047"],
+      "bathroom-corner": ["#fff59d", "#fbc02d"],
+      "bathroom-supplies": ["#bcaaa4", "#795548"]
+    };
+
+    let photoCount = 6;
+    let lightboxIndex = 0;
+    let currentPhotos = [];
+
+    function makePhotoDataUrl(key) {
+      const [c1, c2] = PHOTO_COLORS[key];
+      const label = PHOTO_LABELS[key];
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/>
+        </linearGradient></defs>
+        <rect width="400" height="400" fill="url(#g)"/>
+        <text x="200" y="190" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="system-ui,sans-serif" font-size="22" font-weight="600">${label}</text>
+        <text x="200" y="225" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="system-ui,sans-serif" font-size="14">EVS photo</text>
+      </svg>`;
+      return "data:image/svg+xml," + encodeURIComponent(svg);
+    }
+
+    function getPhotos(count) {
+      return PHOTO_SETS[count].map((key) => ({
+        key,
+        src: makePhotoDataUrl(key),
+        label: PHOTO_LABELS[key]
+      }));
+    }
+
+    function renderPhotos() {
+      currentPhotos = getPhotos(photoCount);
+      const grid = document.getElementById("photo-grid");
+      const note = document.getElementById("state-note");
+      const countLabel = document.getElementById("photo-count-label");
+
+      grid.className = "photo-grid" + (photoCount === 1 ? " single-photo" : "");
+      countLabel.textContent = photoCount + " photo" + (photoCount === 1 ? "" : "s");
+
+      if (photoCount === 1) {
+        note.innerHTML = '<div class="current-state-note"><strong>Current behavior:</strong> Only 1 photo displayed. Photos 2–10 submitted during the round are not visible here.</div>';
+      } else {
+        note.innerHTML = '<div class="new-state-note"><strong>Proposed behavior:</strong> All ' + photoCount + ' submitted photos shown in a scrollable grid. Tap any thumbnail to view full size.</div>';
+      }
+
+      grid.innerHTML = currentPhotos.map((p, i) =>
+        `<button type="button" class="thumb" data-index="${i}" aria-label="View photo ${i + 1}: ${p.label}">
+          <img src="${p.src}" alt="${p.label}">
+        </button>`
+      ).join("");
+
+      grid.querySelectorAll(".thumb").forEach((btn) => {
+        btn.addEventListener("click", () => openLightbox(Number(btn.dataset.index)));
+      });
+
+      renderListStrip();
+    }
+
+    function renderListStrip() {
+      const strip = document.getElementById("list-thumbs");
+      if (!strip) return;
+      const show = Math.min(4, currentPhotos.length);
+      const overflow = currentPhotos.length - show;
+      strip.innerHTML = currentPhotos.slice(0, show).map((p) =>
+        `<img src="${p.src}" alt="">`
+      ).join("") + (overflow > 0 ? `<span class="more">+${overflow}</span>` : "");
+    }
+
+    function openLightbox(index) {
+      lightboxIndex = index;
+      updateLightbox();
+      document.getElementById("lightbox").classList.add("open");
+    }
+
+    function closeLightbox() {
+      document.getElementById("lightbox").classList.remove("open");
+    }
+
+    function updateLightbox() {
+      document.getElementById("lb-img").src = currentPhotos[lightboxIndex].src;
+      document.getElementById("lb-counter").textContent =
+        (lightboxIndex + 1) + " of " + currentPhotos.length;
+    }
+
+    function showScreen(name) {
+      document.getElementById("screen-list").classList.toggle("hidden", name !== "list");
+      document.getElementById("screen-details").classList.toggle("hidden", name !== "details");
+      document.querySelectorAll(".screen-toggle button").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.screen === name);
+      });
+    }
+
+    document.querySelectorAll(".count-toggle button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        photoCount = Number(btn.dataset.count);
+        document.querySelectorAll(".count-toggle button").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderPhotos();
+      });
+    });
+
+    document.querySelectorAll(".screen-toggle button").forEach((btn) => {
+      btn.addEventListener("click", () => showScreen(btn.dataset.screen));
+    });
+
+    document.getElementById("go-details").addEventListener("click", () => showScreen("details"));
+    document.getElementById("back-list").addEventListener("click", () => showScreen("list"));
+
+    document.querySelectorAll(".section-header").forEach((header) => {
+      header.addEventListener("click", () => {
+        const body = document.getElementById("body-" + header.dataset.section);
+        if (!body) return;
+        const open = body.classList.toggle("open");
+        header.classList.toggle("open", open);
+      });
+    });
+
+    document.getElementById("lb-close").addEventListener("click", closeLightbox);
+    document.getElementById("lightbox").addEventListener("click", (e) => {
+      if (e.target.id === "lightbox") closeLightbox();
+    });
+    document.getElementById("lb-prev").addEventListener("click", () => {
+      lightboxIndex = (lightboxIndex - 1 + currentPhotos.length) % currentPhotos.length;
+      updateLightbox();
+    });
+    document.getElementById("lb-next").addEventListener("click", () => {
+      lightboxIndex = (lightboxIndex + 1) % currentPhotos.length;
+      updateLightbox();
+    });
+
+    renderPhotos();
+  </script>
+</body>
+</html>
