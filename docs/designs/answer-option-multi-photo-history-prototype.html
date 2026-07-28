@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Mobile prototype — view all submitted photo thumbnails on past rounding interactions (History / Activity Feed).">
+  <meta name="description" content="Mobile prototype — view all submitted photo thumbnails on past rounding interactions (Activity Feed / History paths).">
   <title>Multi-Photo History View — Mobile Prototype</title>
   <style>
     :root {
@@ -41,7 +41,7 @@
 
     .layout {
       display: grid;
-      grid-template-columns: 260px 1fr 280px;
+      grid-template-columns: 280px 1fr 260px;
       gap: 1rem;
       max-width: 1280px;
       margin: 0 auto;
@@ -64,33 +64,39 @@
       margin-bottom: 0.55rem;
     }
 
-    .nav-path { list-style: none; }
-    .nav-path li {
-      font-size: 0.76rem;
+    .flow-steps { list-style: none; counter-reset: flow; }
+    .flow-steps li {
+      counter-increment: flow;
+      font-size: 0.74rem;
       color: var(--muted);
-      padding: 0.45rem 0;
+      padding: 0.42rem 0 0.42rem 1.6rem;
       border-bottom: 1px solid var(--border);
-      line-height: 1.4;
+      line-height: 1.35;
+      position: relative;
     }
-    .nav-path li:last-child { border-bottom: none; }
-    .nav-path li strong { color: var(--text); display: block; font-size: 0.78rem; }
-    .nav-path li.active { color: var(--teal-dark); font-weight: 600; }
-    .nav-path li.active strong { color: var(--teal-dark); }
-
-    .hint {
-      font-size: 0.72rem; color: var(--muted); margin-top: 0.55rem;
-      padding: 0.5rem; background: #f8f8fc; border-radius: 8px; line-height: 1.45;
+    .flow-steps li:last-child { border-bottom: none; }
+    .flow-steps li::before {
+      content: counter(flow);
+      position: absolute; left: 0; top: 0.42rem;
+      width: 1.15rem; height: 1.15rem; border-radius: 50%;
+      background: #eee; font-size: 0.62rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
     }
+    .flow-steps li.active { color: var(--text); font-weight: 600; }
+    .flow-steps li.active::before { background: var(--teal); color: #fff; }
+    .flow-steps li.done { color: #16a34a; }
+    .flow-steps li.done::before { background: #dcfce7; color: #16a34a; }
+    .flow-steps li.disabled { opacity: 0.45; }
 
-    .screen-toggle {
+    .path-toggle {
       display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.65rem;
     }
-    .screen-toggle button {
+    .path-toggle button {
       border: 1px solid var(--border); background: #fff;
       border-radius: 8px; padding: 0.55rem 0.65rem; font-size: 0.76rem;
       font-weight: 600; cursor: pointer; text-align: left;
     }
-    .screen-toggle button.active {
+    .path-toggle button.active {
       background: var(--teal); color: #fff; border-color: var(--teal);
     }
 
@@ -106,58 +112,63 @@
       background: #eefaf8; color: var(--teal-dark); border-color: var(--teal);
     }
 
-    .compare-row {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.55rem;
+    .hint {
+      font-size: 0.72rem; color: var(--muted); margin-top: 0.55rem;
+      padding: 0.5rem; background: #f8f8fc; border-radius: 8px; line-height: 1.45;
     }
-    .compare-box {
-      border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem;
-      font-size: 0.68rem; color: var(--muted); line-height: 1.35;
-    }
-    .compare-box h3 { font-size: 0.68rem; color: var(--text); margin-bottom: 0.25rem; }
-    .compare-box.current { border-color: #ffcdd2; background: #fff8f8; }
-    .compare-box.new { border-color: #b2dfdb; background: #f1faf9; }
 
     .phone-wrap { display: flex; justify-content: center; }
     .phone {
-      width: 390px;
-      height: 844px;
-      background: #000;
-      border-radius: 44px;
-      border: 10px solid #222;
+      width: 390px; height: 844px;
+      background: #000; border-radius: 44px; border: 10px solid #222;
       box-shadow: 0 16px 48px rgba(0,0,0,0.2);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      overflow: hidden; display: flex; flex-direction: column;
+      position: relative;
     }
 
     .phone-inner {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      background: var(--bg);
+      flex: 1; display: flex; flex-direction: column;
+      overflow: hidden; background: var(--bg); position: relative;
     }
 
     .status-bar {
-      height: 44px;
-      padding: 12px 18px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 15px;
-      font-weight: 600;
-      background: var(--teal);
-      color: #fff;
-      flex-shrink: 0;
+      height: 44px; padding: 12px 18px 0;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 15px; font-weight: 600;
+      background: var(--teal); color: #fff; flex-shrink: 0;
+    }
+
+    .census-header {
+      background: var(--teal-header); color: #fff;
+      padding: 0 12px 10px; flex-shrink: 0;
+    }
+    .census-header .top-row {
+      display: flex; align-items: center; padding: 4px 0 6px;
+    }
+    .census-header .menu-btn {
+      background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; min-width: 36px;
+    }
+    .census-header .title-block { flex: 1; text-align: center; }
+    .census-header .title-block h2 { font-size: 17px; font-weight: 600; }
+    .census-header .title-block p { font-size: 11px; opacity: 0.85; margin-top: 1px; }
+    .census-header .search {
+      background: #fff; border-radius: 8px; padding: 8px 12px;
+      font-size: 14px; color: #999; margin-bottom: 8px;
+    }
+    .census-header .toolbar {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .census-header .toolbar button {
+      border: 1px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.15);
+      color: #fff; border-radius: 6px; padding: 5px 10px; font-size: 12px;
+    }
+    .census-header .toolbar .sort {
+      flex: 1; text-align: left; font-size: 12px;
     }
 
     .app-header {
-      background: var(--teal-header);
-      color: #fff;
-      padding: 2px 8px 10px;
-      display: flex;
-      align-items: center;
-      flex-shrink: 0;
+      background: var(--teal-header); color: #fff;
+      padding: 2px 8px 10px; display: flex; align-items: center; flex-shrink: 0;
     }
     .app-header button {
       background: none; border: none; color: #fff;
@@ -166,77 +177,101 @@
     .app-header .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; }
 
     .sub-bar {
-      background: #fff;
-      padding: 8px 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
+      background: #fff; padding: 8px 14px;
+      display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
     }
     .sub-bar .filter-btn {
-      border: 1px solid var(--border);
-      background: #fff;
-      border-radius: 6px;
-      padding: 5px 12px;
-      font-size: 13px;
-      color: var(--text);
+      border: 1px solid var(--border); background: #fff;
+      border-radius: 6px; padding: 5px 12px; font-size: 13px;
     }
 
     .scroll-area {
-      flex: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 8px;
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px;
     }
 
-    /* ── History list cards ── */
-    .history-card {
+    /* ── Census patient card ── */
+    .patient-card {
       background: #fff;
-      border: 1px solid #ddd;
+      border: 1px solid #e57373;
       border-radius: 4px;
-      margin: 10px 12px 0;
-      padding: 10px 12px 8px;
+      margin: 10px 12px;
+      padding: 12px 12px 8px;
       position: relative;
     }
+    .patient-card .issue-pill {
+      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      background: #fff; border: 1px solid var(--issue-red); color: var(--issue-red);
+      font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+    }
+    .patient-card .issue-pill::before { content: "🔥 "; }
+    .patient-card .name-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-top: 6px; margin-bottom: 6px;
+    }
+    .patient-card .name { font-size: 18px; font-weight: 700; }
+    .patient-card .flags { display: flex; gap: 2px; font-size: 14px; }
+    .patient-card .loc-row { display: flex; gap: 6px; margin-bottom: 8px; }
+    .loc-chip {
+      border: 1px solid #ccc; border-radius: 3px; font-size: 11px;
+      padding: 2px 6px; color: #555;
+    }
+    .patient-card .info-line {
+      font-size: 12px; color: #666; margin-bottom: 3px;
+    }
+    .patient-card .info-line span { color: #999; }
+    .patient-card .stat-row {
+      display: flex; gap: 8px; margin: 10px 0;
+    }
+    .stat-box {
+      flex: 1; border: 2px solid; border-radius: 4px; padding: 6px 8px;
+      text-align: center;
+    }
+    .stat-box.orange { border-color: #f5a623; }
+    .stat-box.teal { border-color: var(--teal); }
+    .stat-box .num { font-size: 22px; font-weight: 700; line-height: 1; }
+    .stat-box .lbl { font-size: 10px; color: #666; margin-top: 2px; }
+    .stat-box .sub { font-size: 11px; font-weight: 600; color: #f5a623; }
+    .stat-box.teal .sub { color: var(--teal); }
+    .action-row {
+      display: flex; gap: 8px; margin-bottom: 10px;
+    }
+    .round-btn {
+      flex: 1; border: 2px solid var(--teal); background: #fff;
+      color: var(--teal); border-radius: 6px; padding: 10px;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .more-btn {
+      width: 44px; border: 1px solid #ccc; background: #fff;
+      border-radius: 6px; font-size: 20px; color: #666; cursor: pointer;
+    }
+    .card-tabs {
+      display: flex; border-top: 1px solid #eee; padding-top: 8px;
+    }
+    .card-tab {
+      flex: 1; background: none; border: none; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      font-size: 9px; color: #888; padding: 4px 2px;
+    }
+    .card-tab .icon { font-size: 18px; line-height: 1; }
+    .card-tab:active { color: var(--teal); }
+
+    /* ── Interaction list cards (no images) ── */
+    .history-card {
+      background: #fff; border: 1px solid #ddd; border-radius: 4px;
+      margin: 10px 12px 0; padding: 10px 12px 8px; position: relative;
+    }
     .history-card .issue-pill {
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #fff;
-      border: 1px solid var(--issue-red);
-      color: var(--issue-red);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 10px;
-      white-space: nowrap;
+      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      background: #fff; border: 1px solid var(--issue-red); color: var(--issue-red);
+      font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
     }
     .history-card .issue-pill::before { content: "🔥 "; }
-    .history-card .patient-name {
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 6px;
-      margin-top: 4px;
-    }
-    .loc-row {
-      display: flex; gap: 6px; margin-bottom: 8px;
-    }
-    .loc-chip {
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      font-size: 11px;
-      padding: 2px 6px;
-      color: #555;
-      display: flex; align-items: center; gap: 3px;
-    }
+    .history-card .patient-name { font-size: 15px; font-weight: 700; margin: 4px 0 6px; }
     .meta-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px 10px;
-      font-size: 11px;
-      margin-bottom: 8px;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 6px 10px; font-size: 11px; margin-bottom: 8px;
     }
     .meta-grid .label { color: #888; display: block; margin-bottom: 1px; }
     .meta-grid .value { color: var(--text); font-weight: 500; }
@@ -245,42 +280,16 @@
       display: flex; justify-content: space-between; align-items: center;
       border-top: 1px solid #eee; padding-top: 6px; margin-top: 4px;
     }
-    .round-tag {
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      font-size: 10px;
-      padding: 2px 6px;
-      color: #666;
-    }
-    .view-details {
-      color: var(--ios-blue);
-      font-size: 13px;
-      font-weight: 500;
+    .round-tag { border: 1px solid #ccc; border-radius: 3px; font-size: 10px; padding: 2px 6px; color: #666; }
+    .link-btn {
+      color: var(--ios-blue); font-size: 13px; font-weight: 500;
       background: none; border: none; cursor: pointer;
     }
 
-    /* thumbnail strip on list card (optional preview) */
-    .list-thumb-strip {
-      display: flex; gap: 4px; margin: 6px 0 4px; overflow-x: auto;
-      padding-bottom: 2px;
-    }
-    .list-thumb-strip img {
-      width: 44px; height: 44px; border-radius: 4px;
-      object-fit: cover; flex-shrink: 0; border: 1px solid #ddd;
-    }
-    .list-thumb-strip .more {
-      width: 44px; height: 44px; border-radius: 4px;
-      background: #f0f0f0; border: 1px solid #ddd;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700; color: #666; flex-shrink: 0;
-    }
-
-    /* ── Details view ── */
+    /* ── Details ── */
     .detail-header-card {
-      background: #fff;
-      border: 1px solid #ddd;
-      margin: 10px 12px 0;
-      padding: 10px 12px;
+      background: #fff; border: 1px solid #ddd;
+      margin: 10px 12px 0; padding: 10px 12px;
     }
     .detail-header-card .top-row {
       display: flex; justify-content: space-between; align-items: flex-start;
@@ -291,53 +300,35 @@
     }
 
     .section-row {
-      background: #fff;
-      border: 1px solid #ddd;
-      margin: 8px 12px 0;
-      overflow: hidden;
+      background: #fff; border: 1px solid #ddd;
+      margin: 8px 12px 0; overflow: hidden;
     }
     .section-header {
       display: flex; align-items: center;
-      padding: 11px 12px;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      user-select: none;
+      padding: 11px 12px; font-size: 15px; font-weight: 500;
+      cursor: pointer; user-select: none;
     }
     .section-header .chevron {
-      margin-left: auto;
-      color: #aaa;
-      font-size: 14px;
+      margin-left: auto; color: #aaa; font-size: 14px;
       transition: transform 0.2s;
     }
     .section-header.open .chevron { transform: rotate(90deg); }
     .section-header .ai-badge {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--teal);
-      border: 1px solid var(--teal);
-      border-radius: 3px;
-      padding: 1px 4px;
-      margin-left: 6px;
+      font-size: 10px; font-weight: 700; color: var(--teal);
+      border: 1px solid var(--teal); border-radius: 3px;
+      padding: 1px 4px; margin-left: 6px;
     }
     .section-header .issue-badge {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--issue-red);
-      border: 1px solid var(--issue-red);
-      border-radius: 3px;
-      padding: 1px 5px;
-      margin-left: 6px;
+      font-size: 10px; font-weight: 700; color: var(--issue-red);
+      border: 1px solid var(--issue-red); border-radius: 3px;
+      padding: 1px 5px; margin-left: 6px;
     }
     .section-header .issue-badge::before { content: "🔥 "; }
-
     .section-row.issue-section { border-color: var(--issue-border); }
     .section-row.issue-section .section-header { background: var(--issue-bg); }
 
     .section-body {
-      display: none;
-      padding: 0 12px 12px;
-      border-top: 1px solid #eee;
+      display: none; padding: 0 12px 12px; border-top: 1px solid #eee;
     }
     .section-body.open { display: block; }
 
@@ -348,8 +339,7 @@
     .recording-player .play {
       width: 28px; height: 28px; border-radius: 50%;
       background: var(--teal); color: #fff; border: none;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 12px;
     }
     .recording-player .bar {
       flex: 1; height: 4px; background: #ddd; border-radius: 2px; position: relative;
@@ -359,256 +349,215 @@
       width: 35%; background: var(--teal); border-radius: 2px;
     }
 
-    .answer-prompt {
-      font-size: 13px; color: #666; margin: 10px 0 4px; line-height: 1.35;
-    }
-    .answer-value {
-      font-size: 15px; font-weight: 700; color: var(--issue-red);
-      margin-bottom: 8px;
-    }
-    .answer-tags {
-      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
-    }
+    .answer-prompt { font-size: 13px; color: #666; margin: 10px 0 4px; line-height: 1.35; }
+    .answer-value { font-size: 15px; font-weight: 700; color: var(--issue-red); margin-bottom: 8px; }
+    .answer-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
     .answer-tag {
-      font-size: 11px;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 2px 7px;
-      color: #555;
-      background: #fafafa;
-    }
-
-    /* ── Photo grid (the key change) ── */
-    .photo-section-label {
-      font-size: 11px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 6px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .photo-section-label span.count {
-      font-size: 11px; color: var(--teal-dark); font-weight: 600;
-      text-transform: none; letter-spacing: 0;
+      font-size: 11px; border: 1px solid #ccc; border-radius: 3px;
+      padding: 2px 7px; color: #555; background: #fafafa;
     }
 
     .photo-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
     }
     .photo-grid .thumb {
-      aspect-ratio: 1;
-      border-radius: 6px;
-      overflow: hidden;
-      border: 1px solid #ddd;
-      cursor: pointer;
-      position: relative;
-      background: #eee;
+      aspect-ratio: 1; border-radius: 6px; overflow: hidden;
+      border: 1px solid #ddd; cursor: pointer; background: #eee; padding: 0;
     }
-    .photo-grid .thumb img {
-      width: 100%; height: 100%; object-fit: cover; display: block;
-    }
+    .photo-grid .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .photo-grid .thumb:active { opacity: 0.85; }
 
-    /* single photo — current state */
-    .photo-grid.single-photo {
-      grid-template-columns: 1fr;
-      max-width: 160px;
-    }
-
-    .current-state-note {
-      font-size: 11px;
-      color: var(--issue-red);
-      background: #fff3f3;
-      border: 1px dashed #ffcdd2;
-      border-radius: 6px;
-      padding: 6px 8px;
-      margin-bottom: 8px;
-      line-height: 1.35;
-    }
-
-    .new-state-note {
-      font-size: 11px;
-      color: var(--teal-dark);
-      background: #eefaf8;
-      border: 1px dashed #b2dfdb;
-      border-radius: 6px;
-      padding: 6px 8px;
-      margin-bottom: 8px;
-      line-height: 1.35;
-    }
-
-    /* bottom tab bar */
     .tab-bar {
-      display: flex;
-      background: #fff;
-      border-top: 1px solid #ddd;
-      flex-shrink: 0;
-      padding-bottom: env(safe-area-inset-bottom, 8px);
+      display: flex; background: #fff; border-top: 1px solid #ddd;
+      flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 8px);
     }
     .tab-bar button {
-      flex: 1;
-      background: none; border: none;
-      padding: 6px 0 4px;
-      font-size: 10px;
-      color: #999;
-      cursor: pointer;
+      flex: 1; background: none; border: none; padding: 6px 0 4px;
+      font-size: 10px; color: #999; cursor: pointer;
       display: flex; flex-direction: column; align-items: center; gap: 2px;
     }
     .tab-bar button.active { color: var(--teal); }
     .tab-bar button .icon { font-size: 20px; line-height: 1; }
 
-    /* fullscreen viewer */
+    /* overlays */
+    .sheet-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.4);
+      display: none; align-items: flex-end; z-index: 40;
+    }
+    .sheet-overlay.open { display: flex; }
+    .action-sheet {
+      width: 100%; padding: 0 8px 24px;
+    }
+    .action-sheet .sheet-group {
+      background: rgba(255,255,255,0.96); border-radius: 14px; overflow: hidden; margin-bottom: 8px;
+    }
+    .action-sheet button {
+      width: 100%; border: none; background: transparent; padding: 16px;
+      font-size: 18px; color: var(--ios-blue); cursor: pointer;
+      border-top: 0.5px solid rgba(0,0,0,0.1);
+    }
+    .action-sheet button:first-child { border-top: none; }
+    .action-sheet .cancel-btn {
+      font-weight: 700; border-radius: 14px; background: rgba(255,255,255,0.96);
+    }
+
     .lightbox {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.92);
-      z-index: 100;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.92); z-index: 100;
+      flex-direction: column; align-items: center; justify-content: center;
     }
     .lightbox.open { display: flex; }
-    .lightbox img {
-      max-width: 92vw; max-height: 75vh;
-      border-radius: 8px; object-fit: contain;
-    }
+    .lightbox img { max-width: 92vw; max-height: 75vh; border-radius: 8px; object-fit: contain; }
     .lightbox .lb-header {
-      position: absolute; top: 0; left: 0; right: 0;
-      padding: 16px 20px;
-      display: flex; justify-content: space-between; align-items: center;
-      color: #fff;
+      position: absolute; top: 0; left: 0; right: 0; padding: 16px 20px;
+      display: flex; justify-content: space-between; align-items: center; color: #fff;
     }
     .lightbox .lb-close {
       background: rgba(255,255,255,0.15); border: none; color: #fff;
       width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer;
     }
     .lightbox .lb-counter { font-size: 14px; font-weight: 600; }
-    .lightbox .lb-nav {
-      position: absolute; bottom: 30px;
-      display: flex; gap: 20px;
-    }
+    .lightbox .lb-nav { position: absolute; bottom: 30px; display: flex; gap: 20px; }
     .lightbox .lb-nav button {
       background: rgba(255,255,255,0.15); border: none; color: #fff;
       width: 44px; height: 44px; border-radius: 50%; font-size: 22px; cursor: pointer;
     }
 
     .hidden { display: none !important; }
+    .screen { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
   </style>
 </head>
 <body>
   <header class="page-header">
     <h1>Multi-Photo History View — Mobile Prototype</h1>
     <p>
-      Mockup for viewing <strong>all submitted photos</strong> on past rounding interactions.
-      Navigate via <strong>Activity Feed</strong> (patient census) or <strong>History</strong> (patient profile).
-      Tap any thumbnail to preview full size.
+      Mirrors the real app navigation: <strong>no images</strong> on Activity Feed or interaction lists.
+      Photos appear only after expanding <strong>Cleanliness</strong> on Patient Rounds Details. Tap a thumbnail to open full size.
     </p>
   </header>
 
   <div class="layout">
     <aside class="panel">
-      <h2>Navigation paths</h2>
-      <ul class="nav-path">
-        <li><strong>Path A — Activity Feed</strong>Patient census → tap Activity Feed icon on card → Patient Rounds list → View Details</li>
-        <li class="active"><strong>Path B — History tab</strong>Patient profile → History tab → Patient Rounds list → View Details</li>
-      </ul>
-      <p class="hint">Both paths land on the same <em>Patient Rounds Details</em> screen where photos appear under each answered question.</p>
-
-      <h2 style="margin-top:0.9rem">Screen</h2>
-      <div class="screen-toggle">
-        <button type="button" data-screen="list" class="active">Patient Rounds (list)</button>
-        <button type="button" data-screen="details">Patient Rounds Details</button>
+      <h2>Navigation path</h2>
+      <div class="path-toggle">
+        <button type="button" data-path="activity" class="active">Path A — Activity Feed</button>
+        <button type="button" data-path="history">Path B — ⋯ → History</button>
       </div>
 
-      <h2 style="margin-top:0.9rem">Photo count demo</h2>
+      <h2 style="margin-top:0.75rem">Steps</h2>
+      <ol class="flow-steps" id="flow-steps"></ol>
+
+      <h2 style="margin-top:0.75rem">Photo count</h2>
       <div class="count-toggle">
         <button type="button" data-count="1">1</button>
         <button type="button" data-count="3">3</button>
         <button type="button" data-count="6" class="active">6</button>
         <button type="button" data-count="10">10</button>
       </div>
-      <p class="hint">Toggle to see how the grid adapts from the current single-photo state up to the max of 10.</p>
-
-      <div class="compare-row">
-        <div class="compare-box current">
-          <h3>Current</h3>
-          Single thumbnail per answer. Additional photos not visible in history.
-        </div>
-        <div class="compare-box new">
-          <h3>Proposed</h3>
-          3-column grid of all thumbnails. Tap to view full size with swipe navigation.
-        </div>
-      </div>
+      <p class="hint" id="flow-hint"></p>
     </aside>
 
     <main class="phone-wrap">
-      <div class="phone" id="phone">
+      <div class="phone">
         <div class="phone-inner">
-          <div class="status-bar"><span>1:24</span><span>●●●○ 📶 🔋</span></div>
+          <div class="status-bar"><span>1:32</span><span>●●●○ 📶 🔋</span></div>
 
-          <!-- LIST SCREEN -->
-          <div id="screen-list">
-            <div class="app-header">
-              <button type="button" aria-label="Back">‹</button>
-              <div class="title">Patient Rounds</div>
-              <button type="button" aria-hidden="true" style="visibility:hidden">‹</button>
-            </div>
-            <div class="sub-bar">
-              <button type="button" class="filter-btn">Filters</button>
-              <span style="font-size:16px;color:#888">🧹</span>
+          <!-- CENSUS -->
+          <div class="screen" id="screen-census">
+            <div class="census-header">
+              <div class="top-row">
+                <button type="button" class="menu-btn" aria-label="Menu">☰</button>
+                <div class="title-block">
+                  <h2>BP - Nurse Leader Round</h2>
+                  <p>Tap to change the script</p>
+                </div>
+                <span style="width:36px"></span>
+              </div>
+              <div class="search">Search by full name</div>
+              <div class="toolbar">
+                <button type="button">Filters</button>
+                <button type="button">🧹</button>
+                <button type="button" class="sort">Sort by: Priority Score ▾</button>
+              </div>
             </div>
             <div class="scroll-area">
-              <div class="history-card">
+              <div class="patient-card">
                 <div class="issue-pill">Has Issue</div>
-                <div class="patient-name">D. Smith - 931-11</div>
+                <div class="name-row">
+                  <div class="name">D. Smith</div>
+                  <div class="flags">🚩🚩🚩🚩🚩</div>
+                </div>
                 <div class="loc-row">
-                  <span class="loc-chip">🚪 931</span>
+                  <span class="loc-chip">🚪 931-11</span>
                   <span class="loc-chip">🏥 1 South</span>
-                  <span class="loc-chip">📍 Central Hospital</span>
                 </div>
-                <div class="meta-grid">
-                  <div><span class="label">Created by</span><span class="value">Mykela Mcallen</span></div>
-                  <div><span class="label">Known Issue(s)</span><span class="value issue">EVS Alert</span></div>
-                  <div><span class="label">Time of Round</span><span class="value">7/28/26, 12:46 PM</span></div>
-                  <div><span class="label">Rounding Script</span><span class="value">BP - Nurse Leader Round</span></div>
+                <div class="info-line"><span>Preferred Name:</span> Cjsh</div>
+                <div class="info-line"><span>Date Of Birth:</span> 07/13/1944</div>
+                <div class="info-line"><span>Arrival Date:</span> 7/4/22, 1:26 PM</div>
+                <div class="stat-row">
+                  <div class="stat-box orange">
+                    <div class="num">74</div>
+                    <div class="sub">Medium</div>
+                    <div class="lbl">Priority Score ⓘ</div>
+                  </div>
+                  <div class="stat-box teal">
+                    <div class="num" style="font-size:14px;padding-top:8px">~ 7 min ago</div>
+                    <div class="lbl" style="margin-top:8px">Last Rounded</div>
+                  </div>
                 </div>
-                <div class="list-thumb-strip" id="list-thumbs"></div>
-                <div class="card-footer">
-                  <span class="round-tag">✏ Rounding</span>
-                  <button type="button" class="view-details" id="go-details">View Details</button>
+                <div class="action-row">
+                  <button type="button" class="round-btn">↻ Round</button>
+                  <button type="button" class="more-btn" id="open-menu" aria-label="More options">⋯</button>
                 </div>
-              </div>
-
-              <div class="history-card" style="margin-top:18px">
-                <div class="issue-pill">Has Issue</div>
-                <div class="patient-name">D. Smith - 931-11</div>
-                <div class="loc-row">
-                  <span class="loc-chip">🚪 931</span>
-                  <span class="loc-chip">🏥 1 South</span>
-                  <span class="loc-chip">📍 Central Hospital</span>
-                </div>
-                <div class="meta-grid">
-                  <div><span class="label">Created by</span><span class="value">Kenny Iannuzzi</span></div>
-                  <div><span class="label">Known Issue(s)</span><span class="value issue">EVS Alert</span></div>
-                  <div><span class="label">Time of Round</span><span class="value">7/27/26, 3:15 PM</span></div>
-                  <div><span class="label">Rounding Script</span><span class="value">BP - Nurse Leader Round</span></div>
-                </div>
-                <div class="card-footer">
-                  <span class="round-tag">✏ Rounding</span>
-                  <button type="button" class="view-details">View Details</button>
+                <div class="card-tabs">
+                  <button type="button" class="card-tab" id="go-activity-feed">
+                    <span class="icon">📅</span>Activity Feed
+                  </button>
+                  <button type="button" class="card-tab"><span class="icon">🔥</span>Open Issues(6)</button>
+                  <button type="button" class="card-tab"><span class="icon">📋</span>Care Notes(3)</button>
+                  <button type="button" class="card-tab"><span class="icon">🔖</span>Flags(5)</button>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- DETAILS SCREEN -->
-          <div id="screen-details" class="hidden">
+          <!-- ACTIVITY FEED LIST (no images) -->
+          <div class="screen hidden" id="screen-activity-feed">
             <div class="app-header">
-              <button type="button" aria-label="Back" id="back-list">‹</button>
+              <button type="button" aria-label="Back" data-back="census">‹</button>
+              <div class="title">Activity Feed</div>
+              <button type="button" style="visibility:hidden" aria-hidden="true">‹</button>
+            </div>
+            <div class="scroll-area" id="activity-feed-list"></div>
+          </div>
+
+          <!-- PATIENT ROUNDS LIST (no images) -->
+          <div class="screen hidden" id="screen-rounds-list">
+            <div class="app-header">
+              <button type="button" aria-label="Back" data-back="census">‹</button>
+              <div class="title">Patient Rounds</div>
+              <button type="button" style="visibility:hidden" aria-hidden="true">‹</button>
+            </div>
+            <div class="sub-bar">
+              <button type="button" class="filter-btn">Filters</button>
+              <span style="font-size:16px;color:#888">🧹</span>
+            </div>
+            <div class="scroll-area" id="rounds-list"></div>
+            <nav class="tab-bar">
+              <button type="button"><span class="icon">✏️</span>Round</button>
+              <button type="button" class="active"><span class="icon">📅</span>History</button>
+              <button type="button"><span class="icon">🎙</span>Care Recordings</button>
+              <button type="button"><span class="icon">🔖</span>Flags</button>
+              <button type="button"><span class="icon">👤</span>Profile</button>
+            </nav>
+          </div>
+
+          <!-- DETAILS (all collapsed) -->
+          <div class="screen hidden" id="screen-details">
+            <div class="app-header">
+              <button type="button" aria-label="Back" id="back-from-details">‹</button>
               <div class="title">Patient Rounds Details</div>
-              <button type="button" aria-hidden="true" style="visibility:hidden">‹</button>
+              <button type="button" style="visibility:hidden" aria-hidden="true">‹</button>
             </div>
             <div class="scroll-area">
               <div class="detail-header-card">
@@ -631,56 +580,45 @@
               </div>
 
               <div class="section-row">
-                <div class="section-header open" data-section="recording">
-                  <span>Recording</span>
-                  <span class="chevron">›</span>
+                <div class="section-header" data-section="recording">
+                  <span>Recording</span><span class="chevron">›</span>
                 </div>
-                <div class="section-body open" id="body-recording">
+                <div class="section-body" id="body-recording">
                   <div class="recording-player">
                     <button type="button" class="play" aria-label="Play">▶</button>
-                    <div class="bar"></div>
-                    <span>00:25</span>
+                    <div class="bar"></div><span>00:25</span>
                   </div>
                 </div>
               </div>
 
               <div class="section-row">
                 <div class="section-header" data-section="ability">
-                  <span>Ability to Round</span>
-                  <span class="ai-badge">AI</span>
-                  <span class="chevron">›</span>
+                  <span>Ability to Round</span><span class="ai-badge">AI</span><span class="chevron">›</span>
                 </div>
-                <div class="section-body" id="body-ability"></div>
+                <div class="section-body" id="body-ability">
+                  <p class="answer-prompt" style="margin-top:10px;color:#333;font-weight:600">Yes</p>
+                </div>
               </div>
 
               <div class="section-row">
                 <div class="section-header" data-section="whiteboard">
-                  <span>Whiteboard</span>
-                  <span class="ai-badge">AI</span>
-                  <span class="chevron">›</span>
+                  <span>Whiteboard</span><span class="ai-badge">AI</span><span class="chevron">›</span>
                 </div>
-                <div class="section-body" id="body-whiteboard"></div>
+                <div class="section-body" id="body-whiteboard">
+                  <p class="answer-prompt" style="margin-top:10px;color:#333;font-weight:600">Yes</p>
+                </div>
               </div>
 
               <div class="section-row issue-section">
-                <div class="section-header open" data-section="cleanliness">
-                  <span>Cleanliness</span>
-                  <span class="issue-badge">Issue</span>
-                  <span class="chevron">›</span>
+                <div class="section-header" data-section="cleanliness">
+                  <span>Cleanliness</span><span class="issue-badge">Issue</span><span class="chevron">›</span>
                 </div>
-                <div class="section-body open" id="body-cleanliness">
+                <div class="section-body" id="body-cleanliness">
                   <p class="answer-prompt">Please indicate any issues identified in the patient's room</p>
                   <p class="answer-value">Bathroom not clean</p>
                   <div class="answer-tags">
                     <span class="answer-tag">💧 EVS Issue</span>
                     <span class="answer-tag">🔔 EVS Alert</span>
-                  </div>
-
-                  <div id="state-note"></div>
-
-                  <div class="photo-section-label">
-                    Attached photos
-                    <span class="count" id="photo-count-label"></span>
                   </div>
                   <div class="photo-grid" id="photo-grid"></div>
                 </div>
@@ -688,42 +626,50 @@
 
               <div class="section-row">
                 <div class="section-header" data-section="preference">
-                  <span>Patient Preference</span>
-                  <span class="ai-badge">AI</span>
-                  <span class="chevron">›</span>
+                  <span>Patient Preference</span><span class="ai-badge">AI</span><span class="chevron">›</span>
                 </div>
                 <div class="section-body" id="body-preference"></div>
               </div>
 
               <div class="section-row">
                 <div class="section-header" data-section="careteam">
-                  <span>Care Team Responsiveness</span>
-                  <span class="ai-badge">AI</span>
-                  <span class="chevron">›</span>
+                  <span>Care Team Responsiveness</span><span class="ai-badge">AI</span><span class="chevron">›</span>
                 </div>
                 <div class="section-body" id="body-careteam"></div>
               </div>
             </div>
+            <nav class="tab-bar">
+              <button type="button"><span class="icon">✏️</span>Round</button>
+              <button type="button" class="active"><span class="icon">📅</span>History</button>
+              <button type="button"><span class="icon">🎙</span>Care Recordings</button>
+              <button type="button"><span class="icon">🔖</span>Flags</button>
+              <button type="button"><span class="icon">👤</span>Profile</button>
+            </nav>
           </div>
 
-          <nav class="tab-bar">
-            <button type="button"><span class="icon">✏️</span>Round</button>
-            <button type="button" class="active"><span class="icon">📅</span>History</button>
-            <button type="button"><span class="icon">🎙</span>Care Recordings</button>
-            <button type="button"><span class="icon">🔖</span>Flags</button>
-            <button type="button"><span class="icon">👤</span>Profile</button>
-          </nav>
+          <!-- 3-dot menu -->
+          <div class="sheet-overlay" id="menu-sheet">
+            <div class="action-sheet">
+              <div class="sheet-group">
+                <button type="button" id="menu-history">History</button>
+                <button type="button">Care Recordings</button>
+                <button type="button">Flags</button>
+              </div>
+              <button type="button" class="cancel-btn" id="close-menu">Cancel</button>
+            </div>
+          </div>
         </div>
       </div>
     </main>
 
     <aside class="panel">
-      <h2>Design notes</h2>
+      <h2>Design rules</h2>
       <p class="hint" style="margin-top:0">
-        <strong>Grid layout:</strong> 3 columns, square thumbnails with 6px gap. Scales from 1–10 photos — partial last row for 4, 7, or 10 photos.<br><br>
-        <strong>Backend needs:</strong> Return <code>orchid_image_urls[]</code> on completed interaction answers (not just a single URL).<br><br>
-        <strong>Tap behavior:</strong> Opens full-screen viewer with swipe/arrows to browse all photos for that answer.<br><br>
-        <strong>List preview (optional):</strong> First card shows a horizontal strip of up to 4 thumbnails + "+N" overflow on the history list — helps users spot photo-documented rounds at a glance.
+        <strong>No images</strong> on census, Activity Feed, or Patient Rounds list screens.<br><br>
+        <strong>Patient Rounds Details</strong> opens with all question sections collapsed.<br><br>
+        <strong>Photos only appear</strong> after expanding Cleanliness.<br><br>
+        <strong>Tap thumbnail</strong> → full-screen viewer with prev/next.<br><br>
+        Path A uses <em>View Interaction</em>; Path B uses <em>View Details</em>.
       </p>
     </aside>
   </div>
@@ -742,6 +688,34 @@
   </div>
 
   <script>
+    const PATHS = {
+      activity: {
+        label: "Path A — Activity Feed",
+        steps: [
+          { id: "census", text: "Patient census — tap Activity Feed on card" },
+          { id: "activity-feed", text: "Activity Feed list — no images shown" },
+          { id: "details-collapsed", text: "Tap View Interaction → details (collapsed)" },
+          { id: "cleanliness", text: "Expand Cleanliness → photo grid appears" },
+          { id: "lightbox", text: "Tap thumbnail → full-screen photo" }
+        ],
+        listScreen: "activity-feed",
+        cta: "View Interaction"
+      },
+      history: {
+        label: "Path B — ⋯ → History",
+        steps: [
+          { id: "census", text: "Patient census — tap ⋯ menu" },
+          { id: "menu", text: "Select History" },
+          { id: "rounds-list", text: "Patient Rounds list — no images shown" },
+          { id: "details-collapsed", text: "Tap View Details → details (collapsed)" },
+          { id: "cleanliness", text: "Expand Cleanliness → photo grid appears" },
+          { id: "lightbox", text: "Tap thumbnail → full-screen photo" }
+        ],
+        listScreen: "rounds-list",
+        cta: "View Details"
+      }
+    };
+
     const PHOTO_SETS = {
       1: ["bathroom-floor"],
       3: ["bathroom-floor", "bathroom-sink", "bathroom-tile"],
@@ -751,34 +725,26 @@
     };
 
     const PHOTO_LABELS = {
-      "bathroom-floor": "Floor area",
-      "bathroom-sink": "Sink & counter",
-      "bathroom-tile": "Wall tile",
-      "bathroom-shower": "Shower stall",
-      "bathroom-trash": "Trash area",
-      "bathroom-mirror": "Mirror",
-      "bathroom-towel": "Towel rack",
-      "bathroom-toilet": "Toilet area",
-      "bathroom-corner": "Corner detail",
+      "bathroom-floor": "Floor area", "bathroom-sink": "Sink & counter", "bathroom-tile": "Wall tile",
+      "bathroom-shower": "Shower stall", "bathroom-trash": "Trash area", "bathroom-mirror": "Mirror",
+      "bathroom-towel": "Towel rack", "bathroom-toilet": "Toilet area", "bathroom-corner": "Corner detail",
       "bathroom-supplies": "Supply shelf"
     };
 
     const PHOTO_COLORS = {
-      "bathroom-floor": ["#8d6e63", "#6d4c41"],
-      "bathroom-sink": ["#90caf9", "#42a5f5"],
-      "bathroom-tile": ["#b0bec5", "#78909c"],
-      "bathroom-shower": ["#80cbc4", "#00897b"],
-      "bathroom-trash": ["#ffcc80", "#fb8c00"],
-      "bathroom-mirror": ["#ce93d8", "#8e24aa"],
-      "bathroom-towel": ["#ef9a9a", "#e53935"],
-      "bathroom-toilet": ["#a5d6a7", "#43a047"],
-      "bathroom-corner": ["#fff59d", "#fbc02d"],
-      "bathroom-supplies": ["#bcaaa4", "#795548"]
+      "bathroom-floor": ["#8d6e63", "#6d4c41"], "bathroom-sink": ["#90caf9", "#42a5f5"],
+      "bathroom-tile": ["#b0bec5", "#78909c"], "bathroom-shower": ["#80cbc4", "#00897b"],
+      "bathroom-trash": ["#ffcc80", "#fb8c00"], "bathroom-mirror": ["#ce93d8", "#8e24aa"],
+      "bathroom-towel": ["#ef9a9a", "#e53935"], "bathroom-toilet": ["#a5d6a7", "#43a047"],
+      "bathroom-corner": ["#fff59d", "#fbc02d"], "bathroom-supplies": ["#bcaaa4", "#795548"]
     };
 
+    let currentPath = "activity";
+    let currentStep = "census";
     let photoCount = 6;
     let lightboxIndex = 0;
     let currentPhotos = [];
+    let detailsReturnScreen = "activity-feed";
 
     function makePhotoDataUrl(key) {
       const [c1, c2] = PHOTO_COLORS[key];
@@ -796,73 +762,129 @@
 
     function getPhotos(count) {
       return PHOTO_SETS[count].map((key) => ({
-        key,
-        src: makePhotoDataUrl(key),
-        label: PHOTO_LABELS[key]
+        key, src: makePhotoDataUrl(key), label: PHOTO_LABELS[key]
       }));
+    }
+
+    function interactionCardHtml(ctaLabel) {
+      return `
+        <div class="history-card">
+          <div class="issue-pill">Has Issue</div>
+          <div class="patient-name">D. Smith - 931-11</div>
+          <div class="loc-row">
+            <span class="loc-chip">🚪 931</span>
+            <span class="loc-chip">🏥 1 South</span>
+            <span class="loc-chip">📍 Central Hospital</span>
+          </div>
+          <div class="meta-grid">
+            <div><span class="label">Created by</span><span class="value">Mykela Mcallen</span></div>
+            <div><span class="label">Known Issue(s)</span><span class="value issue">EVS Alert</span></div>
+            <div><span class="label">Time of Round</span><span class="value">7/28/26, 12:46 PM</span></div>
+            <div><span class="label">Rounding Script</span><span class="value">BP - Nurse Leader Round</span></div>
+          </div>
+          <div class="card-footer">
+            <span class="round-tag">✏ Rounding</span>
+            <button type="button" class="link-btn go-details">${ctaLabel}</button>
+          </div>
+        </div>`;
+    }
+
+    function renderListCards() {
+      const path = PATHS[currentPath];
+      document.getElementById("activity-feed-list").innerHTML = interactionCardHtml("View Interaction");
+      document.getElementById("rounds-list").innerHTML =
+        interactionCardHtml("View Details") +
+        interactionCardHtml("View Details").replace("7/28/26, 12:46 PM", "7/27/26, 3:15 PM")
+          .replace("Mykela Mcallen", "Kenny Iannuzzi");
+
+      document.querySelectorAll(".go-details").forEach((btn) => {
+        btn.addEventListener("click", openDetailsCollapsed);
+      });
     }
 
     function renderPhotos() {
       currentPhotos = getPhotos(photoCount);
       const grid = document.getElementById("photo-grid");
-      const note = document.getElementById("state-note");
-      const countLabel = document.getElementById("photo-count-label");
-
-      grid.className = "photo-grid" + (photoCount === 1 ? " single-photo" : "");
-      countLabel.textContent = photoCount + " photo" + (photoCount === 1 ? "" : "s");
-
-      if (photoCount === 1) {
-        note.innerHTML = '<div class="current-state-note"><strong>Current behavior:</strong> Only 1 photo displayed. Photos 2–10 submitted during the round are not visible here.</div>';
-      } else {
-        note.innerHTML = '<div class="new-state-note"><strong>Proposed behavior:</strong> All ' + photoCount + ' submitted photos shown in a scrollable grid. Tap any thumbnail to view full size.</div>';
-      }
-
       grid.innerHTML = currentPhotos.map((p, i) =>
         `<button type="button" class="thumb" data-index="${i}" aria-label="View photo ${i + 1}: ${p.label}">
           <img src="${p.src}" alt="${p.label}">
         </button>`
       ).join("");
-
       grid.querySelectorAll(".thumb").forEach((btn) => {
-        btn.addEventListener("click", () => openLightbox(Number(btn.dataset.index)));
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openLightbox(Number(btn.dataset.index));
+        });
       });
-
-      renderListStrip();
     }
 
-    function renderListStrip() {
-      const strip = document.getElementById("list-thumbs");
-      if (!strip) return;
-      const show = Math.min(4, currentPhotos.length);
-      const overflow = currentPhotos.length - show;
-      strip.innerHTML = currentPhotos.slice(0, show).map((p) =>
-        `<img src="${p.src}" alt="">`
-      ).join("") + (overflow > 0 ? `<span class="more">+${overflow}</span>` : "");
+    function collapseAllSections() {
+      document.querySelectorAll(".section-header").forEach((h) => h.classList.remove("open"));
+      document.querySelectorAll(".section-body").forEach((b) => b.classList.remove("open"));
+    }
+
+    function setStep(stepId) {
+      currentStep = stepId;
+      renderFlowSteps();
+    }
+
+    function showScreen(id) {
+      ["census", "activity-feed", "rounds-list", "details"].forEach((s) => {
+        document.getElementById("screen-" + s).classList.toggle("hidden", s !== id);
+      });
+    }
+
+    function renderFlowSteps() {
+      const path = PATHS[currentPath];
+      const ol = document.getElementById("flow-steps");
+      const stepIndex = path.steps.findIndex((s) => s.id === currentStep);
+      ol.innerHTML = path.steps.map((step, i) => {
+        let cls = "";
+        if (i < stepIndex) cls = "done";
+        else if (i === stepIndex) cls = "active";
+        else cls = "disabled";
+        return `<li class="${cls}">${step.text}</li>`;
+      }).join("");
+
+      document.getElementById("flow-hint").textContent =
+        currentStep === "cleanliness"
+          ? "This is the only screen where photos are visible. Expand Cleanliness to reveal the grid."
+          : currentStep === "lightbox"
+          ? "Full-screen viewer — swipe or use arrows to browse all photos."
+          : "Follow the highlighted step in the phone mockup. No images appear until Cleanliness is expanded.";
+    }
+
+    function openDetailsCollapsed() {
+      collapseAllSections();
+      detailsReturnScreen = PATHS[currentPath].listScreen;
+      showScreen("details");
+      setStep("details-collapsed");
     }
 
     function openLightbox(index) {
       lightboxIndex = index;
-      updateLightbox();
+      document.getElementById("lb-img").src = currentPhotos[index].src;
+      document.getElementById("lb-counter").textContent = (index + 1) + " of " + currentPhotos.length;
       document.getElementById("lightbox").classList.add("open");
+      setStep("lightbox");
     }
 
     function closeLightbox() {
       document.getElementById("lightbox").classList.remove("open");
+      setStep("cleanliness");
     }
 
-    function updateLightbox() {
-      document.getElementById("lb-img").src = currentPhotos[lightboxIndex].src;
-      document.getElementById("lb-counter").textContent =
-        (lightboxIndex + 1) + " of " + currentPhotos.length;
-    }
-
-    function showScreen(name) {
-      document.getElementById("screen-list").classList.toggle("hidden", name !== "list");
-      document.getElementById("screen-details").classList.toggle("hidden", name !== "details");
-      document.querySelectorAll(".screen-toggle button").forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.screen === name);
+    // Path toggle
+    document.querySelectorAll(".path-toggle button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        currentPath = btn.dataset.path;
+        document.querySelectorAll(".path-toggle button").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        showScreen("census");
+        setStep("census");
+        renderListCards();
       });
-    }
+    });
 
     document.querySelectorAll(".count-toggle button").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -873,36 +895,75 @@
       });
     });
 
-    document.querySelectorAll(".screen-toggle button").forEach((btn) => {
-      btn.addEventListener("click", () => showScreen(btn.dataset.screen));
+    // Census → Activity Feed
+    document.getElementById("go-activity-feed").addEventListener("click", () => {
+      currentPath = "activity";
+      document.querySelector('[data-path="activity"]').classList.add("active");
+      document.querySelector('[data-path="history"]').classList.remove("active");
+      showScreen("activity-feed");
+      setStep("activity-feed");
     });
 
-    document.getElementById("go-details").addEventListener("click", () => showScreen("details"));
-    document.getElementById("back-list").addEventListener("click", () => showScreen("list"));
+    // Census → menu → History
+    document.getElementById("open-menu").addEventListener("click", () => {
+      document.getElementById("menu-sheet").classList.add("open");
+      setStep("menu");
+    });
+    document.getElementById("close-menu").addEventListener("click", () => {
+      document.getElementById("menu-sheet").classList.remove("open");
+      setStep("census");
+    });
+    document.getElementById("menu-history").addEventListener("click", () => {
+      currentPath = "history";
+      document.querySelector('[data-path="history"]').classList.add("active");
+      document.querySelector('[data-path="activity"]').classList.remove("active");
+      document.getElementById("menu-sheet").classList.remove("open");
+      showScreen("rounds-list");
+      setStep("rounds-list");
+    });
 
+    // Back navigation
+    document.querySelectorAll("[data-back]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        showScreen(btn.dataset.back);
+        setStep("census");
+      });
+    });
+    document.getElementById("back-from-details").addEventListener("click", () => {
+      showScreen(detailsReturnScreen);
+      setStep(detailsReturnScreen === "activity-feed" ? "activity-feed" : "rounds-list");
+    });
+
+    // Section expand/collapse
     document.querySelectorAll(".section-header").forEach((header) => {
       header.addEventListener("click", () => {
         const body = document.getElementById("body-" + header.dataset.section);
         if (!body) return;
         const open = body.classList.toggle("open");
         header.classList.toggle("open", open);
+        if (header.dataset.section === "cleanliness" && open) {
+          setStep("cleanliness");
+        }
       });
     });
 
+    // Lightbox
     document.getElementById("lb-close").addEventListener("click", closeLightbox);
     document.getElementById("lightbox").addEventListener("click", (e) => {
       if (e.target.id === "lightbox") closeLightbox();
     });
     document.getElementById("lb-prev").addEventListener("click", () => {
       lightboxIndex = (lightboxIndex - 1 + currentPhotos.length) % currentPhotos.length;
-      updateLightbox();
+      openLightbox(lightboxIndex);
     });
     document.getElementById("lb-next").addEventListener("click", () => {
       lightboxIndex = (lightboxIndex + 1) % currentPhotos.length;
-      updateLightbox();
+      openLightbox(lightboxIndex);
     });
 
+    renderListCards();
     renderPhotos();
+    renderFlowSteps();
   </script>
 </body>
 </html>
