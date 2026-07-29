@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Interactive CipherRounds prototype for the Ambient Listening consent sheet — Before you start, vertical vs horizontal buttons, third-button label options.">
   <meta property="og:title" content="Ambient Listening — Consent Modal Prototype">
-  <meta property="og:description" content="Mobile mockup with tabs for vertical vs horizontal button stacks, No Consent Needed vs Consent not Required.">
+  <meta property="og:description" content="Mobile mockup with tabs for vertical vs horizontal button stacks and No Consent Required third button.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-consent-modal-prototype.html">
   <title>Ambient Listening — Consent Modal Prototype</title>
@@ -267,18 +267,11 @@
     .script-box {
       background: #f3f4f6; border-radius: 10px; overflow: hidden;
     }
-    .script-toggle {
-      width: 100%; display: flex; align-items: center; justify-content: space-between;
-      padding: 12px; background: none; border: none; cursor: pointer;
-      font-size: 15px; font-weight: 700; color: var(--text); text-align: left;
+    .script-label {
+      padding: 12px 12px 0;
+      font-size: 15px; font-weight: 700; color: var(--text);
     }
-    .script-toggle .chevron {
-      font-size: 18px; color: var(--muted); transition: transform 0.2s;
-      display: inline-block;
-    }
-    .script-box.collapsed .script-toggle .chevron { transform: rotate(-90deg); }
-    .script-content { padding: 0 12px 12px; border-top: 1px solid rgba(0,0,0,0.06); }
-    .script-box.collapsed .script-content { display: none; }
+    .script-content { padding: 8px 12px 12px; }
     .script-line {
       border-left: 3px solid var(--teal); padding-left: 10px;
       margin: 8px 0 0; font-size: 14px; line-height: 1.35; color: #333;
@@ -333,7 +326,7 @@
 <body>
   <header class="page-header">
     <h1>Ambient Listening — Consent Modal Prototype</h1>
-    <p><strong>Before you start</strong> consent sheet — use the tabs to compare vertical (Apple-recommended) vs horizontal button layouts. Toggle third-button copy between <strong>No Consent Needed</strong> and <strong>Consent not Required</strong>.</p>
+    <p><strong>Before you start</strong> consent sheet — use the tabs to compare vertical (Apple-recommended) vs horizontal button layouts.</p>
     <div class="share-row">
       <span class="share-url" id="shareUrl"></span>
       <button type="button" class="share-btn" id="btnCopyLink">Copy link</button>
@@ -399,11 +392,8 @@
                     Opted out of audio recording on their last round.
                   </div>
                   <p class="instruction" id="instructionText"></p>
-                  <div class="script-box" id="scriptBox">
-                    <button type="button" class="script-toggle" id="scriptToggle">
-                      View Suggested Script
-                      <span class="chevron">›</span>
-                    </button>
+                  <div class="script-box">
+                    <div class="script-label">Suggested Script</div>
                     <div class="script-content">
                       <div id="scriptLines"></div>
                     </div>
@@ -413,7 +403,7 @@
                 <div class="sheet-footer three-btn layout-vertical" id="sheetFooter">
                   <button type="button" class="consent-btn primary" data-action="given">Consent Given</button>
                   <button type="button" class="consent-btn secondary" data-action="declined">Declined</button>
-                  <button type="button" class="consent-btn optional" data-action="not_needed" id="btnNoConsent">No Consent Needed</button>
+                  <button type="button" class="consent-btn optional" data-action="not_needed" id="btnNoConsent">No Consent Required</button>
                 </div>
               </div>
             </div>
@@ -434,17 +424,9 @@
         <span><strong>Third button enabled</strong><span style="display:block;color:var(--muted);font-size:0.7rem;margin-top:2px">Evolve CP checkbox for this roundable type</span></span>
       </label>
 
-      <div style="font-size:0.72rem;font-weight:700;color:var(--muted);margin-top:0.75rem">Third button label</div>
-      <button type="button" class="demo-btn active" data-third-label="no_consent_needed">No Consent Needed</button>
-      <button type="button" class="demo-btn" data-third-label="consent_not_required">Consent not Required</button>
-
       <label class="toggle-row" id="toggleDeclined">
         <span class="toggle-box" id="boxDeclined"></span>
         <span><strong>Previously declined banner</strong></span>
-      </label>
-      <label class="toggle-row" id="toggleScriptOpen">
-        <span class="toggle-box on" id="boxScriptOpen">✓</span>
-        <span><strong>Suggested script expanded</strong></span>
       </label>
       <label class="toggle-row" id="toggleLargeText">
         <span class="toggle-box" id="boxLargeText"></span>
@@ -494,17 +476,10 @@
       },
     };
 
-    const THIRD_LABELS = {
-      no_consent_needed: 'No Consent Needed',
-      consent_not_required: 'Consent not Required',
-    };
-
     const state = {
       type: 'patient',
       noConsentEnabled: true,
-      thirdButtonLabel: 'no_consent_needed',
       showDeclined: false,
-      scriptExpanded: true,
       modalOpen: false,
       recording: false,
       outcome: null,
@@ -518,10 +493,6 @@
       return state.largeText ? 'vertical' : state.buttonLayout;
     }
 
-    function thirdButtonText() {
-      return THIRD_LABELS[state.thirdButtonLabel];
-    }
-
     function renderType() {
       const cfg = TYPES[state.type];
       $('headerTitle').textContent = cfg.header;
@@ -531,7 +502,6 @@
       $('footnoteText').textContent = cfg.footnote || '';
       $('footnoteText').classList.toggle('hidden', !cfg.footnote);
       $('declinedBanner').classList.toggle('hidden', !state.showDeclined);
-      $('scriptBox').classList.toggle('collapsed', !state.scriptExpanded);
     }
 
     function renderFooter() {
@@ -541,7 +511,6 @@
       footer.classList.add(`layout-${layout}`);
       footer.classList.toggle('three-btn', state.noConsentEnabled);
       footer.classList.toggle('two-btn', !state.noConsentEnabled);
-      $('btnNoConsent').textContent = thirdButtonText();
       $('btnNoConsent').classList.toggle('hidden', !state.noConsentEnabled);
       $('layoutHint').textContent = state.largeText
         ? 'Large text always uses a vertical stack — same as Apple Dynamic Type behavior.'
@@ -592,7 +561,6 @@
     function renderOutcome() {
       const box = $('outcomeBox');
       const api = $('apiHint');
-      const thirdLabel = thirdButtonText();
       box.className = 'outcome';
       if (!state.outcome) {
         box.innerHTML = '<strong>Waiting</strong>Tap <em>Start</em> on the recording bar to open the consent sheet.';
@@ -609,7 +577,7 @@
         api.textContent = 'API: PATCH interaction attempt → declined.';
       } else if (state.outcome === 'not_needed') {
         box.classList.add('not-needed');
-        box.innerHTML = `<strong>${thirdLabel}</strong>Recording started without verbal consent. Sets <code>recording_verbal_consent_status: "not_needed"</code>.`;
+        box.innerHTML = '<strong>No Consent Required</strong>Recording started without verbal consent. Sets <code>recording_verbal_consent_status: "not_needed"</code>.';
         api.textContent = 'API: PATCH interaction attempt → not_needed.';
       }
     }
@@ -640,15 +608,10 @@
       $('boxNoConsent').textContent = state.noConsentEnabled ? '✓' : '';
       $('boxDeclined').classList.toggle('on', state.showDeclined);
       $('boxDeclined').textContent = state.showDeclined ? '✓' : '';
-      $('boxScriptOpen').classList.toggle('on', state.scriptExpanded);
-      $('boxScriptOpen').textContent = state.scriptExpanded ? '✓' : '';
       $('boxLargeText').classList.toggle('on', state.largeText);
       $('boxLargeText').textContent = state.largeText ? '✓' : '';
       document.querySelectorAll('[data-type]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.type === state.type);
-      });
-      document.querySelectorAll('[data-third-label]').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.thirdLabel === state.thirdButtonLabel);
       });
     }
 
@@ -696,12 +659,7 @@
       };
     });
     $('toggleNoConsent').onclick = () => { state.noConsentEnabled = !state.noConsentEnabled; update(); };
-    document.querySelectorAll('[data-third-label]').forEach(btn => {
-      btn.onclick = () => { state.thirdButtonLabel = btn.dataset.thirdLabel; update(); };
-    });
     $('toggleDeclined').onclick = () => { state.showDeclined = !state.showDeclined; update(); };
-    $('toggleScriptOpen').onclick = () => { state.scriptExpanded = !state.scriptExpanded; update(); };
-    $('scriptToggle').onclick = () => { state.scriptExpanded = !state.scriptExpanded; update(); };
     $('toggleLargeText').onclick = () => {
       state.largeText = !state.largeText;
       if (state.largeText) {
