@@ -258,9 +258,43 @@
       display: flex; gap: 8px; padding: 12px 16px 24px;
       border-top: 1px solid var(--border); flex-shrink: 0;
     }
-    .sheet-footer.two-btn .consent-btn { flex: 1; }
-    .sheet-footer.three-btn { flex-wrap: wrap; }
-    .sheet-footer.three-btn .consent-btn { flex: 1 1 calc(33.333% - 6px); min-width: 0; }
+
+    /* Horizontal — compact row (alternative layout) */
+    .sheet-footer.layout-horizontal.two-btn .consent-btn { flex: 1; }
+    .sheet-footer.layout-horizontal.three-btn { flex-wrap: wrap; }
+    .sheet-footer.layout-horizontal.three-btn .consent-btn {
+      flex: 1 1 calc(33.333% - 6px); min-width: 0;
+    }
+
+    /* Vertical — Apple-recommended stack for 3+ actions at regular text size */
+    .sheet-footer.layout-vertical {
+      flex-direction: column;
+      gap: 8px;
+    }
+    .sheet-footer.layout-vertical .consent-btn {
+      flex: none;
+      width: 100%;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .sheet-footer.layout-vertical .consent-btn.primary {
+      background: var(--teal);
+      color: #fff;
+      border: none;
+    }
+    .sheet-footer.layout-vertical .consent-btn.secondary {
+      background: rgba(120, 120, 128, 0.16);
+      color: var(--red);
+      border: none;
+    }
+    .sheet-footer.layout-vertical .consent-btn.optional {
+      background: rgba(120, 120, 128, 0.16);
+      color: var(--text);
+      border: none;
+    }
 
     .consent-btn {
       border: none; border-radius: 10px; padding: 12px 6px;
@@ -289,7 +323,7 @@
 <body>
   <header class="page-header">
     <h1>Ambient Listening — Consent Modal Prototype</h1>
-    <p>Interactive consent sheet before recording. Toggle <strong>No Consent Needed Button Enabled</strong> to show two vs three footer buttons.</p>
+    <p>Interactive consent sheet before recording. Compare <strong>vertical</strong> (Apple-recommended) vs <strong>horizontal</strong> button layouts at regular text size, or stress-test with large accessibility text.</p>
     <div class="share-row">
       <span class="share-url" id="shareUrl"></span>
       <button type="button" class="share-btn" id="btnCopyLink">Copy link</button>
@@ -380,13 +414,18 @@
         <span><strong>Previously declined banner</strong><span style="display:block;color:var(--muted);font-size:0.7rem;margin-top:2px">Show opt-out warning above instruction</span></span>
       </label>
 
+      <div style="font-size:0.72rem;font-weight:700;color:var(--muted);margin-top:0.75rem">Button layout <span style="font-weight:500">(regular text)</span></div>
+      <button type="button" class="demo-btn active" data-layout="vertical">Vertical stack <span style="color:var(--teal);font-weight:700">· recommended</span></button>
+      <button type="button" class="demo-btn" data-layout="horizontal">Horizontal row</button>
+      <div class="hint" id="layoutHint">Per Apple HIG: stack three actions vertically so labels stay readable and tappable.</div>
+
       <label class="toggle-row" id="toggleLargeText">
         <span class="toggle-box" id="boxLargeText"></span>
-        <span><strong>Large accessibility text (iOS XXXL)</strong><span style="display:block;color:var(--muted);font-size:0.7rem;margin-top:2px">Simulates max Dynamic Type — footer buttons stack vertically</span></span>
+        <span><strong>Large accessibility text (iOS XXXL)</strong><span style="display:block;color:var(--muted);font-size:0.7rem;margin-top:2px">Forces vertical stack regardless of layout setting</span></span>
       </label>
 
       <button type="button" class="demo-btn primary" id="btnRestart">↺ Restart demo</button>
-      <div class="hint">Turn on large text and open the consent modal to review layout with three stacked action buttons.</div>
+      <div class="hint">Tap <em>Start</em> to open the consent modal, then switch between vertical and horizontal to compare.</div>
     </aside>
   </div>
 
@@ -436,6 +475,7 @@
       recording: false,
       outcome: null,
       largeText: false,
+      buttonLayout: 'vertical',
     };
 
     const $ = id => document.getElementById(id);
@@ -451,12 +491,24 @@
       $('declinedBanner').classList.toggle('hidden', !state.showDeclined);
     }
 
+    function effectiveLayout() {
+      return state.largeText ? 'vertical' : state.buttonLayout;
+    }
+
     function renderFooter() {
       const footer = $('sheetFooter');
       const btn = $('btnNoConsent');
+      const layout = effectiveLayout();
       footer.classList.toggle('three-btn', state.noConsentEnabled);
       footer.classList.toggle('two-btn', !state.noConsentEnabled);
+      footer.classList.toggle('layout-vertical', layout === 'vertical');
+      footer.classList.toggle('layout-horizontal', layout === 'horizontal');
       btn.classList.toggle('hidden', !state.noConsentEnabled);
+      $('layoutHint').textContent = state.largeText
+        ? 'Large text always uses a vertical stack — same as Apple Dynamic Type behavior.'
+        : layout === 'vertical'
+          ? 'Per Apple HIG: stack three actions vertically so labels stay readable and tappable.'
+          : 'Horizontal row — compact, but labels may truncate with longer copy or smaller screens.';
     }
 
     function renderBar() {
@@ -519,8 +571,11 @@
       const tag = state.noConsentEnabled
         ? '<span class="tag on">3 buttons</span>'
         : '<span class="tag off">2 buttons</span>';
+      const layoutTag = effectiveLayout() === 'vertical'
+        ? '<span class="tag on">vertical</span>'
+        : '<span class="tag off">horizontal</span>';
       const largeTag = state.largeText ? '<span class="tag large">XXXL text</span>' : '';
-      $('screenLabel').innerHTML = `${cfg.label} — consent modal ${tag}${largeTag}`;
+      $('screenLabel').innerHTML = `${cfg.label} — consent modal ${tag} · ${layoutTag}${largeTag}`;
     }
 
     function update() {
@@ -539,6 +594,13 @@
       $('boxLargeText').textContent = state.largeText ? '✓' : '';
       document.querySelectorAll('[data-type]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.type === state.type);
+      });
+      document.querySelectorAll('[data-layout]').forEach(btn => {
+        const disabled = state.largeText;
+        btn.disabled = disabled;
+        btn.style.opacity = disabled ? '0.45' : '';
+        btn.style.cursor = disabled ? 'not-allowed' : '';
+        btn.classList.toggle('active', !disabled && btn.dataset.layout === state.buttonLayout);
       });
     }
 
@@ -607,6 +669,13 @@
       }
       update();
     };
+    document.querySelectorAll('[data-layout]').forEach(btn => {
+      btn.onclick = () => {
+        if (state.largeText) return;
+        state.buttonLayout = btn.dataset.layout;
+        update();
+      };
+    });
     $('btnRestart').onclick = restart;
 
     const publishedUrl = 'https://mtmcallen.github.io/priority-score-simulator/docs/designs/ambient-listening-consent-modal-prototype.html';
