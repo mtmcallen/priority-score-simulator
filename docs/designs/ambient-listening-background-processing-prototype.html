@@ -405,20 +405,39 @@
     }
     .modal.hidden { display: none; }
     .modal-card {
-      background: #fff; border-radius: 16px; padding: 28px 22px 18px;
+      background: #fff; border-radius: 20px; padding: 28px 24px 22px;
       width: 100%; max-width: 300px; text-align: center;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.22);
     }
     .modal-card h3 {
-      font-size: 20px; font-weight: 600; letter-spacing: 0.08em;
-      margin: 0 0 20px;
+      font-size: 20px; font-weight: 700; letter-spacing: 0;
+      margin: 0 0 18px; color: var(--text);
     }
     .modal-card .processing-icon {
-      width: 120px; height: auto; margin: 0 auto 20px;
+      width: 108px; height: auto; margin: 0 auto 18px;
       display: block;
     }
     .modal-card .processing-icon.hidden,
-    .modal-success-icon.hidden { display: none; }
+    .modal-success-icon.hidden,
+    .modal-sub.hidden,
+    .btn-background.hidden { display: none; }
+    .modal-sub {
+      font-size: 15px; color: #636366; line-height: 1.45;
+      margin: 0 0 20px; padding: 0 6px;
+    }
+    .btn-background {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--teal);
+      background: #fff;
+      color: var(--teal-dark);
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      line-height: 1.2;
+    }
+    .btn-background:active { background: #f0faf9; }
     .modal-success-icon {
       width: 84px; height: 84px; border-radius: 50%;
       background: var(--green); color: #fff;
@@ -432,19 +451,6 @@
       from { transform: scale(0.55); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
-    .check-row.hidden { display: none; }
-    .check-row {
-      display: flex; gap: 10px; text-align: left; padding-top: 14px;
-      border-top: 1px solid var(--border); cursor: pointer; margin-top: 4px;
-    }
-    .check-box {
-      width: 22px; height: 22px; border: 2px solid var(--teal); border-radius: 4px;
-      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 700; color: #fff;
-    }
-    .check-box.on { background: var(--teal); }
-    .check-row strong { display: block; font-size: 14px; }
-    .check-row span { font-size: 12px; color: var(--muted); }
 
     .toast {
       position: absolute; top: 0; left: 0; right: 0; z-index: 30;
@@ -507,7 +513,7 @@
 <body>
   <header class="page-header">
     <h1>Ambient Listening — Background Processing Prototype</h1>
-    <p>Interactive demo matching CipherRounds. Check <strong>Finish processing in the background</strong> to continue using the app.</p>
+    <p>Interactive demo matching CipherRounds. Tap <strong>Continue in background</strong> on the processing modal to keep using the app while processing finishes.</p>
     <div class="share-row">
       <span class="share-url" id="shareUrl"></span>
       <button type="button" class="share-btn" id="btnCopyLink">Copy link</button>
@@ -693,10 +699,8 @@
                   <h3 id="modalTitle">Processing . . .</h3>
                   <img class="processing-icon" id="modalProcessingIcon" src="ambient-listening-prototype-assets/processing-modal-icon.png" alt="Processing">
                   <div class="modal-success-icon hidden" id="modalSuccessIcon">✓</div>
-                  <label class="check-row" id="checkRow">
-                    <span class="check-box" id="checkBox"></span>
-                    <span><strong>Finish processing in the background</strong><span>Continue using the app while processing completes</span></span>
-                  </label>
+                  <p class="modal-sub" id="modalSub">You can wait here, or continue using the app while processing finishes.</p>
+                  <button type="button" class="btn-background" id="btnBackground">Continue in background</button>
                 </div>
               </div>
             </div>
@@ -739,7 +743,7 @@
       <button class="demo-btn primary" id="btnRestart">↺ Restart demo</button>
       <button class="demo-btn" id="btnSuccess">✓ Simulate success</button>
       <button class="demo-btn danger" id="btnFailure" disabled>✕ Simulate failure</button>
-      <div class="hint">Tap <strong>Submit</strong> while processing is active to see the blocked-submit alert. Stay on the page (don’t check background) and click <strong>Simulate success</strong> to see the modal checkmark. Or check background first, navigate away, then simulate success/failure for toasts.</div>
+      <div class="hint">Tap <strong>Submit</strong> while processing is active to see the blocked-submit alert. Stay on the page and click <strong>Simulate success</strong> to see the modal checkmark. Or tap <strong>Continue in background</strong>, navigate away, then simulate success/failure for toasts.</div>
     </aside>
   </div>
 
@@ -765,7 +769,6 @@
       screen: 'round',
       phase: 'blocking', // blocking | background | complete | failed
       modalStatus: 'processing', // processing | success
-      checked: false,
       done: false,
       finishing: false,
     };
@@ -856,7 +859,8 @@
       $('modalTitle').textContent = isSuccess ? 'Success' : 'Processing . . .';
       $('modalProcessingIcon').classList.toggle('hidden', isSuccess);
       $('modalSuccessIcon').classList.toggle('hidden', !isSuccess);
-      $('checkRow').classList.toggle('hidden', isSuccess);
+      $('modalSub').classList.toggle('hidden', isSuccess);
+      $('btnBackground').classList.toggle('hidden', isSuccess);
     }
 
     function update() {
@@ -867,8 +871,6 @@
       $('screenProfile').classList.toggle('active', state.screen === 'profile');
 
       renderModal();
-      $('checkBox').classList.toggle('on', state.checked);
-      $('checkBox').textContent = state.checked ? '✓' : '';
 
       $('btnBack').disabled = locked;
       $('tabProfile').disabled = locked;
@@ -916,7 +918,7 @@
       if (state.phase === 'blocking' && state.modalStatus === 'success') {
         $('flowHint').textContent = 'Processing complete — modal shows success checkmark, then dismisses to filled answers.';
       } else if (state.phase === 'blocking') {
-        $('flowHint').textContent = 'Processing modal is open. Wait here or check background to navigate away.';
+        $('flowHint').textContent = 'Processing modal is open. Wait here or tap Continue in background to navigate away.';
       } else if (state.phase === 'background') {
         $('flowHint').textContent = 'Recording processing in background. Navigate with Back or Profile tab.';
       } else if (state.phase === 'complete' && state.screen === 'round') {
@@ -965,7 +967,6 @@
         screen: 'round',
         phase: 'blocking',
         modalStatus: 'processing',
-        checked: false,
         done: false,
         finishing: false,
       });
@@ -974,9 +975,8 @@
       update();
     }
 
-    $('checkRow').onclick = () => {
+    $('btnBackground').onclick = () => {
       if (state.phase !== 'blocking' || state.finishing) return;
-      state.checked = true;
       state.phase = 'background';
       update();
     };
