@@ -293,6 +293,17 @@
     }
     .stat-box .time .time-num { font-size: 18px; font-weight: 800; display: block; }
     .stat-box .time.review { color: var(--needs-review); font-size: 12px; font-weight: 800; }
+    .stat-box .time.processing {
+      font-size: 13px; font-weight: 700; color: #444;
+    }
+    .stat-box .review-main {
+      font-size: 13px; font-weight: 800; color: var(--needs-review);
+      display: block; text-align: center; line-height: 1.2;
+    }
+    .stat-box .review-sub {
+      font-size: 10px; font-weight: 600; color: #888;
+      display: block; text-align: center; margin-top: 3px;
+    }
 
     .card-actions { display: flex; gap: 7px; margin-bottom: 8px; }
     .btn-round {
@@ -334,6 +345,12 @@
     .recording-bar .btn-start {
       border: 1.5px solid #7dd3c0; color: #7dd3c0; background: transparent;
       border-radius: 8px; padding: 4px 14px; font-size: 15px; font-weight: 600;
+    }
+    .recording-bar.failed .check {
+      border-color: #fca5a5; color: #fca5a5;
+    }
+    .recording-bar .btn-retry {
+      border-color: #fca5a5; color: #fca5a5;
     }
 
     .ai-bar {
@@ -527,7 +544,7 @@
         <li data-step="processing"><span class="num">1</span><span>Processing modal</span></li>
         <li data-step="background"><span class="num">2</span><span>Background — navigate freely</span></li>
         <li data-step="toast"><span class="num">3</span><span>Toast on another screen</span></li>
-        <li data-step="review"><span class="num">4</span><span>Needs Review → filled answers</span></li>
+        <li data-step="review"><span class="num">4</span><span>Needs Review → answers or retry</span></li>
       </ol>
       <div class="hint" id="flowHint">Processing modal is open. Bar shows Recording Processing.</div>
     </aside>
@@ -575,7 +592,7 @@
               </div>
               <div class="worklist-scroll">
                 <div class="worklist-inner">
-                <div class="patient-card">
+                <div class="patient-card" data-patient-id="barrows" id="patientCard-barrows">
                   <div class="issue-badge">🔥 Has Issue</div>
                   <div class="card-top">
                     <div class="patient-name">B. Barrows</div>
@@ -601,8 +618,8 @@
                         <div class="stat-head"><span>Priority Score</span><span class="info-ico">!</span></div>
                         <div class="stat-body"><div class="big">82</div><div class="sub">High</div></div>
                       </div>
-                      <div class="stat-box">
-                        <div class="stat-head"><span>Last Rounded</span><span class="sync-ico">↻</span></div>
+                      <div class="stat-box" id="lastRoundedBox">
+                        <div class="stat-head"><span>Last Rounded</span><span class="sync-ico" id="lastRoundedIco">↻</span></div>
                         <div class="stat-body">
                           <div class="time" id="lastRoundedText"><span class="time-num">~ 2</span> weeks ago</div>
                         </div>
@@ -621,7 +638,51 @@
                   </div>
                 </div>
 
-                <div class="patient-card secondary">
+                <div class="patient-card secondary" data-patient-id="chen" id="patientCard-chen">
+                  <div class="card-top">
+                    <div class="patient-name">J. Chen</div>
+                    <div class="flag-row">
+                      <span style="background:#c5e17a"></span>
+                      <span style="background:#3949ab"></span>
+                    </div>
+                  </div>
+                  <div class="loc-row">
+                    <span class="loc-chip">🚪 912-4</span>
+                    <span class="loc-chip">🏥 W South</span>
+                  </div>
+                  <div class="card-grid">
+                    <div>
+                      <div class="label">Date Of Birth</div>
+                      <div class="val">05/18/1939</div>
+                      <div class="label" style="margin-top:6px">Arrival Date</div>
+                      <div class="val" style="font-size:12px">8/01/23, 11:05 AM</div>
+                    </div>
+                    <div class="stat-row">
+                      <div class="stat-box red">
+                        <div class="stat-head"><span>Priority Score</span><span class="info-ico">!</span></div>
+                        <div class="stat-body"><div class="big">91</div><div class="sub">High</div></div>
+                      </div>
+                      <div class="stat-box">
+                        <div class="stat-head"><span>Last Rounded</span><span class="sync-ico">↻</span></div>
+                        <div class="stat-body">
+                          <div class="time"><span class="time-num">~ 1</span> week ago</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-actions">
+                    <button class="btn-round" id="btnRoundChen">📝 Round</button>
+                    <button class="btn-more">···</button>
+                  </div>
+                  <div class="card-tabs">
+                    <div class="ct"><div class="ico">📅</div>Activity Feed</div>
+                    <div class="ct"><div class="ico">🔥</div>Open Issues (0)</div>
+                    <div class="ct"><div class="ico">📋</div>Care Notes (1)</div>
+                    <div class="ct"><div class="ico">🚩</div>Flags (1)</div>
+                  </div>
+                </div>
+
+                <div class="patient-card secondary" data-patient-id="smith" id="patientCard-smith">
                   <div class="card-top">
                     <div class="patient-name">D. Smith</div>
                     <div class="flag-row">
@@ -657,7 +718,7 @@
                     </div>
                   </div>
                   <div class="card-actions">
-                    <button class="btn-round" disabled>📝 Round</button>
+                    <button class="btn-round" id="btnRoundOther">📝 Round</button>
                     <button class="btn-more">···</button>
                   </div>
                   <div class="card-tabs">
@@ -675,7 +736,7 @@
             <div class="screen active" id="screenRound">
               <div class="app-header">
                 <button class="nav-btn" id="btnBack" disabled>Back</button>
-                <div class="title">B. Barrows</div>
+                <div class="title" id="roundTitle">B. Barrows</div>
                 <button class="nav-btn right" id="btnSubmit" type="button">Submit</button>
               </div>
               <div id="recordingBar"></div>
@@ -743,7 +804,7 @@
       <button class="demo-btn primary" id="btnRestart">↺ Restart demo</button>
       <button class="demo-btn" id="btnSuccess">✓ Simulate success</button>
       <button class="demo-btn danger" id="btnFailure" disabled>✕ Simulate failure</button>
-      <div class="hint">Tap <strong>Submit</strong> while processing is active to see the blocked-submit alert. Stay on the page and click <strong>Simulate success</strong> to see the modal checkmark. Or tap <strong>Continue in background</strong>, navigate away, then simulate success/failure for toasts.</div>
+      <div class="hint">Tap <strong>Continue in background</strong>, then use <strong>Simulate failure</strong> — B. Barrows stays at the top with <strong>Needs Review</strong>. Tap <strong>Review</strong> to see the processing-failed banner and Retry. Processing and Needs Review patients always pin above higher-priority patients (J. Chen, score 91).</div>
     </aside>
   </div>
 
@@ -765,8 +826,18 @@
       ]},
     ];
 
+    const PATIENTS = {
+      barrows: { name: 'B. Barrows', priority: 82 },
+      chen: { name: 'J. Chen', priority: 91 },
+      smith: { name: 'D. Smith', priority: 58 },
+    };
+
+    const PROCESSING_PATIENT = 'barrows';
+    const WORKLIST_STATUS_ORDER = { processing: 0, needs_review: 1, normal: 2 };
+
     const state = {
       screen: 'round',
+      activePatient: 'barrows',
       phase: 'blocking', // blocking | background | complete | failed
       modalStatus: 'processing', // processing | success
       done: false,
@@ -792,17 +863,85 @@
       `).join('');
     }
 
+    function isProcessingActive() {
+      if (state.done || state.finishing) return false;
+      return state.phase === 'blocking' || state.phase === 'background';
+    }
+
+    function getPatientWorklistStatus(patientId) {
+      if (patientId !== PROCESSING_PATIENT) return 'normal';
+      if (state.done && (state.phase === 'complete' || state.phase === 'failed')) return 'needs_review';
+      if (isProcessingActive()) return 'processing';
+      return 'normal';
+    }
+
+    function sortWorklistCards() {
+      const container = document.querySelector('.worklist-inner');
+      if (!container) return;
+      const cards = [...container.querySelectorAll('.patient-card[data-patient-id]')];
+      cards.sort((a, b) => {
+        const idA = a.dataset.patientId;
+        const idB = b.dataset.patientId;
+        const statusA = getPatientWorklistStatus(idA);
+        const statusB = getPatientWorklistStatus(idB);
+        const orderDiff = WORKLIST_STATUS_ORDER[statusA] - WORKLIST_STATUS_ORDER[statusB];
+        if (orderDiff !== 0) return orderDiff;
+        return PATIENTS[idB].priority - PATIENTS[idA].priority;
+      });
+      cards.forEach(card => container.appendChild(card));
+    }
+
+    function renderWorklistCard() {
+      const box = $('lastRoundedBox');
+      const lastRounded = $('lastRoundedText');
+      const btn = $('btnRoundPatient');
+      const ico = $('lastRoundedIco');
+      const status = getPatientWorklistStatus(PROCESSING_PATIENT);
+
+      box.classList.remove('amber');
+
+      if (status === 'needs_review') {
+        box.classList.add('amber');
+        ico.textContent = '⏳';
+        lastRounded.className = 'time';
+        lastRounded.innerHTML = '<span class="review-main">Needs Review</span>';
+        btn.disabled = false;
+        btn.innerHTML = '🕐 Review';
+      } else if (status === 'processing') {
+        ico.textContent = '⏳';
+        lastRounded.className = 'time processing';
+        lastRounded.textContent = 'Processing...';
+        btn.disabled = false;
+        btn.innerHTML = '📝 Round';
+      } else {
+        ico.textContent = '↻';
+        lastRounded.className = 'time';
+        lastRounded.innerHTML = '<span class="time-num">~ 2</span> weeks ago';
+        btn.disabled = true;
+        btn.innerHTML = '📝 Round';
+      }
+
+      document.querySelectorAll('.worklist-inner .btn-round').forEach(button => {
+        if (button.id !== 'btnRoundPatient') button.disabled = false;
+      });
+    }
+
     function renderBar() {
       const bar = $('recordingBar');
+      if (state.activePatient !== PROCESSING_PATIENT) {
+        bar.className = 'recording-bar';
+        bar.innerHTML = '<span style="width:20px"></span><span class="center">Ready to record</span><button type="button" class="btn-start">Start</button>';
+        return;
+      }
       const processing = (state.phase === 'blocking' || state.phase === 'background') && state.modalStatus !== 'success';
       if (processing) {
         bar.innerHTML = '<span class="spinner"></span><span class="center">Recording Processing</span><span style="width:20px"></span>';
         bar.className = 'recording-bar';
+      } else if (state.phase === 'failed') {
+        bar.innerHTML = '<span class="check">!</span><span class="center">Processing Failed</span><button type="button" class="btn-start btn-retry">Retry</button>';
+        bar.className = 'recording-bar failed';
       } else if (state.phase === 'complete' || state.modalStatus === 'success') {
         bar.innerHTML = '<span class="check">✓</span><span class="center">Recording Complete</span><button class="btn-start">Start</button>';
-        bar.className = 'recording-bar';
-      } else {
-        bar.innerHTML = '<span class="check">!</span><span class="center">Processing Failed</span><button class="btn-start" style="border-color:#fca5a5;color:#fca5a5">Retry</button>';
         bar.className = 'recording-bar';
       }
     }
@@ -826,6 +965,7 @@
     }
 
     function isRecordingProcessing() {
+      if (state.activePatient !== PROCESSING_PATIENT) return false;
       if (state.done || state.finishing) return true;
       if (state.phase === 'complete' || state.phase === 'failed') return false;
       return state.phase === 'blocking' || state.phase === 'background';
@@ -852,7 +992,8 @@
     }
 
     function renderModal() {
-      const showModal = state.phase === 'blocking' && !state.done;
+      const showModal = state.activePatient === PROCESSING_PATIENT
+        && state.phase === 'blocking' && !state.done;
       $('modal').classList.toggle('hidden', !showModal);
 
       const isSuccess = state.modalStatus === 'success';
@@ -864,11 +1005,14 @@
     }
 
     function update() {
-      const locked = state.phase === 'blocking' && !state.done;
+      const locked = state.phase === 'blocking' && !state.done
+        && state.activePatient === PROCESSING_PATIENT;
 
       $('screenWorklist').classList.toggle('active', state.screen === 'worklist');
       $('screenRound').classList.toggle('active', state.screen === 'round');
       $('screenProfile').classList.toggle('active', state.screen === 'profile');
+
+      $('roundTitle').textContent = PATIENTS[state.activePatient].name;
 
       renderModal();
 
@@ -879,26 +1023,21 @@
       $('btnSuccess').disabled = !canSimulate;
       $('btnFailure').disabled = !(state.phase === 'background' && !state.done && !state.finishing);
 
-      const lastRounded = $('lastRoundedText');
-      if (state.done) {
-        lastRounded.textContent = 'Needs Review';
-        lastRounded.classList.add('review');
-      } else {
-        lastRounded.classList.remove('review');
-        lastRounded.innerHTML = '<span class="time-num">~ 2</span> weeks ago';
-      }
-      $('btnRoundPatient').disabled = !state.done;
+      renderWorklistCard();
+      sortWorklistCards();
 
       renderBar();
-      renderQuestions(state.phase === 'complete' || state.modalStatus === 'success');
-      $('progressText').textContent = (state.phase === 'complete' || state.modalStatus === 'success') ? '6/18' : '0/18';
+      const showFilled = state.activePatient === PROCESSING_PATIENT
+        && (state.phase === 'complete' || state.modalStatus === 'success');
+      renderQuestions(showFilled);
+      $('progressText').textContent = showFilled ? '6/18' : '0/18';
 
       const labels = {
         round: {
           blocking: state.modalStatus === 'success' ? 'Round — Recording Complete' : 'Round — Processing',
           background: 'Round — Recording Processing',
           complete: 'Round — Recording Complete',
-          failed: 'Round — Failed',
+          failed: 'Round — Needs Review',
         },
         worklist: 'Patient worklist',
         profile: 'Profile tab',
@@ -906,12 +1045,22 @@
       const tags = {
         background: '<span class="tag bg">Background</span>',
         complete: '<span class="tag done">Complete</span>',
+        other: '<span class="tag bg">New round</span>',
       };
-      let lbl = state.screen === 'round' ? labels.round[state.phase] : labels[state.screen];
+      let lbl;
       let tag = '';
       if (state.screen === 'round') {
-        if (state.modalStatus === 'success' || state.phase === 'complete') tag = tags.complete;
-        else if (state.phase === 'background') tag = tags.background;
+        if (state.activePatient === PROCESSING_PATIENT) {
+          lbl = labels.round[state.phase];
+          if (state.modalStatus === 'success' || state.phase === 'complete') tag = tags.complete;
+          else if (state.phase === 'failed') tag = tags.complete;
+          else if (state.phase === 'background') tag = tags.background;
+        } else {
+          lbl = `Round — ${PATIENTS[state.activePatient].name}`;
+          tag = tags.other;
+        }
+      } else {
+        lbl = labels[state.screen];
       }
       $('screenLabel').innerHTML = lbl + tag;
 
@@ -920,9 +1069,13 @@
       } else if (state.phase === 'blocking') {
         $('flowHint').textContent = 'Processing modal is open. Wait here or tap Continue in background to navigate away.';
       } else if (state.phase === 'background') {
-        $('flowHint').textContent = 'Recording processing in background. Navigate with Back or Profile tab.';
+        $('flowHint').textContent = 'Recording processing in background. Worklist shows Processing… until complete, then Needs Review.';
       } else if (state.phase === 'complete' && state.screen === 'round') {
         $('flowHint').textContent = 'Recording complete — AI-filled answers visible. Needs Review on worklist.';
+      } else if (state.phase === 'failed' && state.screen === 'round') {
+        $('flowHint').textContent = 'Processing failed — worklist shows Needs Review. Review opens the failed banner with Retry.';
+      } else if (state.phase === 'failed') {
+        $('flowHint').textContent = 'Processing failed — B. Barrows shows Needs Review and stays pinned at the top of the list.';
       } else {
         $('flowHint').textContent = 'Processing finished. Return to worklist to see Needs Review or toast.';
       }
@@ -930,12 +1083,19 @@
       if (state.phase === 'blocking') setFlow('processing');
       else if (state.phase === 'background') setFlow('background');
       else if (state.done && state.screen !== 'round') setFlow('toast');
-      else if (state.phase === 'complete' && state.screen === 'round') setFlow('review');
+      else if ((state.phase === 'complete' || state.phase === 'failed') && state.screen === 'round') setFlow('review');
     }
 
     function go(screen) {
-      if (state.phase === 'blocking' && !state.done && screen !== 'round') return;
+      if (state.phase === 'blocking' && !state.done && screen !== 'round'
+          && state.activePatient === PROCESSING_PATIENT) return;
       state.screen = screen;
+      update();
+    }
+
+    function openRound(patientId) {
+      state.activePatient = patientId;
+      state.screen = 'round';
       update();
     }
 
@@ -965,6 +1125,7 @@
     function restart() {
       Object.assign(state, {
         screen: 'round',
+        activePatient: 'barrows',
         phase: 'blocking',
         modalStatus: 'processing',
         done: false,
@@ -983,8 +1144,10 @@
     $('btnBack').onclick = () => go('worklist');
     $('btnBackProfile').onclick = () => go('worklist');
     $('tabProfile').onclick = () => go('profile');
-    $('tabProfileRound').onclick = () => go('round');
-    $('btnRoundPatient').onclick = () => { if (state.done) go('round'); };
+    $('tabProfileRound').onclick = () => openRound(state.activePatient);
+    $('btnRoundPatient').onclick = () => openRound('barrows');
+    $('btnRoundChen').onclick = () => openRound('chen');
+    $('btnRoundOther').onclick = () => openRound('smith');
     $('btnSubmit').onclick = trySubmit;
     $('btnDismissSubmitAlert').onclick = hideSubmitBlockedAlert;
     $('submitAlert').onclick = e => { if (e.target === $('submitAlert')) hideSubmitBlockedAlert(); };
