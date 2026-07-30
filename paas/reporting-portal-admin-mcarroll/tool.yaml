@@ -1,0 +1,4 @@
+# Reporting Portal Admin Console prototype — standalone Cipher PaaS app.
+name: reporting-portal-admin-mcarroll
+runtime: static
+source_dir: deploy
