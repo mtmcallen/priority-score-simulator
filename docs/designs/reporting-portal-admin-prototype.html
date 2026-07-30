@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Reporting Portal Admin Console — Evolve-style prototype with Overview, Schedule, and Failure Queue.">
+  <title>Reporting Portal – Overview</title>
+  <style>
+    :root {
+      --teal-nav: #1aab9c;
+      --title-purple: #3d2e7a;
+      --text: #333333;
+      --muted: #767676;
+      --line: #d9d9d9;
+      --page-bg: #f0f0f0;
+      --panel-bg: #ffffff;
+      --link-blue: #337ab7;
+      --active-green: #3c763d;
+      --active-green-bg: #dff0d8;
+      --inactive-gray: #777;
+      --inactive-gray-bg: #f5f5f5;
+      --failed-red: #c0392b;
+      --failed-red-bg: #fdecea;
+      --status-teal: #1aab9c;
+      --status-teal-bg: #e6f7f5;
+      --help-blue: #4a90d9;
+      --prod-purple: #5b4fb5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: var(--page-bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      padding-bottom: 36px;
+    }
+
+    /* ── Top nav (Evolve shell) ── */
+    .app-nav {
+      background: var(--teal-nav);
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      color: #fff;
+    }
+    .app-nav .logo {
+      width: 20px;
+      height: 20px;
+      margin-right: 20px;
+      flex-shrink: 0;
+      opacity: 0.95;
+    }
+    .app-nav .links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+    .app-nav a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+    }
+    .app-nav a.active {
+      color: #fff;
+      font-weight: 700;
+    }
+    .app-nav .right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .app-nav .tenant-select {
+      font-size: 13px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: default;
+      border: 1px solid rgba(255,255,255,0.5);
+      border-radius: 14px;
+      padding: 2px 10px;
+    }
+    .app-nav .icon-btn {
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.9;
+      font-size: 15px;
+      color: #fff;
+    }
+
+    /* ── Page shell ── */
+    .page-shell {
+      max-width: 100%;
+      margin: 0;
+      background: var(--panel-bg);
+      min-height: calc(100vh - 68px);
+    }
+
+    /* ── Title bar (Outreach Programs pattern) ── */
+    .title-bar {
+      display: flex;
+      align-items: center;
+      padding: 14px 20px 10px;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .title-dropdown {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .title-dropdown .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--title-purple);
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      padding: 0;
+    }
+    .title-dropdown .caret {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1;
+    }
+    .title-dropdown .menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 260px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      z-index: 50;
+      padding: 4px 0;
+    }
+    .title-dropdown.open .menu { display: block; }
+    .title-dropdown .menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 9px 16px;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .title-dropdown .menu button:hover { background: #f5f5f5; }
+    .title-dropdown .menu button.active {
+      background: #eef8f7;
+      color: var(--title-purple);
+      font-weight: 600;
+    }
+    .title-bar .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-left: 8px;
+    }
+    .title-bar .spacer { flex: 1; }
+    .title-bar .primary-action {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 4px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+    .title-bar .primary-action .plus {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    /* ── Toolbar (search + pagination) ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      padding: 0 20px 12px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .search-wrap {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+      padding: 0 8px;
+      min-width: 280px;
+    }
+    .search-wrap input {
+      border: none;
+      outline: none;
+      padding: 7px 8px;
+      font-size: 13px;
+      flex: 1;
+      font-family: inherit;
+    }
+    .search-wrap .icon {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .search-wrap .clear-btn,
+    .search-wrap .refresh-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px 6px;
+      font-size: 14px;
+    }
+    .toolbar .spacer { flex: 1; }
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .pagination button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px 4px;
+    }
+    .pagination button:disabled { opacity: 0.35; cursor: default; }
+
+    /* ── Data table ── */
+    .table-wrap {
+      padding: 0 20px 16px;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .data-table th {
+      text-align: left;
+      font-weight: 700;
+      color: var(--text);
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--line);
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      vertical-align: middle;
+    }
+    .data-table tr:hover td { background: #fafafa; }
+    .data-table .link {
+      color: var(--link-blue);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .data-table .link:hover { text-decoration: underline; }
+    .data-table .meta {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .data-table .row-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      color: var(--muted);
+    }
+    .data-table .row-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 15px;
+      padding: 2px;
+    }
+    .data-table .row-actions button:hover { color: var(--text); }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .badge.active { background: var(--active-green-bg); color: var(--active-green); }
+    .badge.paused { background: var(--inactive-gray-bg); color: var(--inactive-gray); }
+    .badge.failed { background: var(--failed-red-bg); color: var(--failed-red); }
+    .badge.status-active {
+      background: var(--status-teal);
+      color: #fff;
+      border-radius: 10px;
+      text-transform: none;
+      font-weight: 600;
+    }
+    .badge.status-paused {
+      background: var(--inactive-gray-bg);
+      color: var(--muted);
+      border-radius: 10px;
+      text-transform: none;
+      font-weight: 600;
+    }
+    .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    .dot.active { background: var(--status-teal); }
+    .dot.paused { background: #bbb; }
+    .owner-inactive {
+      display: block;
+      font-size: 11px;
+      color: var(--failed-red);
+      margin-top: 2px;
+    }
+    .recipients-link {
+      color: var(--link-blue);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* ── Overview cards ── */
+    .overview-content {
+      padding: 0 20px 24px;
+    }
+    .overview-intro {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 16px 18px;
+      background: #fff;
+    }
+    .stat-card .value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.1;
+    }
+    .stat-card .value.alert { color: var(--failed-red); }
+    .stat-card .label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .detail-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .detail-card {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+    }
+    .detail-card .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .detail-card .card-header h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .detail-card .card-header a {
+      font-size: 13px;
+      color: var(--status-teal);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .detail-card .card-header a:hover { text-decoration: underline; }
+    .detail-card .card-body { padding: 0; }
+    .attention-item,
+    .failure-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid #eee;
+    }
+    .attention-item:last-child,
+    .failure-item:last-child { border-bottom: none; }
+    .attention-item .row-top,
+    .failure-item .row-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .attention-item .name,
+    .failure-item .name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .attention-item .schedule,
+    .failure-item .time {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .failure-item .error {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── Context menu ── */
+    .menu-cell { position: relative; }
+    .kebab-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--muted);
+      padding: 2px 6px;
+      letter-spacing: 1px;
+    }
+    .context-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      min-width: 180px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      z-index: 40;
+      padding: 4px 0;
+    }
+    .context-menu.open { display: block; }
+    .context-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 9px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .context-menu button:hover { background: #f5f5f5; }
+
+    /* ── Footer ── */
+    .status-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 28px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 11px;
+      color: var(--muted);
+      z-index: 30;
+    }
+    .status-bar .center-logo {
+      opacity: 0.35;
+      font-size: 14px;
+    }
+    .status-bar .right-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .prod-badge {
+      background: var(--prod-purple);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 2px;
+    }
+
+    .help-btn {
+      position: fixed;
+      right: 20px;
+      bottom: 36px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: var(--help-blue);
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 30;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    @media (max-width: 960px) {
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .detail-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="app-nav" aria-label="Main navigation">
+    <svg class="logo" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="4" r="2" fill="white"/>
+      <circle cx="4" cy="12" r="2" fill="white"/>
+      <circle cx="20" cy="12" r="2" fill="white"/>
+      <circle cx="12" cy="20" r="2" fill="white"/>
+      <circle cx="12" cy="12" r="2.5" fill="white"/>
+    </svg>
+    <div class="links">
+      <a href="#">Resolve</a>
+      <a href="#">Engage</a>
+      <a href="#">Search</a>
+      <a href="#">Report</a>
+      <a href="#" class="active">Manage</a>
+    </div>
+    <div class="right">
+      <span class="tenant-select">Acme Retail Group ▾</span>
+      <span class="icon-btn" aria-hidden="true">↩</span>
+      <span class="icon-btn" aria-hidden="true">🔔</span>
+      <span class="icon-btn" aria-hidden="true">🔍</span>
+      <span class="icon-btn" aria-hidden="true">?</span>
+      <span class="icon-btn" aria-hidden="true">👤</span>
+      <span class="icon-btn" aria-hidden="true">⏻</span>
+    </div>
+  </nav>
+
+  <div class="page-shell">
+    <!-- Overview -->
+    <section class="view active" id="view-overview" aria-label="Overview">
+      <header class="title-bar">
+        <div class="title-dropdown" id="title-dropdown-overview">
+          <button type="button" class="page-title" id="title-btn-overview" aria-haspopup="true" aria-expanded="false">
+            Reporting Portal – Overview <span class="caret">▾</span>
+          </button>
+          <div class="menu" role="menu">
+            <button type="button" role="menuitem" data-view="schedule">Reporting Portal – Schedule</button>
+            <button type="button" role="menuitem" data-view="failure-queue">Reporting Portal – Failure Queue</button>
+          </div>
+        </div>
+        <span class="subtitle">Admin console</span>
+      </header>
+
+      <div class="overview-content">
+        <p class="overview-intro">Health of every scheduled report distribution across your tenants.</p>
+
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="value">3</div>
+            <div class="label">Active plans executing on schedule</div>
+          </div>
+          <div class="stat-card">
+            <div class="value">0</div>
+            <div class="label">Needs owner — account deactivated</div>
+          </div>
+          <div class="stat-card">
+            <div class="value alert">2</div>
+            <div class="label">Open failures — 2 breaching SLA</div>
+          </div>
+          <div class="stat-card">
+            <div class="value">168</div>
+            <div class="label">Recipients reached — 7 scheduled plans</div>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-card">
+            <div class="card-header">
+              <h3>Needs attention</h3>
+              <a href="#" data-nav="schedule">Review 1 in Schedule →</a>
+            </div>
+            <div class="card-body">
+              <div class="attention-item">
+                <div class="row-top">
+                  <div>
+                    <div class="name">Loss Prevention Alerts</div>
+                    <div class="schedule">Acme Retail Group · Every day at 9:00 AM</div>
+                  </div>
+                  <span class="badge failed">Failed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-card">
+            <div class="card-header">
+              <h3>Recent failures</h3>
+              <a href="#" data-nav="failure-queue">Open failure queue →</a>
+            </div>
+            <div class="card-body">
+              <div class="failure-item">
+                <div class="row-top">
+                  <div class="name">Loss Prevention Alerts</div>
+                  <div class="time">42 min ago</div>
+                </div>
+                <div class="error">SMTP 550 – recipient mailbox unavailable (user@acme-retail.com)</div>
+              </div>
+              <div class="failure-item">
+                <div class="row-top">
+                  <div class="name">Weekly Store Performance</div>
+                  <div class="time">2 hr ago</div>
+                </div>
+                <div class="error">Looker render timeout after 600s — dashboard_id: store_perf_v2</div>
+              </div>
+              <div class="failure-item">
+                <div class="row-top">
+                  <div class="name">Inventory Snapshot</div>
+                  <div class="time">1 day ago</div>
+                </div>
+                <div class="error">SFTP connection refused — host: sftp.acme-retail.com:22</div>
+              </div>
+              <div class="failure-item">
+                <div class="row-top">
+                  <div class="name">Loss Prevention Alerts</div>
+                  <div class="time">12 days ago</div>
+                </div>
+                <div class="error">Query timeout after 600s — explore: loss_prevention_daily</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Schedule -->
+    <section class="view" id="view-schedule" aria-label="Schedule">
+      <header class="title-bar">
+        <div class="title-dropdown" id="title-dropdown-schedule">
+          <button type="button" class="page-title" id="title-btn-schedule" aria-haspopup="true" aria-expanded="false">
+            Reporting Portal – Schedule <span class="caret">▾</span>
+          </button>
+          <div class="menu" role="menu">
+            <button type="button" role="menuitem" data-view="overview">Reporting Portal – Overview</button>
+            <button type="button" role="menuitem" data-view="failure-queue">Reporting Portal – Failure Queue</button>
+          </div>
+        </div>
+        <span class="spacer"></span>
+        <button type="button" class="primary-action"><span class="plus">+</span> New plan</button>
+      </header>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="icon">🔍</span>
+          <input type="search" placeholder="Search plans…" aria-label="Search plans">
+          <button type="button" class="clear-btn" aria-label="Clear search">✕</button>
+          <button type="button" class="refresh-btn" aria-label="Refresh">↻</button>
+        </div>
+        <span class="spacer"></span>
+        <div class="pagination">
+          <button type="button" disabled aria-label="Previous page">‹</button>
+          <span>1 – 6 of 7</span>
+          <button type="button" aria-label="Next page">›</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Plan</th>
+              <th>Schedule</th>
+              <th>Owner</th>
+              <th>Status</th>
+              <th>Recipients</th>
+              <th>Next run</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="dot active"></span><a class="link" href="#">Weekly Store Performance</a><span class="meta">sp_10241</span></td>
+              <td>Every Monday at 7:00 AM<span class="meta">0 7 * * 1 · America/New_York</span></td>
+              <td>ops-lead@acme-retail.com</td>
+              <td><span class="badge status-active">Active</span></td>
+              <td><span class="recipients-link">24</span></td>
+              <td>in 3d 16h</td>
+              <td class="menu-cell">
+                <button type="button" class="kebab-btn" data-menu="menu-1" aria-label="Row actions">⋮</button>
+                <div class="context-menu" id="menu-1">
+                  <button type="button">Open details</button>
+                  <button type="button">Pause delivery</button>
+                  <button type="button">Send test to me</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="dot active"></span><a class="link" href="#">Loss Prevention Alerts</a><span class="meta">sp_10255</span></td>
+              <td>Every day at 9:00 AM<span class="meta">0 9 * * * · America/New_York</span></td>
+              <td>lp-team@acme-retail.com</td>
+              <td><span class="badge status-active">Active</span></td>
+              <td><span class="recipients-link">8</span></td>
+              <td>in 18h 22m</td>
+              <td class="menu-cell"><button type="button" class="kebab-btn" data-menu="menu-2" aria-label="Row actions">⋮</button><div class="context-menu" id="menu-2"><button type="button">Open details</button><button type="button">Pause delivery</button><button type="button">Send test to me</button></div></td>
+            </tr>
+            <tr>
+              <td><span class="dot active"></span><a class="link" href="#">Inventory Snapshot</a><span class="meta">sp_10263</span></td>
+              <td>Every Sunday at 6:00 AM<span class="meta">0 6 * * 0 · America/New_York</span></td>
+              <td>inventory@acme-retail.com</td>
+              <td><span class="badge status-active">Active</span></td>
+              <td><span class="recipients-link">12</span></td>
+              <td>in 5d 2h</td>
+              <td class="menu-cell"><button type="button" class="kebab-btn" data-menu="menu-3" aria-label="Row actions">⋮</button><div class="context-menu" id="menu-3"><button type="button">Open details</button><button type="button">Pause delivery</button><button type="button">Send test to me</button></div></td>
+            </tr>
+            <tr>
+              <td><span class="dot paused"></span><a class="link" href="#">Regional Sales Rollup</a><span class="meta">sp_10270</span></td>
+              <td>1st of month at 8:00 AM<span class="meta">0 8 1 * * · America/New_York</span></td>
+              <td>finance@acme-retail.com<span class="owner-inactive">inactive</span></td>
+              <td><span class="badge status-paused">Paused</span></td>
+              <td><span class="recipients-link">45</span></td>
+              <td>paused</td>
+              <td class="menu-cell"><button type="button" class="kebab-btn" data-menu="menu-4" aria-label="Row actions">⋮</button><div class="context-menu" id="menu-4"><button type="button">Open details</button><button type="button">Resume delivery</button><button type="button">Send test to me</button></div></td>
+            </tr>
+            <tr>
+              <td><span class="dot active"></span><a class="link" href="#">Daily Flash Report</a><span class="meta">sp_10288</span></td>
+              <td>Every weekday at 6:30 AM<span class="meta">30 6 * * 1-5 · America/New_York</span></td>
+              <td>exec-team@acme-retail.com</td>
+              <td><span class="badge status-active">Active</span></td>
+              <td><span class="recipients-link">6</span></td>
+              <td>in 14h 8m</td>
+              <td class="menu-cell"><button type="button" class="kebab-btn" data-menu="menu-5" aria-label="Row actions">⋮</button><div class="context-menu" id="menu-5"><button type="button">Open details</button><button type="button">Pause delivery</button><button type="button">Send test to me</button></div></td>
+            </tr>
+            <tr>
+              <td><span class="dot paused"></span><a class="link" href="#">Shrinkage Analysis</a><span class="meta">sp_10299</span></td>
+              <td>Every Friday at 5:00 PM<span class="meta">0 17 * * 5 · America/New_York</span></td>
+              <td>lp-analyst@acme-retail.com</td>
+              <td><span class="badge status-paused">Paused</span></td>
+              <td><span class="recipients-link">3</span></td>
+              <td>paused</td>
+              <td class="menu-cell"><button type="button" class="kebab-btn" data-menu="menu-6" aria-label="Row actions">⋮</button><div class="context-menu" id="menu-6"><button type="button">Open details</button><button type="button">Resume delivery</button><button type="button">Send test to me</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="toolbar">
+        <span class="spacer"></span>
+        <div class="pagination">
+          <button type="button" disabled aria-label="Previous page">‹</button>
+          <span>1 – 6 of 7</span>
+          <button type="button" aria-label="Next page">›</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Failure Queue -->
+    <section class="view" id="view-failure-queue" aria-label="Failure Queue">
+      <header class="title-bar">
+        <div class="title-dropdown" id="title-dropdown-failure">
+          <button type="button" class="page-title" id="title-btn-failure" aria-haspopup="true" aria-expanded="false">
+            Reporting Portal – Failure Queue <span class="caret">▾</span>
+          </button>
+          <div class="menu" role="menu">
+            <button type="button" role="menuitem" data-view="overview">Reporting Portal – Overview</button>
+            <button type="button" role="menuitem" data-view="schedule">Reporting Portal – Schedule</button>
+          </div>
+        </div>
+        <span class="spacer"></span>
+        <button type="button" class="primary-action"><span class="plus">+</span> Retry all</button>
+      </header>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="icon">🔍</span>
+          <input type="search" placeholder="Search failures…" aria-label="Search failures">
+          <button type="button" class="clear-btn" aria-label="Clear search">✕</button>
+          <button type="button" class="refresh-btn" aria-label="Refresh">↻</button>
+        </div>
+        <span class="spacer"></span>
+        <div class="pagination">
+          <button type="button" disabled aria-label="Previous page">‹</button>
+          <span>1 – 4 of 4</span>
+          <button type="button" disabled aria-label="Next page">›</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Plan</th>
+              <th>Failed at</th>
+              <th>Error</th>
+              <th>SLA</th>
+              <th>Attempts</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a class="link" href="#">Loss Prevention Alerts</a><span class="meta">sp_10255 · Acme Retail Group</span></td>
+              <td>42 min ago</td>
+              <td>SMTP 550 – recipient mailbox unavailable (user@acme-retail.com)</td>
+              <td><span class="badge failed">Breaching</span></td>
+              <td>3</td>
+              <td class="row-actions">
+                <button type="button" title="Retry">↻</button>
+                <button type="button" title="View details">◎</button>
+                <button type="button" title="Dismiss">✕</button>
+              </td>
+            </tr>
+            <tr>
+              <td><a class="link" href="#">Weekly Store Performance</a><span class="meta">sp_10241 · Acme Retail Group</span></td>
+              <td>2 hr ago</td>
+              <td>Looker render timeout after 600s — dashboard_id: store_perf_v2</td>
+              <td><span class="badge failed">Breaching</span></td>
+              <td>2</td>
+              <td class="row-actions">
+                <button type="button" title="Retry">↻</button>
+                <button type="button" title="View details">◎</button>
+                <button type="button" title="Dismiss">✕</button>
+              </td>
+            </tr>
+            <tr>
+              <td><a class="link" href="#">Inventory Snapshot</a><span class="meta">sp_10263 · Acme Retail Group</span></td>
+              <td>1 day ago</td>
+              <td>SFTP connection refused — host: sftp.acme-retail.com:22</td>
+              <td><span class="badge active">Within SLA</span></td>
+              <td>1</td>
+              <td class="row-actions">
+                <button type="button" title="Retry">↻</button>
+                <button type="button" title="View details">◎</button>
+                <button type="button" title="Dismiss">✕</button>
+              </td>
+            </tr>
+            <tr>
+              <td><a class="link" href="#">Loss Prevention Alerts</a><span class="meta">sp_10255 · Acme Retail Group</span></td>
+              <td>12 days ago</td>
+              <td>Query timeout after 600s — explore: loss_prevention_daily</td>
+              <td><span class="badge active">Resolved</span></td>
+              <td>4</td>
+              <td class="row-actions">
+                <button type="button" title="Retry">↻</button>
+                <button type="button" title="View details">◎</button>
+                <button type="button" title="Dismiss">✕</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="toolbar">
+        <span class="spacer"></span>
+        <div class="pagination">
+          <button type="button" disabled aria-label="Previous page">‹</button>
+          <span>1 – 4 of 4</span>
+          <button type="button" disabled aria-label="Next page">›</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <button type="button" class="help-btn" aria-label="Help">?</button>
+
+  <footer class="status-bar">
+    <span>Signed in as: admin@reporting-portal.io · Last access: Jul 30, 2026 3:30 PM</span>
+    <span class="center-logo" aria-hidden="true">✦</span>
+    <span class="right-group">
+      <span>© CipherHealth Inc. 2026</span>
+      <span class="prod-badge">production</span>
+    </span>
+  </footer>
+
+  <script>
+    const VIEWS = {
+      overview: { id: "view-overview", title: "Reporting Portal – Overview" },
+      schedule: { id: "view-schedule", title: "Reporting Portal – Schedule" },
+      "failure-queue": { id: "view-failure-queue", title: "Reporting Portal – Failure Queue" }
+    };
+
+    let currentView = "overview";
+
+    function switchView(viewKey) {
+      if (!VIEWS[viewKey]) return;
+      currentView = viewKey;
+
+      document.querySelectorAll(".view").forEach(el => el.classList.remove("active"));
+      document.getElementById(VIEWS[viewKey].id).classList.add("active");
+
+      document.querySelectorAll(".title-dropdown").forEach(el => el.classList.remove("open"));
+      document.querySelectorAll(".title-dropdown .page-title").forEach(btn => {
+        btn.setAttribute("aria-expanded", "false");
+      });
+
+      document.title = VIEWS[viewKey].title;
+    }
+
+    document.querySelectorAll(".title-dropdown .page-title").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const dropdown = btn.closest(".title-dropdown");
+        const isOpen = dropdown.classList.contains("open");
+        document.querySelectorAll(".title-dropdown").forEach(el => el.classList.remove("open"));
+        document.querySelectorAll(".title-dropdown .page-title").forEach(b => b.setAttribute("aria-expanded", "false"));
+        if (!isOpen) {
+          dropdown.classList.add("open");
+          btn.setAttribute("aria-expanded", "true");
+        }
+      });
+    });
+
+    document.querySelectorAll(".title-dropdown .menu button[data-view]").forEach(btn => {
+      btn.addEventListener("click", () => switchView(btn.dataset.view));
+    });
+
+    document.querySelectorAll("[data-nav]").forEach(link => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        switchView(link.dataset.nav);
+      });
+    });
+
+    document.querySelectorAll(".kebab-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const menu = document.getElementById(btn.dataset.menu);
+        const isOpen = menu.classList.contains("open");
+        document.querySelectorAll(".context-menu").forEach(m => m.classList.remove("open"));
+        if (!isOpen) menu.classList.add("open");
+      });
+    });
+
+    document.addEventListener("click", () => {
+      document.querySelectorAll(".title-dropdown").forEach(el => el.classList.remove("open"));
+      document.querySelectorAll(".title-dropdown .page-title").forEach(btn => btn.setAttribute("aria-expanded", "false"));
+      document.querySelectorAll(".context-menu").forEach(m => m.classList.remove("open"));
+    });
+  </script>
+</body>
+</html>
