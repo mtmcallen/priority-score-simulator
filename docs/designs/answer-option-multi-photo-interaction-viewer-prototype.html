@@ -8,19 +8,18 @@
   <style>
     :root {
       --teal: #1aab9c;
-      --teal-dark: #159a8c;
       --teal-nav: #1aab9c;
       --title-teal: #1aab9c;
-      --patient-bar: #eef6f8;
-      --sidebar-bg: #f7f7f7;
-      --sidebar-active: #e8e8e8;
+      --patient-bar: #e8f3f6;
+      --sidebar-bg: #f5f5f5;
+      --sidebar-section: #ebebeb;
       --text: #333;
-      --muted: #767676;
-      --line: #d9d9d9;
-      --issue-red: #c0392b;
-      --evs-maroon: #8b2942;
-      --evs-orange: #e67e22;
-      --panel-dark: #2d2660;
+      --muted: #888;
+      --line: #d5d5d5;
+      --issue-red: #d9534f;
+      --evs-maroon: #7b2d45;
+      --evs-orange: #e8943a;
+      --badge-gray: #999;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,348 +28,373 @@
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       background: #fff;
       color: var(--text);
-      font-size: 14px;
-    }
-
-    .proto-banner {
-      background: var(--panel-dark);
-      color: #fff;
-      padding: 0.85rem 1.25rem;
-      border-bottom: 4px solid var(--teal);
-      font-size: 0.82rem;
-      line-height: 1.45;
-    }
-    .proto-banner strong { font-size: 0.95rem; display: block; margin-bottom: 0.25rem; }
-
-    .proto-controls {
-      display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;
-      padding: 0.75rem 1.25rem; background: #fafafa; border-bottom: 1px solid var(--line);
       font-size: 13px;
-    }
-    .proto-controls label { color: var(--muted); margin-right: 0.35rem; }
-    .proto-controls button {
-      border: 1px solid var(--line); background: #fff; border-radius: 4px;
-      padding: 5px 10px; cursor: pointer; font-size: 13px;
-    }
-    .proto-controls button.active {
-      background: var(--teal); color: #fff; border-color: var(--teal);
+      line-height: 1.4;
     }
 
-    /* ── Evolve top nav ── */
+    .hidden { display: none !important; }
+
+    /* prototype chrome — kept minimal at top only */
+    .proto-bar {
+      background: #2d2660; color: #fff;
+      padding: 8px 16px; font-size: 12px;
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      border-bottom: 3px solid var(--teal);
+    }
+    .proto-bar strong { font-size: 13px; margin-right: 8px; }
+    .proto-bar button {
+      border: 1px solid rgba(255,255,255,0.35); background: transparent;
+      color: #fff; border-radius: 3px; padding: 3px 8px; font-size: 12px; cursor: pointer;
+    }
+    .proto-bar button.active { background: var(--teal); border-color: var(--teal); }
+
+    /* ── Top nav ── */
     .app-nav {
       background: var(--teal-nav);
-      height: 40px;
+      height: 38px;
       display: flex;
       align-items: center;
-      padding: 0 16px;
+      padding: 0 14px;
       color: #fff;
     }
-    .app-nav .links { display: flex; gap: 28px; }
-    .app-nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; }
-    .app-nav a.active { color: #fff; font-weight: 700; }
-    .app-nav .right { margin-left: auto; display: flex; align-items: center; gap: 14px; font-size: 13px; }
+    .app-nav .links { display: flex; gap: 24px; align-items: flex-end; height: 100%; }
+    .app-nav a {
+      color: rgba(255,255,255,0.88); text-decoration: none; font-size: 14px;
+      padding-bottom: 8px; height: 100%; display: flex; align-items: flex-end;
+    }
+    .app-nav a.active {
+      color: #fff; font-weight: 700;
+      box-shadow: inset 0 -3px 0 #fff;
+    }
+    .app-nav .right {
+      margin-left: auto; display: flex; align-items: center;
+      gap: 12px; font-size: 13px;
+    }
+    .app-nav .right .sep { opacity: 0.5; }
 
-    /* ── Patient header bar ── */
+    /* ── Patient bar ── */
     .patient-bar {
       background: var(--patient-bar);
-      border-bottom: 1px solid var(--line);
-      padding: 10px 16px;
+      border-bottom: 1px solid #c5dde3;
+      padding: 8px 14px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .patient-bar .avatar {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: #ccc; display: flex; align-items: center; justify-content: center;
-      font-weight: 700; color: #fff; font-size: 14px;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #b0b0b0; color: #fff; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .patient-bar .name { font-size: 18px; font-weight: 700; color: #333; }
-    .patient-bar .meta { font-size: 13px; color: var(--muted); margin-left: 8px; }
-    .patient-bar .icons { margin-left: auto; display: flex; gap: 10px; color: var(--teal); font-size: 18px; }
+    .patient-bar .name {
+      font-size: 17px; font-weight: 700; color: #222;
+    }
+    .patient-bar .demo {
+      font-size: 13px; color: #555; margin-left: 6px;
+    }
+    .patient-bar .demo .info-icon {
+      display: inline-block; width: 14px; height: 14px; border-radius: 50%;
+      border: 1px solid #888; color: #888; font-size: 10px; text-align: center;
+      line-height: 12px; margin-left: 2px;
+    }
+    .patient-bar .actions {
+      margin-left: auto; display: flex; gap: 8px; align-items: center;
+    }
+    .patient-bar .action-icon {
+      width: 28px; height: 28px; border: 1px solid var(--teal);
+      border-radius: 3px; color: var(--teal); background: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
 
-    /* ── Layout ── */
-    .workspace {
-      display: flex;
-      min-height: calc(100vh - 180px);
-    }
+    /* ── Workspace ── */
+    .workspace { display: flex; min-height: calc(100vh - 120px); }
 
     .sidebar {
-      width: 220px;
+      width: 248px;
       background: var(--sidebar-bg);
       border-right: 1px solid var(--line);
-      padding: 12px 0;
       flex-shrink: 0;
-    }
-    .sidebar h3 {
-      font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
-      color: var(--muted); padding: 8px 16px 4px; font-weight: 600;
-    }
-    .sidebar a {
-      display: block; padding: 7px 16px 7px 24px;
-      color: var(--text); text-decoration: none; font-size: 13px;
-    }
-    .sidebar a.active {
-      background: var(--sidebar-active);
-      font-weight: 600;
-      border-left: 3px solid var(--teal);
-      padding-left: 21px;
+      font-size: 13px;
     }
 
+    .sidebar-section {
+      border-bottom: 1px solid var(--line);
+    }
+    .sidebar-section-header {
+      background: var(--sidebar-section);
+      padding: 8px 12px;
+      font-weight: 600;
+      color: #444;
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: default;
+    }
+    .sidebar-section-header .chev { color: #888; font-size: 11px; }
+
+    .patient-info-grid {
+      padding: 8px 12px 10px;
+      background: #fff;
+    }
+    .patient-info-grid .row {
+      display: flex; margin-bottom: 4px; font-size: 12px;
+    }
+    .patient-info-grid .lbl {
+      width: 100px; color: var(--muted); flex-shrink: 0;
+    }
+    .patient-info-grid .val { color: #333; }
+
+    .sidebar-link {
+      display: block; padding: 7px 12px 7px 20px;
+      color: #333; text-decoration: none; background: #fff;
+      border-bottom: 1px solid #eee;
+    }
+    .sidebar-link:hover { background: #fafafa; }
+    .sidebar-link.active {
+      background: #e3e3e3;
+      font-weight: 600;
+    }
+    .sidebar-group-label {
+      padding: 8px 12px 4px;
+      font-size: 11px; font-weight: 700; color: #666;
+      text-transform: uppercase; letter-spacing: 0.03em;
+      background: var(--sidebar-bg);
+    }
+
+    /* ── Main ── */
     .main {
       flex: 1;
-      padding: 16px 20px 40px;
+      padding: 14px 18px 30px;
       background: #fff;
       overflow: auto;
     }
-    .main h1 {
-      font-size: 22px; font-weight: 400; color: #333; margin-bottom: 16px;
+    .main > h1 {
+      font-size: 24px; font-weight: 400; color: #333;
+      margin-bottom: 14px;
     }
 
-    /* ── Interaction block ── */
-    .interaction-block {
+    .interaction-card {
       border: 1px solid var(--line);
-      border-radius: 2px;
-      margin-bottom: 20px;
+      background: #fff;
     }
-    .interaction-header {
-      padding: 12px 16px;
+
+    .interaction-top {
+      padding: 10px 14px;
       border-bottom: 1px solid var(--line);
-      display: flex; align-items: center; gap: 8px;
+      display: flex; align-items: center; gap: 10px;
     }
-    .interaction-header .script-title {
-      font-size: 16px; font-weight: 700; color: var(--title-teal);
+    .interaction-top .script-name {
+      font-size: 15px; font-weight: 700; color: var(--title-teal);
     }
-    .interaction-header .time {
+    .interaction-top .when {
       font-size: 13px; color: var(--muted);
-      display: flex; align-items: center; gap: 4px;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .interaction-top .when svg { width: 14px; height: 14px; opacity: 0.7; }
+    .interaction-top .icons {
+      margin-left: auto; display: flex; gap: 6px;
+    }
+    .interaction-top .icon-btn {
+      width: 26px; height: 26px; border: none; background: none;
+      color: #888; cursor: pointer; font-size: 16px;
     }
 
-    .question-block {
-      padding: 14px 16px;
+    /* ── Question rows ── */
+    .question {
+      padding: 12px 14px;
       border-bottom: 1px solid var(--line);
+      position: relative;
     }
-    .question-block:last-child { border-bottom: none; }
+    .question:last-child { border-bottom: none; }
 
-    .q-label {
-      font-size: 12px; color: var(--muted); margin-bottom: 4px;
+    .question-num {
+      position: absolute; top: 12px; right: 14px;
+      font-size: 12px; color: var(--muted);
     }
-    .q-title {
-      font-size: 15px; font-weight: 700; color: #333; margin-bottom: 8px;
-    }
-    .q-badges { display: flex; gap: 6px; margin-bottom: 8px; }
-    .badge {
-      font-size: 11px; font-weight: 600; color: #fff;
-      padding: 2px 8px; border-radius: 2px;
-    }
-    .badge.ai { background: var(--teal); }
-    .badge.multi { background: #888; }
 
-    .q-prompt { font-size: 13px; color: #555; margin-bottom: 6px; }
-    .q-answer { font-size: 14px; font-weight: 700; color: var(--issue-red); margin-bottom: 6px; }
+    .question-title-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 6px; flex-wrap: wrap; padding-right: 80px;
+    }
+    .question-title {
+      font-size: 14px; font-weight: 700; color: #333;
+    }
 
-    .answer-row {
-      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    .pill {
+      display: inline-block;
+      font-size: 10px; font-weight: 700; color: #fff;
+      padding: 2px 7px; border-radius: 2px; line-height: 1.3;
+    }
+    .pill.gray { background: var(--badge-gray); }
+    .pill.teal { background: var(--teal); }
+
+    .question-text {
+      font-size: 13px; color: #444; margin-bottom: 6px;
+    }
+    .question-text.intro { color: #555; }
+
+    .answer-line {
+      font-size: 13px; color: #333; margin-bottom: 6px;
+    }
+    .answer-line.negative { color: var(--issue-red); font-weight: 400; }
+
+    .answer-meta {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
       margin-bottom: 8px;
     }
-    .plugin-tag {
-      font-size: 11px; font-weight: 600; color: #fff;
+    .plugin-pill {
+      font-size: 10px; font-weight: 700; color: #fff;
       padding: 3px 8px; border-radius: 2px;
     }
-    .plugin-tag.evs-issue { background: var(--evs-maroon); }
-    .plugin-tag.evs-alert { background: var(--evs-orange); }
+    .plugin-pill.evs-issue { background: var(--evs-maroon); }
+    .plugin-pill.evs-alert { background: var(--evs-orange); }
 
-    /* Camera icon — current Evolve pattern */
-    .camera-btn {
+    /* camera — matches Evolve link_to_orchid_image icon */
+    .camera-link {
       position: relative;
       background: none; border: none; cursor: pointer;
-      padding: 2px 4px; color: #555;
-      display: inline-flex; align-items: center;
+      padding: 0; line-height: 0; color: #444;
+      vertical-align: middle;
     }
-    .camera-btn svg { width: 18px; height: 18px; }
-    .camera-btn:hover { color: var(--teal); }
-    .camera-btn .photo-count {
-      position: absolute; top: -6px; right: -8px;
-      background: var(--teal); color: #fff;
-      font-size: 9px; font-weight: 700;
-      min-width: 16px; height: 16px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      padding: 0 4px;
-    }
-    .camera-btn .tooltip {
+    .camera-link svg { width: 16px; height: 16px; }
+    .camera-link:hover { color: #222; }
+    .camera-link .tip {
       display: none;
-      position: absolute; bottom: calc(100% + 6px); left: 50%;
+      position: absolute; bottom: calc(100% + 5px); left: 50%;
       transform: translateX(-50%);
-      background: #333; color: #fff;
-      font-size: 11px; padding: 4px 8px; border-radius: 3px;
-      white-space: nowrap; pointer-events: none;
+      background: #222; color: #fff;
+      font-size: 11px; padding: 3px 7px; border-radius: 2px;
+      white-space: nowrap; line-height: 1.3; font-family: inherit;
+      z-index: 5;
     }
-    .camera-btn:hover .tooltip { display: block; }
+    .camera-link:hover .tip { display: block; }
 
-    .q-comment {
-      font-size: 13px; color: #555; line-height: 1.45;
-      padding-top: 6px; border-top: 1px dashed #eee; margin-top: 4px;
+    .detail-block {
+      margin-top: 4px;
     }
-    .q-comment .label { font-weight: 600; color: #333; }
+    .detail-label {
+      font-size: 13px; font-weight: 700; color: #333;
+      margin-bottom: 2px;
+    }
+    .detail-text { font-size: 13px; color: #444; }
 
-    /* ── Modal overlay ── */
+    /* ── Modal (mirrors existing Evolve popup) ── */
     .modal-overlay {
       display: none;
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 100;
+      background: rgba(0,0,0,0.4);
+      z-index: 200;
       align-items: center;
       justify-content: center;
-      padding: 24px;
     }
     .modal-overlay.open { display: flex; }
 
-    .photo-modal {
+    .evolve-modal {
       background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 2px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-      width: min(720px, 92vw);
-      max-height: 90vh;
+      border: 1px solid #ccc;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+      width: 620px;
+      max-width: 94vw;
+      position: relative;
+    }
+
+    .evolve-modal-header {
+      padding: 18px 20px 10px;
+      position: relative;
+    }
+    .evolve-modal-header h2 {
+      font-size: 20px; font-weight: 700; color: var(--title-teal);
+      margin-bottom: 4px; padding-right: 30px;
+    }
+    .evolve-modal-header .byline {
+      font-size: 13px; color: var(--muted);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .evolve-modal-header .byline svg { width: 13px; height: 13px; opacity: 0.65; }
+
+    .modal-x {
+      position: absolute; top: 14px; right: 14px;
+      background: none; border: none; color: #bbb;
+      font-size: 26px; line-height: 1; cursor: pointer; padding: 0;
+      width: 28px; height: 28px;
+    }
+    .modal-x:hover { color: #666; }
+
+    .evolve-modal-body {
+      padding: 6px 12px 14px;
+    }
+
+    /* single-image viewer — one grid cell enlarged, white bg like screenshot */
+    .photo-viewer {
+      position: relative;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 420px;
+      background: #fff;
+    }
+
+    .photo-frame {
+      width: 380px;
+      height: 380px;
+      max-width: calc(100% - 80px);
+      max-height: 55vw;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
     }
-
-    .modal-header {
-      padding: 16px 20px 12px;
-      border-bottom: 1px solid var(--line);
-      position: relative;
-    }
-    .modal-header .script-title {
-      font-size: 18px; font-weight: 700; color: var(--title-teal);
-      margin-bottom: 4px;
-    }
-    .modal-header .meta {
-      font-size: 13px; color: var(--muted);
-      display: flex; align-items: center; gap: 6px;
-    }
-    .modal-close {
-      position: absolute; top: 12px; right: 12px;
-      background: none; border: none; font-size: 22px;
-      color: #999; cursor: pointer; line-height: 1;
-      width: 32px; height: 32px;
-    }
-    .modal-close:hover { color: #333; }
-
-    /* ── Carousel viewer ── */
-    .modal-body {
-      padding: 16px 20px 20px;
-      flex: 1;
-      min-height: 0;
-    }
-
-    .carousel {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 380px;
-      background: #f5f5f5;
-      border: 1px solid var(--line);
-    }
-
-    .carousel-image-wrap {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 56px;
-      min-height: 380px;
-    }
-    .carousel-image-wrap img {
-      max-width: 100%;
-      max-height: 360px;
-      object-fit: contain;
+    .photo-frame img {
+      width: 100%; height: 100%;
+      object-fit: cover;
       display: block;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     }
 
-    .carousel-arrow {
+    .nav-arrow {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      width: 44px;
-      height: 64px;
-      background: rgba(255,255,255,0.92);
-      border: 1px solid var(--line);
-      color: #555;
-      font-size: 28px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2;
-      transition: background 0.15s, color 0.15s;
-      user-select: none;
+      width: 36px; height: 36px;
+      background: none; border: none;
+      color: #999;
+      font-size: 42px; font-weight: 300;
+      line-height: 1; cursor: pointer;
+      padding: 0; z-index: 2;
+      display: flex; align-items: center; justify-content: center;
     }
-    .carousel-arrow:hover:not(:disabled) {
-      background: #fff;
-      color: var(--teal);
-      border-color: var(--teal);
-    }
-    .carousel-arrow:disabled {
-      opacity: 0.25;
-      cursor: not-allowed;
-    }
-    .carousel-arrow.prev { left: 8px; border-radius: 4px 0 0 4px; }
-    .carousel-arrow.next { right: 8px; border-radius: 0 4px 4px 0; }
+    .nav-arrow:hover:not(:disabled) { color: #555; }
+    .nav-arrow:disabled { opacity: 0.2; cursor: default; }
+    .nav-arrow.prev { left: 6px; }
+    .nav-arrow.next { right: 6px; }
 
-    .carousel-counter {
+    .photo-position {
       text-align: center;
-      margin-top: 12px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-    .carousel-counter strong { color: var(--text); }
-
-    .carousel-dots {
-      display: flex; justify-content: center; gap: 6px;
-      margin-top: 10px;
-    }
-    .carousel-dots button {
-      width: 8px; height: 8px; border-radius: 50%;
-      border: none; background: #ccc; cursor: pointer; padding: 0;
-    }
-    .carousel-dots button.active { background: var(--teal); }
-
-    .single-photo-note {
-      text-align: center;
-      margin-top: 10px;
       font-size: 12px;
       color: var(--muted);
-      font-style: italic;
+      margin-top: 6px;
+      min-height: 16px;
     }
 
-    .design-callout {
-      margin: 0 20px 16px;
-      padding: 10px 12px;
-      background: #eefaf8;
-      border: 1px dashed var(--teal);
-      border-radius: 4px;
-      font-size: 12px;
-      color: #444;
-      line-height: 1.45;
+    .resize-grip {
+      position: absolute; bottom: 4px; right: 4px;
+      width: 12px; height: 12px;
+      opacity: 0.35;
+      background:
+        linear-gradient(135deg, transparent 50%, #999 50%, #999 58%, transparent 58%, transparent 64%, #999 64%, #999 72%, transparent 72%);
     }
+
+    /* dim background page when modal open */
+    .workspace.dimmed { opacity: 0.55; pointer-events: none; }
   </style>
 </head>
 <body>
-  <div class="proto-banner">
-    <strong>Interaction Photo Viewer — Web Prototype</strong>
-    Patient profile → Interactions tab → click camera icon on an answer → enlarged photo popup with left/right arrows when multiple photos were submitted.
-  </div>
-
-  <div class="proto-controls">
-    <span><label>Photos attached:</label></span>
-    <button type="button" data-count="1">1 (current)</button>
+  <div class="proto-bar">
+    <strong>Prototype controls</strong>
+    <span>Photos attached:</span>
+    <button type="button" data-count="1">1</button>
     <button type="button" data-count="3">3</button>
     <button type="button" data-count="6" class="active">6</button>
-    <button type="button" data-count="10">10</button>
-    <span style="color:var(--muted);margin-left:8px">Click the camera icon on Question 3 to open the popup</span>
+    <button type="button" data-count="9">9</button>
+    <span style="opacity:0.85">Click the camera icon on Question 3 · ← → keys in popup</span>
   </div>
 
   <nav class="app-nav">
@@ -383,235 +407,239 @@
     </div>
     <div class="right">
       <span>Central Hospital ▾</span>
-      <span>🔔</span><span>🔍</span><span>❓</span><span>👤</span>
+      <span class="sep">|</span>
+      <span>🔔</span>
+      <span>🔍</span>
+      <span>❓</span>
+      <span>👤</span>
     </div>
   </nav>
 
   <div class="patient-bar">
     <div class="avatar">DS</div>
-    <div>
-      <span class="name">Daron Smith</span>
-      <span class="meta">82 ♂ MRN372793 ⓘ</span>
-      <span class="meta">DOB: 07/13/1944</span>
+    <span class="name">Daron Smith</span>
+    <span class="demo">82 ♂ MRN372793 <span class="info-icon">i</span></span>
+    <span class="demo">DOB: 07/13/1944</span>
+    <div class="actions">
+      <span class="action-icon">📞</span>
+      <span class="action-icon">🎙</span>
+      <span class="action-icon">♥</span>
+      <span class="action-icon">👥</span>
+      <span class="action-icon">🔥</span>
+      <span class="action-icon">📄</span>
     </div>
-    <div class="icons">📞 🎙 ❤ 👥 🔥 📄</div>
   </div>
 
-  <div class="workspace">
+  <div class="workspace" id="workspace">
     <aside class="sidebar">
-      <h3>Patient Information</h3>
-      <a href="#">Encounters</a>
-      <a href="#">Referrals</a>
-      <h3>History</h3>
-      <a href="#" class="active">Interactions</a>
-      <a href="#">Closed Issues</a>
-      <a href="#">Observations</a>
-      <a href="#">Allergies</a>
-      <a href="#">Care Forms</a>
-      <a href="#">Care Recordings</a>
-      <a href="#">Flags</a>
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          Patient Information <span class="chev">▾</span>
+        </div>
+        <div class="patient-info-grid">
+          <div class="row"><span class="lbl">Name:</span><span class="val">Daron Smith</span></div>
+          <div class="row"><span class="lbl">Phone Number:</span><span class="val">(555) 555-5555</span></div>
+          <div class="row"><span class="lbl">MRN:</span><span class="val">372793</span></div>
+          <div class="row"><span class="lbl">Unit/Room:</span><span class="val">1 South / 931-11</span></div>
+        </div>
+      </div>
+      <a class="sidebar-link" href="#">Encounters <span style="float:right;color:#888">▸</span></a>
+      <a class="sidebar-link" href="#">Referrals <span style="float:right;color:#888">▸</span></a>
+      <div class="sidebar-group-label">History</div>
+      <a class="sidebar-link active" href="#">Interactions</a>
+      <a class="sidebar-link" href="#">Closed Issues</a>
+      <a class="sidebar-link" href="#">Observations</a>
+      <a class="sidebar-link" href="#">Allergies</a>
+      <a class="sidebar-link" href="#">Care Forms</a>
+      <a class="sidebar-link" href="#">Care Recordings</a>
+      <a class="sidebar-link" href="#">Flags</a>
     </aside>
 
     <main class="main">
       <h1>Interactions</h1>
 
-      <div class="interaction-block">
-        <div class="interaction-header">
-          <span class="script-title">BP - Nurse Leader Round</span>
-          <span class="time">🕐 8 days ago</span>
-        </div>
-
-        <div class="question-block">
-          <div class="q-label">Question 1</div>
-          <div class="q-title">Ability to Round</div>
-          <div class="q-prompt">Intro: This question is intended to help determine if you are able to have a conversation with the patient and/or family/care giver.</div>
-          <div class="q-answer" style="color:#333;font-weight:400">Yes - Round on patient</div>
-        </div>
-
-        <div class="question-block">
-          <div class="q-label">Question 2</div>
-          <div class="q-title">Whiteboard</div>
-          <div class="q-badges"><span class="badge ai">AI</span></div>
-          <div class="q-prompt">Is the patient's whiteboard complete and up-to-date?</div>
-          <div class="q-answer" style="color:#333;font-weight:400">Yes</div>
-        </div>
-
-        <div class="question-block">
-          <div class="q-label">Question 3</div>
-          <div class="q-title">Cleanliness</div>
-          <div class="q-badges">
-            <span class="badge multi">Multi-Select</span>
-            <span class="badge ai">AI</span>
+      <div class="interaction-card">
+        <div class="interaction-top">
+          <span class="script-name">BP - Nurse Leader Round</span>
+          <span class="when">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 11H7v-2h4V7h2v6Z"/></svg>
+            8 days ago
+          </span>
+          <div class="icons">
+            <button type="button" class="icon-btn" title="Delete">🗑</button>
+            <button type="button" class="icon-btn" title="Flag">🚩</button>
           </div>
-          <div class="q-prompt">Please indicate any issues identified in the patient room.</div>
-          <div class="answer-row">
-            <span class="q-answer" style="margin:0">Bathroom not clean</span>
-            <span class="plugin-tag evs-issue">EVS Issue</span>
-            <span class="plugin-tag evs-alert">EVS Alert</span>
-            <button type="button" class="camera-btn" id="open-viewer" aria-label="Review photos">
-              <span class="tooltip" id="camera-tooltip">review photo</span>
-              <span class="photo-count hidden" id="camera-count"></span>
+        </div>
+
+        <div class="question">
+          <span class="question-num">Question 1</span>
+          <div class="question-title-row">
+            <span class="question-title">Ability to Round</span>
+          </div>
+          <div class="question-text intro">Intro: This question is intended to help determine if you are able to have a conversation with the patient and/or family/care giver.</div>
+          <div class="answer-line">Yes - Round on patient</div>
+        </div>
+
+        <div class="question">
+          <span class="question-num">Question 2</span>
+          <div class="question-title-row">
+            <span class="question-title">Whiteboard</span>
+            <span class="pill teal">AI</span>
+          </div>
+          <div class="question-text">Is the patient's whiteboard complete and up-to-date?</div>
+          <div class="answer-line">Yes</div>
+        </div>
+
+        <div class="question">
+          <span class="question-num">Question 3</span>
+          <div class="question-title-row">
+            <span class="question-title">Cleanliness</span>
+            <span class="pill gray">Multi-Select</span>
+            <span class="pill teal">AI</span>
+          </div>
+          <div class="question-text">Please indicate any issues identified in the patient room.</div>
+          <div class="answer-meta">
+            <span class="answer-line negative" style="margin:0">Bathroom not clean</span>
+            <span class="plugin-pill evs-issue">EVS Issue</span>
+            <span class="plugin-pill evs-alert">EVS Alert</span>
+            <button type="button" class="camera-link" id="open-viewer" aria-label="Review photo">
+              <span class="tip" id="camera-tip">review photo</span>
               <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/>
                 <path d="M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9Zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5Z"/>
               </svg>
             </button>
           </div>
-          <div class="q-comment">
-            <span class="label">Would you like to add any additional information?</span>
-            The patient's room was inspected and found to be clean.
+          <div class="detail-block">
+            <div class="detail-label">Would you like to add any additional information?</div>
+            <div class="detail-text">The patient's room was inspected and found to be clean.</div>
           </div>
         </div>
 
-        <div class="question-block">
-          <div class="q-label">Question 4</div>
-          <div class="q-title">Patient Preference</div>
-          <div class="q-badges"><span class="badge ai">AI</span></div>
-          <div class="q-prompt">What is the patient's priority for care transition (discharge)?</div>
-          <div class="q-answer" style="color:#333;font-weight:400">Care transition (discharge)</div>
+        <div class="question">
+          <span class="question-num">Question 4</span>
+          <div class="question-title-row">
+            <span class="question-title">Patient Preference</span>
+            <span class="pill teal">AI</span>
+          </div>
+          <div class="question-text">What is the patient's priority for care transition (discharge)?</div>
+          <div class="answer-line">Care transition (discharge)</div>
+        </div>
+
+        <div class="question">
+          <span class="question-num">Question 5</span>
+          <div class="question-title-row">
+            <span class="question-title">Care Team Responsiveness</span>
+            <span class="pill teal">AI</span>
+          </div>
+          <div class="question-text">Did the care team respond to the patient's needs in a timely manner?</div>
+          <div class="answer-line">Yes</div>
+          <div class="detail-block">
+            <div class="detail-label">Would you like to add any additional information?</div>
+            <div class="detail-text">The patient reported that the care team has been responsive to their needs.</div>
+          </div>
         </div>
       </div>
     </main>
   </div>
 
-  <!-- Photo viewer modal -->
-  <div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-label="Photo viewer">
-    <div class="photo-modal">
-      <div class="modal-header">
-        <button type="button" class="modal-close" id="close-modal" aria-label="Close">×</button>
-        <div class="script-title">BP - Nurse Leader Round</div>
-        <div class="meta">By: Mykeia Mcallen &nbsp; 🕐 8 days ago</div>
+  <!-- Existing-style Evolve photo popup + proposed arrows -->
+  <div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-label="Review photo">
+    <div class="evolve-modal">
+      <div class="evolve-modal-header">
+        <button type="button" class="modal-x" id="close-modal" aria-label="Close">×</button>
+        <h2>BP - Nurse Leader Round</h2>
+        <div class="byline">
+          By: Mykeia Mcallen
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 11H7v-2h4V7h2v6Z"/></svg>
+          8 days ago
+        </div>
       </div>
-
-      <div class="design-callout" id="modal-callout">
-        <strong>Proposed:</strong> Left/right arrows appear when more than one photo is attached. Use arrows or keyboard ← → to navigate. Counter shows position (e.g. 3 of 6).
-      </div>
-
-      <div class="modal-body">
-        <div class="carousel">
-          <button type="button" class="carousel-arrow prev" id="arrow-prev" aria-label="Previous photo">‹</button>
-          <div class="carousel-image-wrap">
+      <div class="evolve-modal-body">
+        <div class="photo-viewer">
+          <button type="button" class="nav-arrow prev" id="arrow-prev" aria-label="Previous photo">‹</button>
+          <div class="photo-frame">
             <img id="carousel-img" src="" alt="Attached photo">
           </div>
-          <button type="button" class="carousel-arrow next" id="arrow-next" aria-label="Next photo">›</button>
+          <button type="button" class="nav-arrow next" id="arrow-next" aria-label="Next photo">›</button>
         </div>
-        <div class="carousel-counter" id="counter"></div>
-        <div class="carousel-dots" id="dots"></div>
-        <div class="single-photo-note hidden" id="single-note">Single photo — arrows hidden (current behavior).</div>
+        <div class="photo-position" id="photo-position"></div>
       </div>
+      <div class="resize-grip" aria-hidden="true"></div>
     </div>
   </div>
 
   <script>
-    const PHOTO_SETS = {
-      1: ["Floor area"],
-      3: ["Floor area", "Sink & counter", "Wall tile"],
-      6: ["Floor area", "Sink & counter", "Wall tile", "Shower stall", "Trash area", "Mirror"],
-      10: ["Floor area", "Sink & counter", "Wall tile", "Shower stall", "Trash area",
-           "Mirror", "Towel rack", "Toilet area", "Corner detail", "Supply shelf"]
-    };
-
-    const PHOTO_COLORS = [
-      ["#8d6e63", "#6d4c41"], ["#90caf9", "#42a5f5"], ["#b0bec5", "#78909c"],
-      ["#80cbc4", "#00897b"], ["#ffcc80", "#fb8c00"], ["#ce93d8", "#8e24aa"],
-      ["#ef9a9a", "#e53935"], ["#a5d6a7", "#43a047"], ["#fff59d", "#fbc02d"],
-      ["#bcaaa4", "#795548"]
+    const PHOTO_LABELS = [
+      "Photo 1", "Photo 2", "Photo 3", "Photo 4", "Photo 5",
+      "Photo 6", "Photo 7", "Photo 8", "Photo 9"
     ];
 
     let photoCount = 6;
     let currentIndex = 0;
     let photos = [];
 
-    function makePhotoDataUrl(label, colorIdx) {
-      const [c1, c2] = PHOTO_COLORS[colorIdx % PHOTO_COLORS.length];
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450">
-        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/>
-        </linearGradient></defs>
-        <rect width="600" height="450" fill="url(#g)"/>
-        <text x="300" y="210" text-anchor="middle" fill="rgba(255,255,255,0.92)" font-family="Helvetica,Arial,sans-serif" font-size="28" font-weight="600">${label}</text>
-        <text x="300" y="250" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-family="Helvetica,Arial,sans-serif" font-size="16">EVS photo — Bathroom not clean</text>
+    function makePhotoDataUrl(index) {
+      // warm beige tones like the screenshot placeholders
+      const hues = [42, 44, 40, 46, 43, 41, 45, 39, 47];
+      const h = hues[index % hues.length];
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">
+        <defs>
+          <radialGradient id="g" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stop-color="hsl(${h},35%,88%)"/>
+            <stop offset="100%" stop-color="hsl(${h},25%,72%)"/>
+          </radialGradient>
+        </defs>
+        <rect width="400" height="400" fill="url(#g)"/>
+        <ellipse cx="280" cy="320" rx="180" ry="120" fill="rgba(0,0,0,0.08)"/>
+        <ellipse cx="120" cy="100" rx="90" ry="60" fill="rgba(255,255,255,0.25)"/>
       </svg>`;
       return "data:image/svg+xml," + encodeURIComponent(svg);
     }
 
     function buildPhotos(count) {
-      return PHOTO_SETS[count].map((label, i) => ({
-        label,
-        src: makePhotoDataUrl(label, i)
+      return Array.from({ length: count }, (_, i) => ({
+        label: PHOTO_LABELS[i] || ("Photo " + (i + 1)),
+        src: makePhotoDataUrl(i)
       }));
     }
 
-    function updateCameraBadge() {
-      const badge = document.getElementById("camera-count");
-      const tooltip = document.getElementById("camera-tooltip");
-      if (photoCount > 1) {
-        badge.textContent = photoCount;
-        badge.classList.remove("hidden");
-        tooltip.textContent = "review photos (" + photoCount + ")";
-      } else {
-        badge.classList.add("hidden");
-        tooltip.textContent = "review photo";
-      }
-    }
-
-    function renderCarousel() {
+    function renderViewer() {
       const img = document.getElementById("carousel-img");
       img.src = photos[currentIndex].src;
-      img.alt = photos[currentIndex].label;
-
-      document.getElementById("counter").innerHTML =
-        photoCount > 1
-          ? "Photo <strong>" + (currentIndex + 1) + "</strong> of <strong>" + photoCount + "</strong>"
-          : "";
 
       const prev = document.getElementById("arrow-prev");
       const next = document.getElementById("arrow-next");
-      const showArrows = photoCount > 1;
+      const multi = photoCount > 1;
 
-      prev.style.display = showArrows ? "flex" : "none";
-      next.style.display = showArrows ? "flex" : "none";
+      prev.style.visibility = multi ? "visible" : "hidden";
+      next.style.visibility = multi ? "visible" : "hidden";
       prev.disabled = currentIndex === 0;
       next.disabled = currentIndex === photoCount - 1;
 
-      document.getElementById("single-note").classList.toggle("hidden", photoCount > 1);
-      document.getElementById("modal-callout").classList.toggle("hidden", photoCount === 1);
-
-      const dots = document.getElementById("dots");
-      if (photoCount > 1 && photoCount <= 10) {
-        dots.innerHTML = photos.map((_, i) =>
-          `<button type="button" class="${i === currentIndex ? "active" : ""}" data-index="${i}" aria-label="Go to photo ${i + 1}"></button>`
-        ).join("");
-        dots.classList.remove("hidden");
-        dots.style.display = "flex";
-        dots.querySelectorAll("button").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            currentIndex = Number(btn.dataset.index);
-            renderCarousel();
-          });
-        });
-      } else {
-        dots.style.display = "none";
-      }
+      document.getElementById("photo-position").textContent =
+        multi ? (currentIndex + 1) + " of " + photoCount : "";
     }
 
     function openModal() {
       currentIndex = 0;
       photos = buildPhotos(photoCount);
-      renderCarousel();
+      renderViewer();
       document.getElementById("modal").classList.add("open");
+      document.getElementById("workspace").classList.add("dimmed");
     }
 
     function closeModal() {
       document.getElementById("modal").classList.remove("open");
+      document.getElementById("workspace").classList.remove("dimmed");
     }
 
     function goPrev() {
-      if (currentIndex > 0) { currentIndex--; renderCarousel(); }
+      if (currentIndex > 0) { currentIndex--; renderViewer(); }
     }
 
     function goNext() {
-      if (currentIndex < photoCount - 1) { currentIndex++; renderCarousel(); }
+      if (currentIndex < photoCount - 1) { currentIndex++; renderViewer(); }
     }
 
     document.getElementById("open-viewer").addEventListener("click", openModal);
@@ -629,21 +657,18 @@
       if (e.key === "ArrowRight") goNext();
     });
 
-    document.querySelectorAll(".proto-controls button[data-count]").forEach((btn) => {
+    document.querySelectorAll(".proto-bar button[data-count]").forEach((btn) => {
       btn.addEventListener("click", () => {
         photoCount = Number(btn.dataset.count);
-        document.querySelectorAll(".proto-controls button[data-count]").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll(".proto-bar button[data-count]").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
-        updateCameraBadge();
         if (document.getElementById("modal").classList.contains("open")) {
           photos = buildPhotos(photoCount);
           if (currentIndex >= photoCount) currentIndex = photoCount - 1;
-          renderCarousel();
+          renderViewer();
         }
       });
     });
-
-    updateCameraBadge();
   </script>
 </body>
 </html>
