@@ -1,0 +1,2349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Reporting Portal Admin Console v2 — tab navigation with Overview, Schedule, and Failure Queue.">
+  <title>Reporting Portal</title>
+  <style>
+    :root {
+      /* Evolve / Outreach Programs palette */
+      --teal-deep: #005b7f;
+      --teal-mid: #007896;
+      --teal-bright: #0aa89a;
+      --teal-nav-gradient: linear-gradient(90deg, #005b7f 0%, #007896 52%, #0aa89a 100%);
+      --title-color: #2c3e50;
+      --text: #333333;
+      --muted: #6c757d;
+      --line: #dde4ea;
+      --page-bg: #f0f4f7;
+      --panel-bg: #ffffff;
+      --link-blue: #2d89c7;
+      --active-green: #28a745;
+      --active-green-bg: #e6f4ea;
+      --inactive-gray: #6c757d;
+      --inactive-gray-bg: #f8f9fa;
+      --failed-red: #dc3545;
+      --failed-red-bg: #fdecea;
+      --status-teal: #007896;
+      --status-teal-bg: #e8f4f7;
+      --help-blue: #2d89c7;
+      --prod-purple: #5b4fb5;
+      --row-hover: #f8fbfd;
+      --row-accent: #2d89c7;
+      --panel-shadow: 0 2px 8px rgba(0, 91, 127, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: var(--page-bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      padding-bottom: 36px;
+    }
+
+    /* ── Top nav (Evolve ombre header) ── */
+    .app-nav {
+      background: var(--teal-nav-gradient);
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      color: #fff;
+      box-shadow: 0 1px 3px rgba(0, 45, 64, 0.25);
+    }
+    .app-nav .logo {
+      width: 20px;
+      height: 20px;
+      margin-right: 20px;
+      flex-shrink: 0;
+      opacity: 0.95;
+    }
+    .app-nav .links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+    .app-nav a {
+      color: rgba(255,255,255,0.88);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+    }
+    .app-nav a.active {
+      color: #fff;
+      font-weight: 700;
+      text-shadow: 0 0 12px rgba(255,255,255,0.25);
+    }
+    .app-nav .right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .app-nav .tenant-select {
+      font-size: 13px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: default;
+      border: 1px solid rgba(255,255,255,0.65);
+      border-radius: 14px;
+      padding: 3px 12px;
+      background: rgba(255,255,255,0.08);
+    }
+    .app-nav .icon-btn {
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.9;
+      font-size: 15px;
+      color: #fff;
+    }
+
+    /* ── Page shell (rounded white card on grey canvas) ── */
+    .page-shell {
+      max-width: 100%;
+      margin: 14px 14px 0;
+      background: var(--panel-bg);
+      border-radius: 12px 12px 0 0;
+      box-shadow: var(--panel-shadow);
+      min-height: calc(100vh - 68px);
+    }
+
+    /* ── Page header + tabs (v2) ── */
+    .page-header {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 16px 20px 0;
+      flex-wrap: wrap;
+    }
+    .page-header .page-title-static {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--title-color);
+    }
+    .page-header .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .page-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--line);
+      padding: 0 12px;
+      margin-top: 8px;
+      overflow-x: auto;
+    }
+    .page-tabs button {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 12px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      color: var(--muted);
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .page-tabs button:hover { color: var(--text); }
+    .page-tabs button.active {
+      color: var(--link-blue);
+      border-bottom-color: var(--link-blue);
+      font-weight: 600;
+    }
+    .view-actions {
+      display: flex;
+      justify-content: flex-end;
+      padding: 12px 20px 0;
+    }
+    .view-actions .primary-action {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 4px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+    .view-actions .primary-action .plus {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    /* ── Toolbar (search + pagination) ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      padding: 0 20px 12px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .search-wrap {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      padding: 0 8px;
+      min-width: 280px;
+      box-shadow: inset 0 1px 2px rgba(0, 91, 127, 0.04);
+    }
+    .search-wrap input {
+      border: none;
+      outline: none;
+      padding: 7px 8px;
+      font-size: 13px;
+      flex: 1;
+      font-family: inherit;
+    }
+    .search-wrap .icon {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .search-wrap .clear-btn,
+    .search-wrap .refresh-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px 6px;
+      font-size: 14px;
+    }
+    .toolbar .spacer { flex: 1; }
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .pagination button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px 4px;
+    }
+    .pagination button:disabled { opacity: 0.35; cursor: default; }
+
+    .filter-banner {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin: 0 20px 10px;
+      padding: 8px 12px;
+      background: var(--status-teal-bg);
+      border: 1px solid #c5dde6;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--teal-deep);
+    }
+    .filter-banner.visible { display: flex; }
+    .filter-banner .clear-filter {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: var(--link-blue);
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+      text-decoration: underline;
+    }
+    .empty-filter-msg {
+      display: none;
+      padding: 24px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .empty-filter-msg.visible { display: block; }
+
+    /* ── Data table ── */
+    .table-wrap {
+      padding: 0 20px 16px;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .data-table th {
+      text-align: left;
+      font-weight: 700;
+      color: var(--text);
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--line);
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: 12px;
+      border-bottom: 1px solid #e8eef2;
+      vertical-align: middle;
+    }
+    .data-table tbody tr {
+      transition: background 0.12s ease;
+    }
+    .data-table tbody tr:hover td {
+      background: var(--row-hover);
+    }
+    .data-table tbody tr:hover td:first-child {
+      box-shadow: inset 3px 0 0 var(--row-accent);
+    }
+    .data-table .link {
+      color: var(--link-blue);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .data-table .link:hover { text-decoration: underline; }
+    .data-table .meta {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .data-table .row-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      color: var(--muted);
+    }
+    .data-table .row-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 15px;
+      padding: 2px;
+    }
+    .data-table .row-actions button:hover { color: var(--text); }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .badge.active { background: var(--active-green-bg); color: var(--active-green); }
+    .badge.paused { background: var(--inactive-gray-bg); color: var(--inactive-gray); }
+    .badge.failed { background: var(--failed-red-bg); color: var(--failed-red); }
+    .badge.status-active {
+      background: var(--active-green-bg);
+      color: var(--active-green);
+      border-radius: 3px;
+      text-transform: uppercase;
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: 0.04em;
+    }
+    .badge.status-paused {
+      background: var(--inactive-gray-bg);
+      color: var(--inactive-gray);
+      border-radius: 3px;
+      text-transform: uppercase;
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: 0.04em;
+    }
+    .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    .dot.active { background: var(--active-green); }
+    .dot.paused { background: #adb5bd; }
+    .owner-inactive {
+      display: block;
+      font-size: 11px;
+      color: var(--failed-red);
+      margin-top: 2px;
+    }
+    .recipients-link {
+      color: var(--link-blue);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* ── Overview cards ── */
+    .overview-content {
+      padding: 16px 20px 24px;
+    }
+    .overview-intro {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 18px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 91, 127, 0.05);
+    }
+    button.stat-card {
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      color: inherit;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    button.stat-card:hover {
+      border-color: var(--link-blue);
+      box-shadow: 0 2px 8px rgba(45, 137, 199, 0.15);
+      transform: translateY(-1px);
+    }
+    button.stat-card:focus-visible {
+      outline: 2px solid var(--link-blue);
+      outline-offset: 2px;
+    }
+    .stat-card .value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.1;
+    }
+    .stat-card .value.alert { color: var(--failed-red); }
+    .stat-card .label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .stat-card .stat-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .detail-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .detail-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 91, 127, 0.05);
+    }
+    .detail-card .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .detail-card .card-header h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .detail-card .card-header a {
+      font-size: 13px;
+      color: var(--link-blue);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .detail-card .card-header a:hover { text-decoration: underline; }
+    .detail-card .card-body { padding: 0; }
+    .attention-item,
+    .failure-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid #eee;
+    }
+    .attention-item[role="button"] {
+      cursor: pointer;
+      transition: background 0.12s ease;
+    }
+    .attention-item[role="button"]:hover {
+      background: var(--row-hover);
+    }
+    .attention-item:last-child,
+    .failure-item:last-child { border-bottom: none; }
+    .attention-item .row-top,
+    .failure-item .row-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .attention-item .name,
+    .failure-item .name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .attention-item .schedule,
+    .failure-item .time {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .failure-item .error {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── Failure Queue (Unresolved / Acknowledged) ── */
+    .page-intro {
+      padding: 0 20px 14px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .failure-queue-content {
+      padding: 0 20px 24px;
+    }
+    .failure-section {
+      margin-bottom: 24px;
+    }
+    .failure-section h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .failure-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: #fff;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0, 91, 127, 0.05);
+    }
+    .failure-card.acknowledged {
+      opacity: 0.9;
+    }
+    .failure-card[hidden] { display: none; }
+    .failure-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .failure-top h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .failure-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .status-pill {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+    .status-pill.status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+    .status-pill.status-unresolved {
+      background: var(--failed-red-bg);
+      color: var(--failed-red);
+    }
+    .status-pill.status-paused {
+      background: var(--inactive-gray-bg);
+      color: var(--inactive-gray);
+    }
+    .failure-msg {
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .failure-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .failure-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .failure-actions button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--text);
+    }
+    .failure-actions button.primary {
+      background: var(--link-blue);
+      border-color: var(--link-blue);
+      color: #fff;
+      font-weight: 600;
+    }
+    .failure-section-empty {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 8px 0;
+    }
+
+    /* ── Context menu ── */
+    .menu-cell { position: relative; }
+    .kebab-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--muted);
+      padding: 2px 6px;
+      letter-spacing: 1px;
+    }
+    .context-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      min-width: 180px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      z-index: 40;
+      padding: 4px 0;
+    }
+    .context-menu.open { display: block; }
+    #row-context-menu {
+      display: none;
+      position: fixed;
+      min-width: 180px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      z-index: 150;
+      padding: 4px 0;
+    }
+    #row-context-menu.open { display: block; }
+    .context-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 9px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .context-menu button:hover { background: #f5f5f5; }
+
+    /* ── Footer ── */
+    .status-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 28px;
+      background: var(--page-bg);
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 11px;
+      color: var(--muted);
+      z-index: 30;
+    }
+    .status-bar .center-logo {
+      opacity: 0.35;
+      font-size: 14px;
+    }
+    .status-bar .right-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .prod-badge {
+      background: var(--prod-purple);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 2px;
+    }
+
+    .help-btn {
+      position: fixed;
+      right: 20px;
+      bottom: 36px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: var(--help-blue);
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(45, 137, 199, 0.35);
+      z-index: 30;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── Plan detail modal (center popup) ── */
+    .drawer-scrim {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 200;
+    }
+    .drawer-scrim[hidden], .plan-drawer[hidden], .modal-scrim[hidden], .app-modal[hidden] { display: none; }
+    .plan-drawer {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(600px, calc(100vw - 32px));
+      max-height: calc(100vh - 48px);
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      z-index: 210;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .drawer-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--muted);
+      z-index: 2;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+    }
+    .drawer-close:hover {
+      background: #f0f4f7;
+      color: var(--text);
+    }
+    .drawer-head {
+      padding: 20px 48px 12px 20px;
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .drawer-head h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--title-color);
+      margin-bottom: 6px;
+    }
+    .drawer-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .drawer-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--line);
+      padding: 0 12px;
+      overflow-x: auto;
+      flex-shrink: 0;
+    }
+    .drawer-tabs button {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 10px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--muted);
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .drawer-tabs button.active {
+      color: var(--link-blue);
+      border-bottom-color: var(--link-blue);
+      font-weight: 600;
+    }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      min-height: 120px;
+    }
+    .drawer-foot {
+      border-top: 1px solid var(--line);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #fafbfc;
+      border-radius: 0 0 8px 8px;
+      flex-shrink: 0;
+    }
+    .drawer-foot-note { font-size: 12px; color: var(--muted); }
+    .drawer-dl { margin-bottom: 16px; }
+    .drawer-dl-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 13px;
+    }
+    .drawer-dl-row span:first-child { color: var(--muted); }
+    .drawer-dl-row span:last-child { text-align: right; }
+    .drawer-actions { display: flex; flex-direction: column; gap: 10px; }
+    .drawer-actions button, .drawer-foot button, .modal-foot button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 4px;
+      padding: 8px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .drawer-actions button.primary, .drawer-foot button.primary, .modal-foot button.primary {
+      background: var(--link-blue);
+      border-color: var(--link-blue);
+      color: #fff;
+      font-weight: 600;
+    }
+    .drawer-actions button.danger {
+      color: var(--failed-red);
+      border-color: #f5c6cb;
+    }
+    .dest-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 13px;
+    }
+    .dest-row .who { font-weight: 600; }
+    .dest-row .note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .dest-row .note.note-err { color: var(--failed-red); }
+    .drawer-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--title-color);
+      margin-bottom: 12px;
+    }
+    .drawer-section-title.split {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .drawer-field { margin-bottom: 12px; }
+    .drawer-field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .drawer-field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .drawer-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .drawer-dl-group { margin-bottom: 16px; }
+    .drawer-dl-row.mono span:last-child {
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+    }
+    .drawer-disclosure {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0 12px;
+    }
+    .drawer-disclosure summary {
+      cursor: pointer;
+      padding: 10px 0;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .drawer-disclosure-body { padding-bottom: 12px; }
+    .drawer-summary-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      background: #f8fbfd;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+    .drawer-summary-strip .big { font-size: 20px; font-weight: 700; margin-right: 6px; }
+    .drawer-summary-strip .of { font-size: 12px; color: var(--muted); }
+    .drawer-act-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .drawer-act-row h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .drawer-act-row p { font-size: 12px; color: var(--muted); line-height: 1.45; max-width: 320px; }
+    .drawer-act-row.critical h4 { color: var(--failed-red); }
+    .drawer-act-row button { flex-shrink: 0; }
+    .run-confirm {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .run-confirm button { padding: 4px 10px; font-size: 12px; }
+    .history-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: #f0f4f7;
+      color: var(--muted);
+    }
+    .drawer-foot-actions { display: flex; gap: 8px; margin-left: auto; }
+
+    /* ── Modal ── */
+    .modal-scrim {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 300;
+    }
+    .app-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(440px, calc(100vw - 32px));
+      max-height: calc(100vh - 48px);
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      z-index: 310;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-head {
+      padding: 16px 20px 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .modal-head h3 { font-size: 16px; font-weight: 700; }
+    .modal-head p { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .modal-body { padding: 16px 20px; overflow-y: auto; }
+    .modal-body input[type="search"], .modal-body input[type="email"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .modal-body label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+    .pick-list { margin-top: 12px; max-height: 220px; overflow-y: auto; }
+    .pick-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .pick-row:disabled { opacity: 0.5; cursor: not-allowed; }
+    .pick-row[aria-pressed="true"] { border-color: var(--link-blue); background: #f0f7fc; }
+    .pick-row .mail { display: block; font-size: 12px; color: var(--muted); }
+    .modal-foot {
+      padding: 12px 20px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .hint-text { font-size: 13px; color: var(--muted); line-height: 1.45; }
+
+    /* ── Toast ── */
+    .toast-container {
+      position: fixed;
+      bottom: 48px;
+      right: 20px;
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast {
+      background: #333;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      pointer-events: auto;
+      max-width: 360px;
+    }
+    .toast.success { background: #1e6b3a; }
+    .toast-action {
+      background: none;
+      border: none;
+      color: #9fd4ff;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    tr[data-plan-id] { cursor: pointer; }
+    .data-table .link { pointer-events: none; }
+
+    @media (max-width: 960px) {
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .detail-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="app-nav" aria-label="Main navigation">
+    <svg class="logo" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="4" r="2" fill="white"/>
+      <circle cx="4" cy="12" r="2" fill="white"/>
+      <circle cx="20" cy="12" r="2" fill="white"/>
+      <circle cx="12" cy="20" r="2" fill="white"/>
+      <circle cx="12" cy="12" r="2.5" fill="white"/>
+    </svg>
+    <div class="links">
+      <a href="#">Resolve</a>
+      <a href="#">Engage</a>
+      <a href="#">Search</a>
+      <a href="#">Report</a>
+      <a href="#" class="active">Manage</a>
+    </div>
+    <div class="right">
+      <span class="tenant-select">Acme Retail Group ▾</span>
+      <span class="icon-btn" aria-hidden="true">↩</span>
+      <span class="icon-btn" aria-hidden="true">🔔</span>
+      <span class="icon-btn" aria-hidden="true">🔍</span>
+      <span class="icon-btn" aria-hidden="true">?</span>
+      <span class="icon-btn" aria-hidden="true">👤</span>
+      <span class="icon-btn" aria-hidden="true">⏻</span>
+    </div>
+  </nav>
+
+  <div class="page-shell">
+    <header class="page-header">
+      <h1 class="page-title-static">Reporting Portal</h1>
+      <span class="subtitle">Admin console</span>
+    </header>
+    <nav class="page-tabs" id="page-tabs" aria-label="Reporting Portal views">
+      <button type="button" class="active" data-view="overview">Overview</button>
+      <button type="button" data-view="schedule">Schedule</button>
+      <button type="button" data-view="failure-queue">Failure Queue</button>
+    </nav>
+
+    <!-- Overview -->
+    <section class="view active" id="view-overview" aria-label="Overview">
+      <div class="overview-content">
+        <p class="overview-intro">Health of every scheduled report distribution across your tenants.</p>
+
+        <div class="stat-row">
+          <button type="button" class="stat-card" data-nav="schedule" data-filter="active" aria-label="View 4 active plans">
+            <div class="value">4</div>
+            <div class="label">Active plans executing on schedule</div>
+          </button>
+          <button type="button" class="stat-card" data-nav="schedule" data-filter="needs-owner" aria-label="View plans needing owner">
+            <div class="value">0</div>
+            <div class="label">Needs owner — account deactivated</div>
+          </button>
+          <button type="button" class="stat-card" data-nav="failure-queue" data-filter="unresolved" aria-label="View 2 unresolved failures">
+            <div class="value alert">2</div>
+            <div class="label">Unresolved failures</div>
+            <div class="stat-sub">across 2 plans</div>
+          </button>
+          <button type="button" class="stat-card" data-nav="schedule" data-filter="scheduled" aria-label="View 7 scheduled plans with recipients">
+            <div class="value">168</div>
+            <div class="label">Recipients reached — 7 scheduled plans</div>
+          </button>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-card">
+            <div class="card-header">
+              <h3>Needs attention</h3>
+              <a href="#" data-nav="schedule" data-filter="failed">Review 1 in Schedule →</a>
+            </div>
+            <div class="card-body">
+              <div class="attention-item" role="button" tabindex="0" id="attention-loss-prevention" aria-label="Open Loss Prevention Alerts details">
+                <div class="row-top">
+                  <div>
+                    <div class="name">Loss Prevention Alerts</div>
+                    <div class="schedule">Acme Retail Group · Every day at 9:00 AM</div>
+                  </div>
+                  <span class="badge failed">Failed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-card">
+            <div class="card-header">
+              <h3>Recent failures</h3>
+              <a href="#" data-nav="failure-queue" data-filter="unresolved">Open failure queue →</a>
+            </div>
+            <div class="card-body">
+              <div class="failure-item">
+                <div class="row-top">
+                  <div class="name">Loss Prevention Alerts</div>
+                  <div class="time">42 min ago</div>
+                </div>
+                <div class="error">SMTP 550 – recipient mailbox unavailable (user@acme-retail.com)</div>
+              </div>
+              <div class="failure-item">
+                <div class="row-top">
+                  <div class="name">Weekly Store Performance</div>
+                  <div class="time">2 hr ago</div>
+                </div>
+                <div class="error">Looker render timeout after 600s — dashboard_id: store_perf_v2</div>
+              </div>
+              <div class="failure-item">
+                <div class="row-top">
+                  <div class="name">Inventory Snapshot</div>
+                  <div class="time">1 day ago</div>
+                </div>
+                <div class="error">SFTP connection refused — host: sftp.acme-retail.com:22</div>
+              </div>
+              <div class="failure-item">
+                <div class="row-top">
+                  <div class="name">Loss Prevention Alerts</div>
+                  <div class="time">12 days ago</div>
+                </div>
+                <div class="error">Query timeout after 600s — explore: loss_prevention_daily</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Schedule -->
+    <section class="view" id="view-schedule" aria-label="Schedule">
+      <div class="view-actions">
+        <button type="button" class="primary-action" id="btn-new-plan"><span class="plus">+</span> New plan</button>
+      </div>
+
+      <div class="filter-banner" id="schedule-filter-banner" aria-live="polite">
+        <span id="schedule-filter-label"></span>
+        <button type="button" class="clear-filter" data-clear-filter="schedule">Clear filter</button>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="icon">🔍</span>
+          <input type="search" id="schedule-search" placeholder="Search plans…" aria-label="Search plans">
+          <button type="button" class="clear-btn" id="schedule-search-clear" aria-label="Clear search">✕</button>
+          <button type="button" class="refresh-btn" id="schedule-refresh" aria-label="Refresh">↻</button>
+        </div>
+        <span class="spacer"></span>
+        <div class="pagination" id="schedule-pagination-top">
+          <button type="button" disabled aria-label="Previous page">‹</button>
+          <span class="pagination-label">1 – 6 of 7</span>
+          <button type="button" aria-label="Next page">›</button>
+        </div>
+      </div>
+
+      <div class="empty-filter-msg" id="schedule-empty-msg">No plans match this filter.</div>
+
+      <div class="table-wrap">
+        <table class="data-table" id="schedule-table">
+          <thead>
+            <tr>
+              <th>Plan</th>
+              <th>Schedule</th>
+              <th>Owner</th>
+              <th>Status</th>
+              <th>Recipients</th>
+              <th>Next run</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="schedule-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="toolbar">
+        <span class="spacer"></span>
+        <div class="pagination" id="schedule-pagination-bottom">
+          <button type="button" disabled aria-label="Previous page">‹</button>
+          <span class="pagination-label">1 – 6 of 7</span>
+          <button type="button" aria-label="Next page">›</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Failure Queue -->
+    <section class="view" id="view-failure-queue" aria-label="Failure Queue">
+      <div class="view-actions">
+        <button type="button" class="primary-action" id="btn-export-failures"><span class="plus">↗</span> Export</button>
+      </div>
+
+      <p class="page-intro">Delivery errors observed by the log-replication workers. Acknowledge or retry.</p>
+
+      <div class="filter-banner" id="failure-filter-banner" aria-live="polite">
+        <span id="failure-filter-label"></span>
+        <button type="button" class="clear-filter" data-clear-filter="failure-queue">Clear filter</button>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="icon">🔍</span>
+          <input type="search" id="failure-search" placeholder="Search failures…" aria-label="Search failures">
+          <button type="button" class="clear-btn" id="failure-search-clear" aria-label="Clear search">✕</button>
+          <button type="button" class="refresh-btn" id="failure-refresh" aria-label="Refresh">↻</button>
+        </div>
+      </div>
+
+      <div class="failure-queue-content">
+        <div class="failure-section">
+          <h2>Unresolved (<span id="unresolved-count">2</span>)</h2>
+          <div id="unresolved-failures"></div>
+          <p class="failure-section-empty" id="unresolved-empty" hidden>No unresolved failures match this filter.</p>
+        </div>
+
+        <div class="failure-section">
+          <h2>Acknowledged (<span id="acknowledged-count">0</span>)</h2>
+          <div id="acknowledged-failures"></div>
+          <p class="failure-section-empty" id="acknowledged-empty" hidden>No acknowledged failures match this filter.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="drawer-scrim" id="drawer-scrim" hidden></div>
+  <div class="plan-drawer" id="plan-drawer" hidden role="dialog" aria-modal="true" aria-labelledby="drawer-name">
+    <button type="button" class="drawer-close" id="drawer-close" aria-label="Close">✕</button>
+    <div class="drawer-head">
+      <h2 id="drawer-name"></h2>
+      <div id="drawer-status"></div>
+      <div class="drawer-sub" id="drawer-sub"></div>
+    </div>
+    <div class="drawer-tabs" id="drawer-tabs">
+      <button type="button" class="active" data-tab="overview">Overview</button>
+      <button type="button" data-tab="recipients">Recipients</button>
+      <button type="button" data-tab="schedule">Schedule</button>
+      <button type="button" data-tab="history">History</button>
+      <button type="button" data-tab="actions">Actions</button>
+    </div>
+    <div class="drawer-body" id="drawer-body"></div>
+    <div class="drawer-foot" id="drawer-foot"></div>
+  </div>
+
+  <div class="modal-scrim" id="modal-scrim" hidden></div>
+  <div class="app-modal" id="app-modal" hidden role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h3 id="modal-title"></h3>
+      <p id="modal-sub"></p>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot" id="modal-foot"></div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <div class="context-menu" id="row-context-menu"></div>
+
+  <button type="button" class="help-btn" aria-label="Help">?</button>
+
+  <footer class="status-bar">
+    <span>Signed in as: admin@reporting-portal.io · Last access: Jul 30, 2026 3:30 PM</span>
+    <span class="center-logo" aria-hidden="true">✦</span>
+    <span class="right-group">
+      <span>© CipherHealth Inc. 2026</span>
+      <span class="prod-badge">production</span>
+    </span>
+  </footer>
+
+  <script>
+
+    const CURRENT_USER = { email: "admin@reporting-portal.io", name: "You", role: "Reporting admin" };
+
+    const PLANS = [
+      { id: "sp_10241", name: "Weekly Store Performance", tenant: "Acme Retail Group", bundle: "bnd_ops_weekly",
+        cadence: "weekly", day: "1", time: "07:00", tz: "America/New_York",
+        owner: "j.morgan@acme.co", ownerInactive: false, status: "active",
+        lastRun: "2 days ago · success", successRate: "99.1%", hasFailure: false },
+      { id: "sp_10255", name: "Loss Prevention Alerts", tenant: "Acme Retail Group", bundle: "bnd_loss_prevention",
+        cadence: "daily", day: "", time: "09:00", tz: "America/New_York",
+        owner: "lp-desk@acme.co", ownerInactive: false, status: "active",
+        lastRun: "today · failed", successRate: "92.7%", hasFailure: true },
+      { id: "sp_10263", name: "Inventory Snapshot", tenant: "Acme Retail Group", bundle: "bnd_inventory",
+        cadence: "weekly", day: "0", time: "06:00", tz: "America/New_York",
+        owner: "inventory@acme-retail.com", ownerInactive: false, status: "active",
+        lastRun: "5 days ago · success", successRate: "98.4%", hasFailure: false },
+      { id: "sp_10270", name: "Regional Sales Rollup", tenant: "Acme Retail Group", bundle: "bnd_sales_east",
+        cadence: "monthly", day: "1", time: "08:00", tz: "America/New_York",
+        owner: "s.chen@acme.co", ownerInactive: true, status: "orphaned",
+        lastRun: "12 days ago · failed", successRate: "61.4%", hasFailure: false },
+      { id: "sp_10288", name: "Daily Flash Report", tenant: "Acme Retail Group", bundle: "bnd_flash",
+        cadence: "weekdays", day: "", time: "06:30", tz: "America/New_York",
+        owner: "exec-team@acme-retail.com", ownerInactive: false, status: "active",
+        lastRun: "today · success", successRate: "97.2%", hasFailure: false },
+      { id: "sp_10299", name: "Shrinkage Analysis", tenant: "Acme Retail Group", bundle: "bnd_shrinkage",
+        cadence: "weekly", day: "5", time: "17:00", tz: "America/New_York",
+        owner: "lp-analyst@acme-retail.com", ownerInactive: false, status: "paused",
+        lastRun: "16 days ago · success", successRate: "96.0%", hasFailure: false }
+    ];
+
+    const DIRECTORY = [
+      { email: "j.morgan@acme.co", name: "Jordan Morgan", role: "Retail ops manager", active: true },
+      { email: "d.okafor@acme.co", name: "Dana Okafor", role: "Regional director", active: true },
+      { email: "lp-desk@acme.co", name: "Loss Prevention desk", role: "Shared mailbox", active: true },
+      { email: "s.chen@acme.co", name: "Sam Chen", role: "Sales operations", active: false },
+      { email: "inventory@acme-retail.com", name: "Inventory team", role: "Shared mailbox", active: true },
+      { email: "exec-team@acme-retail.com", name: "Executive team", role: "Distribution list", active: true },
+      { email: "lp-analyst@acme-retail.com", name: "LP analyst", role: "Analyst", active: true }
+    ];
+
+    const RECIPIENTS = {
+      sp_10241: { note: "Last run Jul 27, 7:00 AM", people: [
+        { to: "store-ops@acme.co", kind: "Distribution list", count: 14, state: "sent" },
+        { to: "regional-mgrs@acme.co", kind: "Distribution list", count: 8, state: "sent" },
+        { to: "j.morgan@acme.co", kind: "Plan owner", count: 1, state: "sent" }
+      ]},
+      sp_10255: { note: "Last run today, 9:00 AM", people: [
+        { to: "store-security@acme.co", kind: "Distribution list", count: 7, state: "sent" },
+        { to: "lp-lead@acme.co", kind: "Mailbox unavailable — SMTP 550", count: 1, state: "bounced", alert: true },
+        { to: "lp-desk@acme.co", kind: "Plan owner", count: 1, state: "sent" }
+      ]},
+      sp_10263: { note: "Last run 5 days ago", people: [
+        { to: "warehouse-leads@acme.co", kind: "Distribution list", count: 11, state: "sent" },
+        { to: "inventory@acme-retail.com", kind: "Plan owner", count: 1, state: "sent" }
+      ]},
+      sp_10270: { pill: "Needs owner", people: [
+        { to: "east-sales@acme.co", kind: "Distribution list", count: 41, state: "blocked" },
+        { to: "s.chen@acme.co", kind: "Plan owner · deactivated", count: 1, state: "blocked", alert: true }
+      ]},
+      sp_10288: { people: [
+        { to: "exec-team@acme-retail.com", kind: "Distribution list", count: 5, state: "sent" },
+        { to: "ceo-office@acme.co", kind: "Watcher", count: 1, state: "sent" }
+      ]},
+      sp_10299: { pill: "Paused", people: [
+        { to: "lp-analyst@acme-retail.com", kind: "Plan owner", count: 1, state: "paused" },
+        { to: "shrink-review@acme.co", kind: "Distribution list", count: 2, state: "paused" }
+      ]}
+    };
+
+    let OPEN_FAILURES = [
+      { id: 1, planId: "sp_10255", plan: "Loss Prevention Alerts", category: "Delivery", message: "SMTP 550 – recipient mailbox unavailable (lp-lead@acme.co)", tenant: "Acme Retail Group", ago: "42 min ago", retries: 3 },
+      { id: 2, planId: "sp_10241", plan: "Weekly Store Performance", category: "Render", message: "Looker render timeout after 600s — dashboard_id: store_perf_v2", tenant: "Acme Retail Group", ago: "2 hr ago", retries: 2 }
+    ];
+
+    let ACK_FAILURES = [
+      { id: 3, plan: "Inventory Snapshot", tag: "Delivery", message: "SFTP connection refused — host: sftp.acme-retail.com:22", ago: "1 day ago" },
+      { id: 4, plan: "Loss Prevention Alerts", tag: "Timeout", message: "Query timeout after 600s — explore: loss_prevention_daily", ago: "12 days ago" }
+    ];
+
+    let failureIdSeq = 5;
+    let drawerPlanId = null;
+    let drawerTab = "overview";
+    let drawerDraft = null;
+    let runConfirm = false;
+    let scheduleDetailsOpen = false;
+    let openContextMenu = null;
+    let reassignState = { planId: null, pick: null, query: "" };
+
+    const VIEWS = {
+      overview: { id: "view-overview", title: "Reporting Portal – Overview", tabLabel: "Overview" },
+      schedule: { id: "view-schedule", title: "Reporting Portal – Schedule", tabLabel: "Schedule" },
+      "failure-queue": { id: "view-failure-queue", title: "Reporting Portal – Failure Queue", tabLabel: "Failure Queue" }
+    };
+
+    const FILTER_LABELS = {
+      schedule: {
+        active: "Active plans executing on schedule",
+        "needs-owner": "Plans needing owner reassignment",
+        scheduled: "All scheduled plans with recipients",
+        failed: "Plans with recent delivery failures"
+      },
+      "failure-queue": {
+        unresolved: "Unresolved failures",
+        acknowledged: "Acknowledged failures",
+        all: "All failures"
+      }
+    };
+
+    const SCHEDULE_FILTERS = {
+      active: p => p.status === "active",
+      "needs-owner": p => p.status === "orphaned" || p.ownerInactive,
+      scheduled: () => true,
+      failed: p => p.hasFailure
+    };
+
+    const FAILURE_FILTERS = {
+      unresolved: () => true,
+      acknowledged: () => true,
+      all: () => true
+    };
+
+    let currentView = "overview";
+    let scheduleFilter = null;
+    let failureFilter = null;
+
+    const STATUS_LABEL = { active: "Active", orphaned: "Needs owner", paused: "Paused", archived: "Archived" };
+    const STATUS_CLASS = { active: "status-active", orphaned: "status-paused", paused: "status-paused", archived: "status-paused" };
+    const STATUS_DOT = { active: "active", orphaned: "paused", paused: "paused", archived: "paused" };
+
+    const RECIPIENT_STATE = {
+      sent: { label: "Sent", pill: "status-active" },
+      bounced: { label: "Bounced", pill: "status-paused" },
+      queued: { label: "Queued", pill: "status-pending" },
+      blocked: { label: "Blocked", pill: "status-paused" },
+      paused: { label: "Paused", pill: "status-paused" }
+    };
+
+    const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const CADENCES = [
+      { key: "daily", label: "Every day" },
+      { key: "weekdays", label: "Weekdays (Mon–Fri)" },
+      { key: "weekly", label: "Weekly" },
+      { key: "monthly", label: "Monthly" },
+      { key: "hourly4", label: "Every 4 hours" }
+    ];
+    const TIMEZONES = ["America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", "UTC"];
+
+    function fmt12(time) {
+      const [h, m] = time.split(":").map(Number);
+      const suffix = h < 12 ? "AM" : "PM";
+      const hour = h % 12 === 0 ? 12 : h % 12;
+      return `${hour}:${String(m).padStart(2, "0")} ${suffix}`;
+    }
+
+    function ordinal(n) {
+      const num = Number(n);
+      const teens = num % 100;
+      if (teens >= 11 && teens <= 13) return num + "th";
+      return num + (["th", "st", "nd", "rd"][num % 10] || "th");
+    }
+
+    function planSchedule(plan) {
+      const at = ` at ${fmt12(plan.time)}`;
+      if (plan.cadence === "hourly4") return "Every 4 hours";
+      if (plan.cadence === "daily") return `Every day${at}`;
+      if (plan.cadence === "weekdays") return `Weekdays${at}`;
+      if (plan.cadence === "weekly") return `Every ${WEEKDAYS[Number(plan.day)]}${at}`;
+      if (plan.day === "L") return `Last day of month${at}`;
+      return `${ordinal(plan.day)} of every month${at}`;
+    }
+
+    function planCron(plan) {
+      const [h, m] = plan.time.split(":").map(Number);
+      let expr;
+      if (plan.cadence === "hourly4") expr = "0 */4 * * *";
+      else if (plan.cadence === "daily") expr = `${m} ${h} * * *`;
+      else if (plan.cadence === "weekdays") expr = `${m} ${h} * * 1-5`;
+      else if (plan.cadence === "weekly") expr = `${m} ${h} * * ${plan.day}`;
+      else expr = `${m} ${h} ${plan.day} * *`;
+      return `${expr} · ${plan.tz}`;
+    }
+
+    function nextOccurrence(plan) {
+      const [h, m] = plan.time.split(":").map(Number);
+      const now = new Date();
+      const next = new Date(now);
+      next.setHours(h, m, 0, 0);
+      if (plan.cadence === "hourly4") return new Date(now.getTime() + 4 * 3600 * 1000);
+      if (plan.cadence === "daily") {
+        if (next <= now) next.setDate(next.getDate() + 1);
+      } else if (plan.cadence === "weekdays") {
+        if (next <= now) next.setDate(next.getDate() + 1);
+        while (next.getDay() === 0 || next.getDay() === 6) next.setDate(next.getDate() + 1);
+      } else if (plan.cadence === "weekly") {
+        let delta = (Number(plan.day) - next.getDay() + 7) % 7;
+        if (delta === 0 && next <= now) delta = 7;
+        next.setDate(next.getDate() + delta);
+      } else {
+        const lastDay = new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate();
+        next.setDate(plan.day === "L" ? lastDay : Math.min(Number(plan.day), lastDay));
+        if (next <= now) {
+          next.setMonth(next.getMonth() + 1, 1);
+          const nextLast = new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate();
+          next.setDate(plan.day === "L" ? nextLast : Math.min(Number(plan.day), nextLast));
+        }
+      }
+      return next;
+    }
+
+    function nextRunLabel(plan) {
+      if (plan.status === "archived") return "archived";
+      if (plan.status === "paused") return "paused";
+      if (plan.status === "orphaned") return "needs owner";
+      const mins = Math.max(0, Math.round((nextOccurrence(plan) - new Date()) / 60000));
+      const days = Math.floor(mins / 1440);
+      const hours = Math.floor((mins % 1440) / 60);
+      if (days) return `in ${days}d ${hours}h`;
+      if (hours) return mins % 60 ? `in ${hours}h ${mins % 60}m` : `in ${hours}h`;
+      return `in ${mins % 60}m`;
+    }
+
+    function recipientSummary(plan) {
+      const roster = RECIPIENTS[plan.id] || { people: [] };
+      const total = roster.people.reduce((sum, p) => sum + p.count, 0);
+      const tally = state => roster.people.filter(p => p.state === state).reduce((sum, p) => sum + p.count, 0);
+      const delivered = tally("sent");
+      const bounced = tally("bounced");
+      const queued = tally("queued");
+      let pill = roster.pill;
+      if (!pill) {
+        if (bounced) pill = bounced + " bounced";
+        else if (queued) pill = queued + " queued";
+        else pill = "All delivered";
+      }
+      return { roster, total, delivered, bounced, queued, pill, note: roster.note };
+    }
+
+    function planById(id) { return PLANS.find(p => p.id === id); }
+    function directoryUser(email) { return DIRECTORY.find(u => u.email === email) || (email === CURRENT_USER.email ? CURRENT_USER : null); }
+
+    function recipientTotal(planId) {
+      const roster = RECIPIENTS[planId];
+      if (!roster) return 0;
+      return roster.people.reduce((s, p) => s + p.count, 0);
+    }
+
+    function statusBadge(status) {
+      const label = STATUS_LABEL[status] || status;
+      const cls = STATUS_CLASS[status] || "status-paused";
+      return `<span class="badge ${cls}">${label.toUpperCase()}</span>`;
+    }
+
+    function toast(msg, type = "", undo = null) {
+      const el = document.createElement("div");
+      el.className = "toast" + (type ? " " + type : "");
+      const text = document.createElement("span");
+      text.textContent = msg;
+      el.appendChild(text);
+      if (undo) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "toast-action";
+        btn.textContent = undo.label;
+        btn.addEventListener("click", () => { el.remove(); undo.onClick(); });
+        el.appendChild(btn);
+      }
+      document.getElementById("toast-container").appendChild(el);
+      setTimeout(() => el.remove(), undo ? 6000 : 3500);
+    }
+
+    function planSnapshot(plan) {
+      return { status: plan.status, owner: plan.owner, ownerInactive: plan.ownerInactive };
+    }
+
+    function undoPlan(id, snapshot, message) {
+      return { label: "Undo", onClick: () => {
+        const plan = planById(id);
+        Object.assign(plan, snapshot);
+        refreshAll();
+        toast(message);
+      }};
+    }
+
+    function refreshAll() {
+      renderScheduleTable();
+      renderFailureQueue();
+      renderOverviewStats();
+      if (drawerPlanId) renderDrawer();
+    }
+
+    function renderOverviewStats() {
+      const active = PLANS.filter(p => p.status === "active").length;
+      const orphaned = PLANS.filter(p => p.status === "orphaned").length;
+      const reach = PLANS.filter(p => p.status !== "archived").reduce((s, p) => s + recipientTotal(p.id), 0);
+      const statCards = document.querySelectorAll(".stat-row .stat-card");
+      if (statCards[0]) statCards[0].querySelector(".value").textContent = active;
+      if (statCards[1]) statCards[1].querySelector(".value").textContent = orphaned;
+      if (statCards[2]) statCards[2].querySelector(".value").textContent = OPEN_FAILURES.length;
+      if (statCards[2]) statCards[2].querySelector(".stat-sub").textContent = `across ${new Set(OPEN_FAILURES.map(f => f.plan)).size} plans`;
+      if (statCards[3]) statCards[3].querySelector(".value").textContent = reach;
+      if (statCards[3]) statCards[3].querySelector(".label").textContent = `Recipients reached — ${PLANS.filter(p => p.status !== "archived").length} scheduled plans`;
+    }
+
+    function renderScheduleTable() {
+      const tbody = document.getElementById("schedule-tbody");
+      tbody.innerHTML = PLANS.map(plan => {
+        const menuItems = [];
+        menuItems.push({ action: "open", label: "Open details" });
+        if (plan.status === "paused" || plan.status === "archived") menuItems.push({ action: "resume", label: "Resume delivery" });
+        else menuItems.push({ action: "pause", label: "Pause delivery" });
+        menuItems.push({ action: "test", label: "Send test to me" });
+        if (plan.ownerInactive) menuItems.push({ action: "reassign", label: "Reassign owner…" });
+
+        const ownerCell = plan.ownerInactive
+          ? `${plan.owner}<span class="owner-inactive">inactive</span>`
+          : plan.owner;
+
+        return `<tr data-plan-id="${plan.id}" data-plan-status="${plan.status === "active" ? "active" : plan.status === "paused" ? "paused" : "paused"}" data-needs-owner="${plan.status === "orphaned" || plan.ownerInactive ? "true" : "false"}" data-has-failure="${plan.hasFailure ? "true" : "false"}">
+          <td><span class="dot ${STATUS_DOT[plan.status]}"></span><a class="link" href="#">${plan.name}</a><span class="meta">${plan.id}</span></td>
+          <td>${planSchedule(plan)}<span class="meta">${planCron(plan)}</span></td>
+          <td>${ownerCell}</td>
+          <td>${statusBadge(plan.status)}</td>
+          <td><span class="recipients-link">${recipientTotal(plan.id)}</span></td>
+          <td>${nextRunLabel(plan)}</td>
+          <td class="menu-cell">
+            <button type="button" class="kebab-btn" data-plan-id="${plan.id}" aria-label="Row actions">⋮</button>
+          </td>
+        </tr>`;
+      }).join("");
+
+      tbody.querySelectorAll("tr[data-plan-id]").forEach(row => {
+        row.addEventListener("click", e => {
+          if (e.target.closest(".kebab-btn")) return;
+          openDrawer(row.dataset.planId);
+        });
+      });
+
+      tbody.querySelectorAll(".kebab-btn").forEach(btn => {
+        btn.addEventListener("click", e => {
+          e.stopPropagation();
+          showRowMenu(btn, btn.dataset.planId);
+        });
+      });
+
+      applyScheduleFilter();
+    }
+
+    function showRowMenu(anchor, planId) {
+      const plan = planById(planId);
+      const menu = document.getElementById("row-context-menu");
+      const items = [
+        { action: "open", label: "Open details" },
+        plan.status === "paused" || plan.status === "archived"
+          ? { action: "resume", label: "Resume delivery" }
+          : { action: "pause", label: "Pause delivery" },
+        { action: "test", label: "Send test to me" }
+      ];
+      if (plan.ownerInactive) items.push({ action: "reassign", label: "Reassign owner…" });
+
+      menu.innerHTML = items.map(i => `<button type="button" data-action="${i.action}" data-plan-id="${planId}">${i.label}</button>`).join("");
+      menu.classList.add("open");
+      menu.style.position = "fixed";
+      const rect = anchor.getBoundingClientRect();
+      menu.style.top = `${rect.bottom + 4}px`;
+      menu.style.left = `${Math.min(rect.left, window.innerWidth - 200)}px`;
+      openContextMenu = menu;
+
+      menu.querySelectorAll("button").forEach(b => {
+        b.addEventListener("click", e => {
+          e.stopPropagation();
+          menu.classList.remove("open");
+          handlePlanAction(b.dataset.action, b.dataset.planId);
+        });
+      });
+    }
+
+    function handlePlanAction(action, planId) {
+      if (action === "open") openDrawer(planId);
+      else if (action === "pause") pausePlan(planId);
+      else if (action === "resume") resumePlan(planId);
+      else if (action === "test") sendTest(planId);
+      else if (action === "reassign") openReassignModal(planId);
+      else if (action === "run") runNow(planId);
+    }
+
+    function pausePlan(id) {
+      const plan = planById(id);
+      const snap = planSnapshot(plan);
+      plan.status = "paused";
+      refreshAll();
+      toast(`"${plan.name}" paused — no further runs`, "success", undoPlan(id, snap, `"${plan.name}" is running again`));
+    }
+
+    function resumePlan(id) {
+      const plan = planById(id);
+      const snap = planSnapshot(plan);
+      if (plan.ownerInactive) {
+        plan.status = "orphaned";
+        refreshAll();
+        toast(`"${plan.name}" still needs an active owner`, "", undoPlan(id, snap, `"${plan.name}" reverted`));
+      } else {
+        plan.status = "active";
+        refreshAll();
+        toast(`"${plan.name}" resumed · next run ${nextRunLabel(plan)}`, "success", undoPlan(id, snap, `"${plan.name}" paused again`));
+      }
+    }
+
+    function archivePlan(id) {
+      const plan = planById(id);
+      const snap = planSnapshot(plan);
+      plan.status = "archived";
+      refreshAll();
+      toast(`"${plan.name}" archived`, "success", undoPlan(id, snap, `"${plan.name}" restored`));
+    }
+
+    function deletePlan(id) {
+      const plan = planById(id);
+      PLANS.splice(PLANS.indexOf(plan), 1);
+      closeDrawer();
+      refreshAll();
+      toast(`"${plan.name}" deleted`, "success");
+    }
+
+    function saveSchedule() {
+      const plan = planById(drawerPlanId);
+      Object.assign(plan, drawerDraft);
+      refreshAll();
+      toast(`Schedule saved · next run ${nextRunLabel(plan)}`, "success");
+    }
+
+    function sendTest(id) {
+      const plan = planById(id);
+      toast(`Test run of "${plan.name}" sent to ${CURRENT_USER.email}`, "success");
+    }
+
+    function runNow(id) {
+      runConfirm = false;
+      const plan = planById(id);
+      toast(`Run queued for "${plan.name}" · ${recipientSummary(plan).total} recipients`, "success");
+      if (drawerPlanId === id && drawerTab === "history") renderDrawerBody();
+    }
+
+    function askRun() { runConfirm = true; renderDrawerBody(); }
+    function cancelRun() { runConfirm = false; renderDrawerBody(); }
+    function confirmRun() {
+      const plan = planById(drawerPlanId);
+      runConfirm = false;
+      renderDrawerBody();
+      toast(`Run queued for "${plan.name}" · ${recipientSummary(plan).total} recipients`, "success");
+    }
+
+    function resetDraft() {
+      const plan = planById(drawerPlanId);
+      drawerDraft = plan ? { cadence: plan.cadence, day: plan.day, time: plan.time, tz: plan.tz } : null;
+    }
+
+    function draftPlan() {
+      return Object.assign({}, planById(drawerPlanId), drawerDraft);
+    }
+
+    function openDrawer(id, tab) {
+      drawerPlanId = id;
+      drawerTab = tab || "overview";
+      runConfirm = false;
+      resetDraft();
+      document.getElementById("drawer-scrim").hidden = false;
+      document.getElementById("plan-drawer").hidden = false;
+      renderDrawer();
+    }
+
+    function closeDrawer() {
+      drawerPlanId = null;
+      document.getElementById("drawer-scrim").hidden = true;
+      document.getElementById("plan-drawer").hidden = true;
+    }
+
+    function dlRow(k, v, mono) {
+      return `<div class="drawer-dl-row${mono ? " mono" : ""}"><span>${k}</span><span>${v}</span></div>`;
+    }
+
+    function actRow(title, description, buttonHtml, critical) {
+      return `<div class="drawer-act-row${critical ? " critical" : ""}">
+        <div><h4>${title}</h4><p>${description}</p></div>
+        ${buttonHtml}
+      </div>`;
+    }
+
+    function dayOptions(plan) {
+      if (plan.cadence === "weekly") {
+        return WEEKDAYS.map((name, index) =>
+          `<option value="${index}"${String(index) === String(plan.day) ? " selected" : ""}>${name}</option>`).join("");
+      }
+      if (plan.cadence === "monthly") {
+        const options = [];
+        for (let i = 1; i <= 28; i++) {
+          options.push(`<option value="${i}"${String(i) === String(plan.day) ? " selected" : ""}>${ordinal(i)}</option>`);
+        }
+        options.push(`<option value="L"${plan.day === "L" ? " selected" : ""}>Last day</option>`);
+        return options.join("");
+      }
+      return '<option value="">—</option>';
+    }
+
+    function drawerOverview(plan) {
+      const summary = recipientSummary(plan);
+      return `
+        <div class="drawer-dl-group">
+          ${dlRow("Schedule", planSchedule(plan))}
+          ${dlRow("Timezone", plan.tz)}
+          ${dlRow("Bundle", plan.bundle, true)}
+          ${dlRow("Owner", plan.owner + (plan.ownerInactive ? " · inactive" : ""))}
+          ${dlRow("Recipients", `${summary.total} across ${summary.roster.people.length} destinations`)}
+        </div>
+        <div class="drawer-dl-group">
+          ${dlRow("Last run", plan.lastRun)}
+          ${dlRow("Success rate (30d)", plan.successRate)}
+          ${dlRow("Next run", nextRunLabel(plan))}
+        </div>`;
+    }
+
+    function drawerRecipients(plan) {
+      const summary = recipientSummary(plan);
+      return `
+        <div class="drawer-summary-strip">
+          <div><span class="big">${summary.delivered}</span><span class="of">of ${summary.total} delivered on the last run</span></div>
+          <span class="status-pill status-active">${summary.pill}</span>
+        </div>
+        ${summary.note ? `<p class="hint-text">${summary.note}</p>` : ""}
+        <div class="drawer-section-title split" style="margin-top:18px">
+          <span>Destinations</span>
+          <button type="button" id="edit-recipients-btn">Edit recipients…</button>
+        </div>
+        ${summary.roster.people.map(p => {
+          const state = RECIPIENT_STATE[p.state] || { label: p.state, pill: "status-paused" };
+          return `<div class="dest-row"><div><div class="who">${p.to}</div><div class="note${p.alert ? " note-err" : ""}">${p.kind}${p.count > 1 ? ` · ${p.count} people` : ""}</div></div><span class="status-pill ${state.pill}">${state.label}</span></div>`;
+        }).join("")}`;
+    }
+
+    function drawerScheduleHtml() {
+      const draft = draftPlan();
+      const dayOff = draft.cadence !== "weekly" && draft.cadence !== "monthly";
+      const timeOff = draft.cadence === "hourly4";
+      return `
+        <div class="drawer-section-title">When should this report run?</div>
+        <div class="drawer-field">
+          <label for="sch-cadence">Cadence</label>
+          <select class="drawer-input" id="sch-cadence">
+            ${CADENCES.map(c => `<option value="${c.key}"${c.key === draft.cadence ? " selected" : ""}>${c.label}</option>`).join("")}
+          </select>
+        </div>
+        <div class="drawer-field-row">
+          <div class="drawer-field">
+            <label for="sch-day">${draft.cadence === "monthly" ? "Day of month" : "Day of week"}</label>
+            <select class="drawer-input" id="sch-day"${dayOff ? " disabled" : ""}>${dayOptions(draft)}</select>
+          </div>
+          <div class="drawer-field">
+            <label for="sch-time">Time</label>
+            <input class="drawer-input" id="sch-time" type="time" value="${draft.time}"${timeOff ? " disabled" : ""}>
+          </div>
+        </div>
+        <div class="drawer-field">
+          <label for="sch-tz">Timezone</label>
+          <select class="drawer-input" id="sch-tz">
+            ${TIMEZONES.map(tz => `<option value="${tz}"${tz === draft.tz ? " selected" : ""}>${tz}</option>`).join("")}
+          </select>
+        </div>
+        <div class="drawer-dl-group">
+          ${dlRow("Reads as", planSchedule(draft))}
+          ${dlRow("Next run", nextRunLabel(draft))}
+        </div>
+        <details class="drawer-disclosure" id="sch-details"${scheduleDetailsOpen ? " open" : ""}>
+          <summary>Schedule details</summary>
+          <div class="drawer-disclosure-body">${dlRow("Cron expression", planCron(draft), true)}</div>
+        </details>
+        <p class="hint-text" style="margin-top:14px">Saving recalculates the next run. Runs already in flight are not interrupted.</p>`;
+    }
+
+    function bindScheduleForm() {
+      const cadence = document.getElementById("sch-cadence");
+      const day = document.getElementById("sch-day");
+      const time = document.getElementById("sch-time");
+      const tz = document.getElementById("sch-tz");
+      const details = document.getElementById("sch-details");
+      if (!cadence) return;
+      details.addEventListener("toggle", () => { scheduleDetailsOpen = details.open; });
+      cadence.addEventListener("change", () => {
+        drawerDraft.cadence = cadence.value;
+        const current = String(drawerDraft.day);
+        if (drawerDraft.cadence === "weekly" && !/^[0-6]$/.test(current)) drawerDraft.day = "1";
+        if (drawerDraft.cadence === "monthly" && !/^([1-9]|1\d|2[0-8]|L)$/.test(current)) drawerDraft.day = "1";
+        renderDrawerBody();
+      });
+      day.addEventListener("change", () => { drawerDraft.day = day.value; renderDrawerBody(); });
+      time.addEventListener("change", () => { drawerDraft.time = time.value || "09:00"; renderDrawerBody(); });
+      tz.addEventListener("change", () => { drawerDraft.tz = tz.value; renderDrawerBody(); });
+    }
+
+    function fmtStamp(date) {
+      return date.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    }
+
+    function historyStamps(plan, count) {
+      const stepMs = {
+        hourly4: 4 * 3600e3,
+        daily: 24 * 3600e3,
+        weekdays: 24 * 3600e3,
+        weekly: 7 * 24 * 3600e3,
+        monthly: 30 * 24 * 3600e3
+      }[plan.cadence];
+      const stamps = [];
+      let cursor = new Date(nextOccurrence(plan).getTime() - stepMs);
+      while (stamps.length < count) {
+        const weekend = cursor.getDay() === 0 || cursor.getDay() === 6;
+        if (!(plan.cadence === "weekdays" && weekend)) stamps.push(new Date(cursor));
+        cursor = new Date(cursor.getTime() - stepMs);
+      }
+      return stamps;
+    }
+
+    function drawerHistory(plan) {
+      const summary = recipientSummary(plan);
+      const stamps = historyStamps(plan, 5);
+      const bounced = summary.bounced;
+      const rows = [];
+      for (let i = 0; i < 5; i++) {
+        let outcome = { label: "Success", detail: `${summary.total} delivered in ${21 + i * 6}s` };
+        if (i === 0 && bounced) outcome = { label: "Failed", detail: `SMTP 550 · ${bounced} recipient bounced` };
+        if (i === 0 && plan.status === "orphaned") outcome = { label: "Blocked", detail: "owner deactivated — nothing sent" };
+        if (i === 3) outcome = { label: "Timeout", detail: "query exceeded 600s · retried and delivered" };
+        rows.push(`<div class="dest-row"><div><div class="who">${fmtStamp(stamps[i])}</div><div class="note">${outcome.detail}</div></div><span class="history-tag">${outcome.label}</span></div>`);
+      }
+      const runAction = runConfirm
+        ? `<span class="run-confirm">Send to ${summary.total} recipients now?
+             <button type="button" id="history-cancel-run">Cancel</button>
+             <button type="button" class="primary" id="history-confirm-run">Confirm</button>
+           </span>`
+        : `<button type="button" id="history-ask-run">Run now</button>`;
+      return `<div class="drawer-section-title split"><span>Last 5 runs</span>${runAction}</div>
+        ${rows.join("")}
+        <p class="hint-text" style="margin-top:16px">Full run logs come from the log-replication workers — v1.1.</p>`;
+    }
+
+    function drawerActions(plan) {
+      const rows = [];
+      if (plan.status === "archived") {
+        rows.push(actRow("Restore plan", "Returns the plan to the active list and resumes its cadence.",
+          `<button type="button" class="primary" data-act="resume">Restore</button>`));
+      } else if (plan.status === "paused") {
+        rows.push(actRow("Resume delivery", "Runs resume on the next scheduled occurrence.",
+          `<button type="button" class="primary" data-act="resume">Resume</button>`));
+      } else {
+        rows.push(actRow("Pause delivery", "Stops future runs. History and recipients are kept.",
+          `<button type="button" data-act="pause">Pause</button>`));
+      }
+      rows.push(actRow("Reassign owner",
+        plan.ownerInactive
+          ? `${plan.owner} is deactivated, so every run is blocked until this changes.`
+          : `Currently ${plan.owner}. Reassign if this person is leaving the team.`,
+        `<button type="button" data-act="reassign">Reassign owner…</button>`));
+      if (plan.status !== "archived") {
+        rows.push(actRow("Archive plan", "Hides the plan from the active list but keeps its run history.",
+          `<button type="button" data-act="archive">Archive</button>`));
+      }
+      rows.push(actRow("Delete plan", "Removes the schedule and its history. This cannot be undone.",
+        `<button type="button" class="danger" data-act="delete">Delete</button>`, true));
+      return rows.join("");
+    }
+
+    function renderDrawerFoot(plan) {
+      const foot = document.getElementById("drawer-foot");
+      if (drawerTab === "schedule") {
+        foot.innerHTML = `<span class="drawer-foot-note">${planSchedule(draftPlan())}</span>
+          <div class="drawer-foot-actions">
+            <button type="button" id="drawer-reset-schedule">Reset</button>
+            <button type="button" class="primary" id="drawer-save-schedule">Save schedule</button>
+          </div>`;
+        document.getElementById("drawer-reset-schedule").onclick = () => { resetDraft(); renderDrawerBody(); };
+        document.getElementById("drawer-save-schedule").onclick = saveSchedule;
+        return;
+      }
+      let action = "";
+      if (plan.status === "paused" || plan.status === "archived") {
+        action = `<button type="button" class="primary" id="drawer-foot-action">Resume delivery</button>`;
+      } else if (plan.ownerInactive) {
+        action = `<button type="button" class="primary" id="drawer-foot-action">Reassign owner…</button>`;
+      } else {
+        action = `<button type="button" id="drawer-foot-action">Pause delivery</button>`;
+      }
+      foot.innerHTML = `<span class="drawer-foot-note">Next run · ${nextRunLabel(plan)}</span>${action}`;
+      const btn = document.getElementById("drawer-foot-action");
+      if (plan.status === "paused" || plan.status === "archived") btn.onclick = () => resumePlan(plan.id);
+      else if (plan.ownerInactive) btn.onclick = () => openReassignModal(plan.id);
+      else btn.onclick = () => pausePlan(plan.id);
+    }
+
+    function renderDrawerBody() {
+      const plan = planById(drawerPlanId);
+      if (!plan) return;
+      const body = document.getElementById("drawer-body");
+      if (drawerTab === "overview") body.innerHTML = drawerOverview(plan);
+      else if (drawerTab === "recipients") body.innerHTML = drawerRecipients(plan);
+      else if (drawerTab === "history") body.innerHTML = drawerHistory(plan);
+      else if (drawerTab === "actions") body.innerHTML = drawerActions(plan);
+      else {
+        body.innerHTML = drawerScheduleHtml();
+        bindScheduleForm();
+      }
+
+      if (drawerTab === "recipients") {
+        document.getElementById("edit-recipients-btn")?.addEventListener("click", () =>
+          toast("Recipient editor opens in production — list is read-only in this prototype"));
+      }
+      if (drawerTab === "history") {
+        document.getElementById("history-ask-run")?.addEventListener("click", askRun);
+        document.getElementById("history-cancel-run")?.addEventListener("click", cancelRun);
+        document.getElementById("history-confirm-run")?.addEventListener("click", confirmRun);
+      }
+      if (drawerTab === "actions") {
+        body.querySelectorAll("[data-act]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const act = btn.dataset.act;
+            if (act === "archive") archivePlan(plan.id);
+            else if (act === "delete") deletePlan(plan.id);
+            else handlePlanAction(act, plan.id);
+          });
+        });
+      }
+      renderDrawerFoot(plan);
+    }
+
+    function renderDrawer() {
+      const plan = planById(drawerPlanId);
+      if (!plan) return;
+      document.getElementById("drawer-name").textContent = plan.name;
+      document.getElementById("drawer-status").innerHTML = statusBadge(plan.status);
+      document.getElementById("drawer-sub").textContent = `${plan.id} · ${plan.tenant}`;
+      document.querySelectorAll("#drawer-tabs button").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.tab === drawerTab);
+      });
+      renderDrawerBody();
+    }
+
+    function openReassignModal(planId) {
+      const plan = planById(planId);
+      reassignState = { planId, pick: null, query: "" };
+      document.getElementById("modal-title").textContent = "Reassign owner";
+      document.getElementById("modal-sub").textContent = `${plan.name} · ${plan.tenant}`;
+      document.getElementById("modal-body").innerHTML = `
+        <p class="hint-text">A run executes with its owner's Looker permissions. Pick someone with access to this care provider's data.</p>
+        <div style="margin-top:12px"><label for="reassign-q">Search people</label>
+        <input type="search" id="reassign-q" placeholder="Name, email or role"></div>
+        <div class="pick-list" id="reassign-list"></div>`;
+      document.getElementById("modal-foot").innerHTML = `
+        <button type="button" id="modal-cancel">Cancel</button>
+        <button type="button" class="primary" id="reassign-confirm" disabled>Reassign</button>`;
+      document.getElementById("modal-scrim").hidden = false;
+      document.getElementById("app-modal").hidden = false;
+      document.getElementById("reassign-q").addEventListener("input", e => {
+        reassignState.query = e.target.value;
+        renderReassignList();
+      });
+      document.getElementById("modal-cancel").onclick = closeModal;
+      document.getElementById("reassign-confirm").onclick = confirmReassign;
+      renderReassignList();
+    }
+
+    function renderReassignList() {
+      const plan = planById(reassignState.planId);
+      const q = reassignState.query.trim().toLowerCase();
+      const rows = [CURRENT_USER, ...DIRECTORY].filter(u =>
+        !q || [u.name, u.email, u.role].join(" ").toLowerCase().includes(q));
+      const list = document.getElementById("reassign-list");
+      list.innerHTML = rows.map(u => {
+        const current = u.email === plan.owner;
+        const disabled = current || u.active === false;
+        let tag = u.role || "Reporting admin";
+        if (current) tag = u.active !== false ? "Current owner" : "Current owner · deactivated";
+        else if (u.active === false) tag = "Deactivated";
+        return `<button type="button" class="pick-row" data-email="${u.email}" aria-pressed="${reassignState.pick === u.email}"${disabled ? " disabled" : ""}>
+          <span><strong>${u.name}</strong><span class="mail">${u.email}</span></span>
+          <span style="font-size:12px;color:var(--muted)">${tag}</span></button>`;
+      }).join("") || `<p class="hint-text">Nobody matches that search.</p>`;
+
+      list.querySelectorAll(".pick-row:not([disabled])").forEach(row => {
+        row.addEventListener("click", () => {
+          reassignState.pick = row.dataset.email;
+          renderReassignList();
+          document.getElementById("reassign-confirm").disabled = !reassignState.pick;
+        });
+      });
+    }
+
+    function confirmReassign() {
+      const plan = planById(reassignState.planId);
+      const user = directoryUser(reassignState.pick);
+      const snap = planSnapshot(plan);
+      plan.owner = user.email;
+      plan.ownerInactive = false;
+      if (plan.status === "orphaned") {
+        plan.status = "active";
+      }
+      closeModal();
+      refreshAll();
+      toast(`Owner reassigned to ${user.name}`, "success", undoPlan(plan.id, snap, `Owner returned to ${snap.owner}`));
+    }
+
+    function closeModal() {
+      document.getElementById("modal-scrim").hidden = true;
+      document.getElementById("app-modal").hidden = true;
+    }
+
+    function failureSearchText(f) {
+      return [f.plan, f.message, f.category || f.tag, f.tenant || ""].join(" ").toLowerCase();
+    }
+
+    function renderFailureQueue() {
+      const q = document.getElementById("failure-search").value.trim().toLowerCase();
+      const showUnresolved = !failureFilter || failureFilter === "unresolved" || failureFilter === "all";
+      const showAck = !failureFilter || failureFilter === "acknowledged" || failureFilter === "all";
+
+      const openHtml = OPEN_FAILURES.filter(f => !q || failureSearchText(f).includes(q)).map(f => `
+        <article class="failure-card" data-state="unresolved" data-search="${failureSearchText(f)}">
+          <div class="failure-top"><h3>${f.plan}</h3>
+            <div class="failure-badges">
+              <span class="status-pill status-pending">${f.category}</span>
+              <span class="status-pill status-unresolved">Unresolved</span>
+            </div></div>
+          <div class="failure-msg">${f.message}</div>
+          <div class="failure-meta">${f.tenant} · ${f.ago} · retried ${f.retries}×</div>
+          <div class="failure-actions">
+            <button type="button" class="primary" data-retry="${f.id}">Retry</button>
+            <button type="button" data-ack="${f.id}">Acknowledge</button>
+          </div>
+        </article>`).join("");
+
+      const ackHtml = ACK_FAILURES.filter(f => !q || failureSearchText(f).includes(q)).map(f => `
+        <article class="failure-card acknowledged" data-state="acknowledged" data-search="${failureSearchText(f)}">
+          <div class="failure-top"><h3>${f.plan}</h3><span class="status-pill status-paused">${f.tag}</span></div>
+          <div class="failure-msg">${f.message}</div>
+          <div class="failure-meta">${f.ago}</div>
+        </article>`).join("");
+
+      document.getElementById("unresolved-failures").innerHTML = showUnresolved ? openHtml : "";
+      document.getElementById("acknowledged-failures").innerHTML = showAck ? ackHtml : "";
+      document.getElementById("unresolved-count").textContent = showUnresolved ? OPEN_FAILURES.filter(f => !q || failureSearchText(f).includes(q)).length : 0;
+      document.getElementById("acknowledged-count").textContent = showAck ? ACK_FAILURES.filter(f => !q || failureSearchText(f).includes(q)).length : 0;
+
+      document.querySelectorAll("[data-retry]").forEach(btn => {
+        btn.addEventListener("click", () => retryFailure(Number(btn.dataset.retry)));
+      });
+      document.querySelectorAll("[data-ack]").forEach(btn => {
+        btn.addEventListener("click", () => ackFailure(Number(btn.dataset.ack)));
+      });
+
+      if (failureFilter) {
+        const visible = (showUnresolved ? OPEN_FAILURES.length : 0) + (showAck ? ACK_FAILURES.length : 0);
+        updateFilterBanner("failure-queue", failureFilter, visible, OPEN_FAILURES.length + ACK_FAILURES.length);
+      }
+    }
+
+    function retryFailure(id) {
+      const f = OPEN_FAILURES.find(x => x.id === id);
+      toast(`Retry queued for "${f.plan}"`, "success");
+    }
+
+    function ackFailure(id) {
+      const f = OPEN_FAILURES.find(x => x.id === id);
+      OPEN_FAILURES = OPEN_FAILURES.filter(x => x.id !== id);
+      ACK_FAILURES.unshift({ id: failureIdSeq++, plan: f.plan, tag: f.category, message: f.message, ago: "just now" });
+      refreshAll();
+      toast(`Acknowledged "${f.plan}"`, "success");
+    }
+
+    function switchView(viewKey, filter) {
+      if (!VIEWS[viewKey]) return;
+      currentView = viewKey;
+      if (viewKey === "schedule") scheduleFilter = filter || null;
+      else if (viewKey !== "overview") scheduleFilter = null;
+      if (viewKey === "failure-queue") failureFilter = filter || null;
+      else if (viewKey !== "overview") failureFilter = null;
+
+      document.querySelectorAll(".view").forEach(el => el.classList.remove("active"));
+      document.getElementById(VIEWS[viewKey].id).classList.add("active");
+      document.querySelectorAll("#page-tabs button").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.view === viewKey);
+      });
+      document.title = VIEWS[viewKey].title;
+
+      if (viewKey === "schedule") applyScheduleFilter();
+      if (viewKey === "failure-queue") renderFailureQueue();
+    }
+
+    function applyScheduleFilter() {
+      const rows = [...document.querySelectorAll("#schedule-tbody tr")];
+      const filterFn = scheduleFilter ? (row => {
+        const plan = planById(row.dataset.planId);
+        return plan && SCHEDULE_FILTERS[scheduleFilter](plan);
+      }) : () => true;
+      const query = document.getElementById("schedule-search").value.trim().toLowerCase();
+      let visible = 0;
+      rows.forEach(row => {
+        const show = filterFn(row) && (!query || row.textContent.toLowerCase().includes(query));
+        row.hidden = !show;
+        if (show) visible++;
+      });
+      updateFilterBanner("schedule", scheduleFilter, visible, rows.length);
+      updatePagination("schedule", visible, rows.length);
+      document.getElementById("schedule-table").hidden = visible === 0;
+      document.getElementById("schedule-empty-msg").classList.toggle("visible", visible === 0);
+    }
+
+    function updateFilterBanner(view, filter, visible, total) {
+      const prefix = view === "schedule" ? "schedule" : "failure";
+      const banner = document.getElementById(`${prefix}-filter-banner`);
+      const label = document.getElementById(`${prefix}-filter-label`);
+      if (!filter) { banner.classList.remove("visible"); return; }
+      banner.classList.add("visible");
+      label.textContent = `Showing: ${FILTER_LABELS[view][filter]} (${visible} of ${total})`;
+    }
+
+    function updatePagination(view, visible, total) {
+      if (view === "failure-queue") return;
+      const prefix = "schedule";
+      const label = visible === 0 ? `0 of ${total}` : `1 – ${visible} of ${total}`;
+      document.querySelectorAll(`#${prefix}-pagination-top .pagination-label, #${prefix}-pagination-bottom .pagination-label`).forEach(el => {
+        el.textContent = label;
+      });
+    }
+
+    function clearFilter(view) {
+      if (view === "schedule") {
+        scheduleFilter = null;
+        document.getElementById("schedule-search").value = "";
+        applyScheduleFilter();
+      } else {
+        failureFilter = null;
+        document.getElementById("failure-search").value = "";
+        renderFailureQueue();
+        document.getElementById("failure-filter-banner").classList.remove("visible");
+      }
+    }
+
+    document.querySelectorAll("#page-tabs button").forEach(btn => {
+      btn.addEventListener("click", () => switchView(btn.dataset.view));
+    });
+
+    document.querySelectorAll("[data-nav]").forEach(el => {
+      const navigate = e => {
+        e.preventDefault();
+        switchView(el.dataset.nav, el.dataset.filter || null);
+      };
+      el.addEventListener("click", navigate);
+      if (el.getAttribute("role") === "button") {
+        el.addEventListener("keydown", e => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); navigate(e); }
+        });
+      }
+    });
+
+    document.querySelectorAll(".clear-filter").forEach(btn => {
+      btn.addEventListener("click", () => clearFilter(btn.dataset.clearFilter));
+    });
+
+    document.getElementById("schedule-search").addEventListener("input", applyScheduleFilter);
+    document.getElementById("schedule-search-clear").addEventListener("click", () => {
+      document.getElementById("schedule-search").value = "";
+      applyScheduleFilter();
+    });
+    document.getElementById("schedule-refresh").addEventListener("click", () => {
+      refreshAll();
+      toast("Plan list refreshed", "success");
+    });
+
+    document.getElementById("failure-search").addEventListener("input", renderFailureQueue);
+    document.getElementById("failure-search-clear").addEventListener("click", () => {
+      document.getElementById("failure-search").value = "";
+      renderFailureQueue();
+    });
+    document.getElementById("failure-refresh").addEventListener("click", () => {
+      renderFailureQueue();
+      toast("Failure queue refreshed", "success");
+    });
+
+    document.getElementById("btn-new-plan").addEventListener("click", () => toast("New plan wizard opens in production"));
+    document.getElementById("btn-export-failures").addEventListener("click", () => toast("Export queued — CSV of the failure queue", "success"));
+
+    document.getElementById("drawer-close").addEventListener("click", closeDrawer);
+    document.getElementById("drawer-scrim").addEventListener("click", closeDrawer);
+    document.getElementById("modal-scrim").addEventListener("click", closeModal);
+    document.querySelectorAll("#drawer-tabs button").forEach(tab => {
+      tab.addEventListener("click", () => {
+        drawerTab = tab.dataset.tab;
+        runConfirm = false;
+        if (drawerTab === "schedule") resetDraft();
+        renderDrawer();
+      });
+    });
+
+    document.addEventListener("click", () => {
+      if (openContextMenu) { openContextMenu.classList.remove("open"); openContextMenu = null; }
+    });
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") {
+        if (!document.getElementById("app-modal").hidden) closeModal();
+        else if (drawerPlanId) closeDrawer();
+      }
+    });
+
+    document.getElementById("attention-loss-prevention")?.addEventListener("click", () => openDrawer("sp_10255"));
+    document.getElementById("attention-loss-prevention")?.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDrawer("sp_10255"); }
+    });
+
+    refreshAll();
+  </script>
+</body>
+</html>

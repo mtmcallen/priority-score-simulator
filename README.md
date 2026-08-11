@@ -71,6 +71,7 @@ Each editable hype flyer is its own SSO-gated app in the console:
 | Patient Prioritization Device Requirements (Android) | `pp-device-requirements-android-mcarroll` | `paas/pp-device-requirements-android-mcarroll/tool.yaml` |
 | Home final walkthrough | `home-final-walkthrough-mcarroll` | `paas/home-final-walkthrough-mcarroll/tool.yaml` |
 | Reporting Portal Admin Console | `reporting-portal-admin-mcarroll` | `paas/reporting-portal-admin-mcarroll/tool.yaml` |
+| Reporting Portal Admin Console v2 (tab nav) | `reporting-portal-admin-v2` | `paas/reporting-portal-admin-v2/tool.yaml` |
 | Change log voting | `change-log-voting-mcarroll` | `paas/change-log-voting-mcarroll/tool.yaml` |
 
 ```bash
@@ -109,6 +110,7 @@ Live URLs (after deploy):
 - https://pp-device-requirements-ios-mcarroll.tools.cipherhealth.dev
 - https://pp-device-requirements-android-mcarroll.tools.cipherhealth.dev
 - https://reporting-portal-admin-mcarroll.tools.cipherhealth.dev (after first PaaS deploy)
+- https://reporting-portal-admin-v2.tools.cipherhealth.dev (after first PaaS deploy)
 
 The manifest uses `source_dir: deploy` so only static assets are uploaded — not the full repo.
 
@@ -140,6 +142,7 @@ The manifest uses `source_dir: deploy` so only static assets are uploaded — no
 | **Answer Option Multi-Photo Prototype** (interactive mockup — multiple photos per answer with removable thumbnails) | [mtmcallen.github.io/priority-score-simulator/docs/designs/answer-option-multi-photo-prototype.html](https://mtmcallen.github.io/priority-score-simulator/docs/designs/answer-option-multi-photo-prototype.html) |
 | **Answer Option Multi-Photo — Mobile** (iOS &amp; Android mockup — multi-select picker up to 10, Choose button top right) | [mtmcallen.github.io/priority-score-simulator/docs/designs/answer-option-multi-photo-mobile-prototype.html](https://mtmcallen.github.io/priority-score-simulator/docs/designs/answer-option-multi-photo-mobile-prototype.html) |
 | **Reporting Portal Admin Console** (Evolve-style prototype — Overview, Schedule, Failure Queue) | [mtmcallen.github.io/priority-score-simulator/docs/designs/reporting-portal-admin-prototype.html](https://mtmcallen.github.io/priority-score-simulator/docs/designs/reporting-portal-admin-prototype.html) |
+| **Reporting Portal Admin Console v2** (tab navigation — Overview, Schedule, Failure Queue) | [mtmcallen.github.io/priority-score-simulator/docs/designs/reporting-portal-admin-prototype-v2.html](https://mtmcallen.github.io/priority-score-simulator/docs/designs/reporting-portal-admin-prototype-v2.html) · [PaaS](https://reporting-portal-admin-v2.tools.cipherhealth.dev) |
 
 Open the flyer in a browser, click highlighted fields to customize for an account, paste a QR code image, then print or save as PDF.
 

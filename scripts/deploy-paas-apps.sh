@@ -30,6 +30,7 @@ ALL_MANIFESTS=(
   "$ROOT/paas/pp-device-requirements-android-mcarroll/tool.yaml"
   "$ROOT/paas/home-final-walkthrough-mcarroll/tool.yaml"
   "$ROOT/paas/reporting-portal-admin-mcarroll/tool.yaml"
+  "$ROOT/paas/reporting-portal-admin-v2/tool.yaml"
   "$ROOT/paas/change-log-voting-mcarroll/tool.yaml"
 )
 
@@ -40,6 +41,7 @@ sync_all() {
   "$ROOT/scripts/sync-paas-walkthrough.sh"
   "$ROOT/scripts/sync-paas-change-log-voting.sh"
   "$ROOT/scripts/sync-paas-reporting-portal.sh"
+  "$ROOT/scripts/sync-paas-reporting-portal-v2.sh"
 }
 
 deploy_manifest() {

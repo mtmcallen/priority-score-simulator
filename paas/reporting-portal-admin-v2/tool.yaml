@@ -1,0 +1,4 @@
+# Reporting Portal Admin Console v2 — tab navigation prototype.
+name: reporting-portal-admin-v2
+runtime: static
+source_dir: deploy
