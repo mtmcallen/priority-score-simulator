@@ -762,7 +762,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: min(560px, calc(100vw - 32px));
+      width: min(600px, calc(100vw - 32px));
       max-height: calc(100vh - 48px);
       background: #fff;
       border-radius: 8px;
@@ -889,6 +889,100 @@
     }
     .dest-row .who { font-weight: 600; }
     .dest-row .note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .dest-row .note.note-err { color: var(--failed-red); }
+    .drawer-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--title-color);
+      margin-bottom: 12px;
+    }
+    .drawer-section-title.split {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .drawer-field { margin-bottom: 12px; }
+    .drawer-field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .drawer-field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .drawer-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .drawer-dl-group { margin-bottom: 16px; }
+    .drawer-dl-row.mono span:last-child {
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+    }
+    .drawer-disclosure {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0 12px;
+    }
+    .drawer-disclosure summary {
+      cursor: pointer;
+      padding: 10px 0;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .drawer-disclosure-body { padding-bottom: 12px; }
+    .drawer-summary-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      background: #f8fbfd;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+    .drawer-summary-strip .big { font-size: 20px; font-weight: 700; margin-right: 6px; }
+    .drawer-summary-strip .of { font-size: 12px; color: var(--muted); }
+    .drawer-act-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .drawer-act-row h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .drawer-act-row p { font-size: 12px; color: var(--muted); line-height: 1.45; max-width: 320px; }
+    .drawer-act-row.critical h4 { color: var(--failed-red); }
+    .drawer-act-row button { flex-shrink: 0; }
+    .run-confirm {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .run-confirm button { padding: 4px 10px; font-size: 12px; }
+    .history-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: #f0f4f7;
+      color: var(--muted);
+    }
+    .drawer-foot-actions { display: flex; gap: 8px; margin-left: auto; }
 
     /* ── Modal ── */
     .modal-scrim {
@@ -1247,6 +1341,8 @@
     <div class="drawer-tabs" id="drawer-tabs">
       <button type="button" class="active" data-tab="overview">Overview</button>
       <button type="button" data-tab="recipients">Recipients</button>
+      <button type="button" data-tab="schedule">Schedule</button>
+      <button type="button" data-tab="history">History</button>
       <button type="button" data-tab="actions">Actions</button>
     </div>
     <div class="drawer-body" id="drawer-body"></div>
@@ -1283,12 +1379,30 @@
     const CURRENT_USER = { email: "admin@reporting-portal.io", name: "You", role: "Reporting admin" };
 
     const PLANS = [
-      { id: "sp_10241", name: "Weekly Store Performance", tenant: "Acme Retail Group", schedule: "Every Monday at 7:00 AM", cron: "0 7 * * 1 · America/New_York", owner: "j.morgan@acme.co", ownerInactive: false, status: "active", recipients: 24, nextRun: "in 3d 16h", lastRun: "2 days ago · success", successRate: "99.1%", bundle: "bnd_ops_weekly", hasFailure: false },
-      { id: "sp_10255", name: "Loss Prevention Alerts", tenant: "Acme Retail Group", schedule: "Every day at 9:00 AM", cron: "0 9 * * * · America/New_York", owner: "lp-desk@acme.co", ownerInactive: false, status: "active", recipients: 8, nextRun: "in 18h 22m", lastRun: "today · failed", successRate: "92.7%", bundle: "bnd_loss_prevention", hasFailure: true },
-      { id: "sp_10263", name: "Inventory Snapshot", tenant: "Acme Retail Group", schedule: "Every Sunday at 6:00 AM", cron: "0 6 * * 0 · America/New_York", owner: "inventory@acme-retail.com", ownerInactive: false, status: "active", recipients: 12, nextRun: "in 5d 2h", lastRun: "5 days ago · success", successRate: "98.4%", bundle: "bnd_inventory", hasFailure: false },
-      { id: "sp_10270", name: "Regional Sales Rollup", tenant: "Acme Retail Group", schedule: "1st of month at 8:00 AM", cron: "0 8 1 * * · America/New_York", owner: "s.chen@acme.co", ownerInactive: true, status: "orphaned", recipients: 45, nextRun: "needs owner", lastRun: "12 days ago · failed", successRate: "61.4%", bundle: "bnd_sales_east", hasFailure: false },
-      { id: "sp_10288", name: "Daily Flash Report", tenant: "Acme Retail Group", schedule: "Every weekday at 6:30 AM", cron: "30 6 * * 1-5 · America/New_York", owner: "exec-team@acme-retail.com", ownerInactive: false, status: "active", recipients: 6, nextRun: "in 14h 8m", lastRun: "today · success", successRate: "97.2%", bundle: "bnd_flash", hasFailure: false },
-      { id: "sp_10299", name: "Shrinkage Analysis", tenant: "Acme Retail Group", schedule: "Every Friday at 5:00 PM", cron: "0 17 * * 5 · America/New_York", owner: "lp-analyst@acme-retail.com", ownerInactive: false, status: "paused", recipients: 3, nextRun: "paused", lastRun: "16 days ago · success", successRate: "96.0%", bundle: "bnd_shrinkage", hasFailure: false }
+      { id: "sp_10241", name: "Weekly Store Performance", tenant: "Acme Retail Group", bundle: "bnd_ops_weekly",
+        cadence: "weekly", day: "1", time: "07:00", tz: "America/New_York",
+        owner: "j.morgan@acme.co", ownerInactive: false, status: "active",
+        lastRun: "2 days ago · success", successRate: "99.1%", hasFailure: false },
+      { id: "sp_10255", name: "Loss Prevention Alerts", tenant: "Acme Retail Group", bundle: "bnd_loss_prevention",
+        cadence: "daily", day: "", time: "09:00", tz: "America/New_York",
+        owner: "lp-desk@acme.co", ownerInactive: false, status: "active",
+        lastRun: "today · failed", successRate: "92.7%", hasFailure: true },
+      { id: "sp_10263", name: "Inventory Snapshot", tenant: "Acme Retail Group", bundle: "bnd_inventory",
+        cadence: "weekly", day: "0", time: "06:00", tz: "America/New_York",
+        owner: "inventory@acme-retail.com", ownerInactive: false, status: "active",
+        lastRun: "5 days ago · success", successRate: "98.4%", hasFailure: false },
+      { id: "sp_10270", name: "Regional Sales Rollup", tenant: "Acme Retail Group", bundle: "bnd_sales_east",
+        cadence: "monthly", day: "1", time: "08:00", tz: "America/New_York",
+        owner: "s.chen@acme.co", ownerInactive: true, status: "orphaned",
+        lastRun: "12 days ago · failed", successRate: "61.4%", hasFailure: false },
+      { id: "sp_10288", name: "Daily Flash Report", tenant: "Acme Retail Group", bundle: "bnd_flash",
+        cadence: "weekdays", day: "", time: "06:30", tz: "America/New_York",
+        owner: "exec-team@acme-retail.com", ownerInactive: false, status: "active",
+        lastRun: "today · success", successRate: "97.2%", hasFailure: false },
+      { id: "sp_10299", name: "Shrinkage Analysis", tenant: "Acme Retail Group", bundle: "bnd_shrinkage",
+        cadence: "weekly", day: "5", time: "17:00", tz: "America/New_York",
+        owner: "lp-analyst@acme-retail.com", ownerInactive: false, status: "paused",
+        lastRun: "16 days ago · success", successRate: "96.0%", hasFailure: false }
     ];
 
     const DIRECTORY = [
@@ -1343,6 +1457,9 @@
     let failureIdSeq = 5;
     let drawerPlanId = null;
     let drawerTab = "overview";
+    let drawerDraft = null;
+    let runConfirm = false;
+    let scheduleDetailsOpen = false;
     let openContextMenu = null;
     let reassignState = { planId: null, pick: null, query: "" };
 
@@ -1386,6 +1503,114 @@
     const STATUS_LABEL = { active: "Active", orphaned: "Needs owner", paused: "Paused", archived: "Archived" };
     const STATUS_CLASS = { active: "status-active", orphaned: "status-paused", paused: "status-paused", archived: "status-paused" };
     const STATUS_DOT = { active: "active", orphaned: "paused", paused: "paused", archived: "paused" };
+
+    const RECIPIENT_STATE = {
+      sent: { label: "Sent", pill: "status-active" },
+      bounced: { label: "Bounced", pill: "status-paused" },
+      queued: { label: "Queued", pill: "status-pending" },
+      blocked: { label: "Blocked", pill: "status-paused" },
+      paused: { label: "Paused", pill: "status-paused" }
+    };
+
+    const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const CADENCES = [
+      { key: "daily", label: "Every day" },
+      { key: "weekdays", label: "Weekdays (Mon–Fri)" },
+      { key: "weekly", label: "Weekly" },
+      { key: "monthly", label: "Monthly" },
+      { key: "hourly4", label: "Every 4 hours" }
+    ];
+    const TIMEZONES = ["America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", "UTC"];
+
+    function fmt12(time) {
+      const [h, m] = time.split(":").map(Number);
+      const suffix = h < 12 ? "AM" : "PM";
+      const hour = h % 12 === 0 ? 12 : h % 12;
+      return `${hour}:${String(m).padStart(2, "0")} ${suffix}`;
+    }
+
+    function ordinal(n) {
+      const num = Number(n);
+      const teens = num % 100;
+      if (teens >= 11 && teens <= 13) return num + "th";
+      return num + (["th", "st", "nd", "rd"][num % 10] || "th");
+    }
+
+    function planSchedule(plan) {
+      const at = ` at ${fmt12(plan.time)}`;
+      if (plan.cadence === "hourly4") return "Every 4 hours";
+      if (plan.cadence === "daily") return `Every day${at}`;
+      if (plan.cadence === "weekdays") return `Weekdays${at}`;
+      if (plan.cadence === "weekly") return `Every ${WEEKDAYS[Number(plan.day)]}${at}`;
+      if (plan.day === "L") return `Last day of month${at}`;
+      return `${ordinal(plan.day)} of every month${at}`;
+    }
+
+    function planCron(plan) {
+      const [h, m] = plan.time.split(":").map(Number);
+      let expr;
+      if (plan.cadence === "hourly4") expr = "0 */4 * * *";
+      else if (plan.cadence === "daily") expr = `${m} ${h} * * *`;
+      else if (plan.cadence === "weekdays") expr = `${m} ${h} * * 1-5`;
+      else if (plan.cadence === "weekly") expr = `${m} ${h} * * ${plan.day}`;
+      else expr = `${m} ${h} ${plan.day} * *`;
+      return `${expr} · ${plan.tz}`;
+    }
+
+    function nextOccurrence(plan) {
+      const [h, m] = plan.time.split(":").map(Number);
+      const now = new Date();
+      const next = new Date(now);
+      next.setHours(h, m, 0, 0);
+      if (plan.cadence === "hourly4") return new Date(now.getTime() + 4 * 3600 * 1000);
+      if (plan.cadence === "daily") {
+        if (next <= now) next.setDate(next.getDate() + 1);
+      } else if (plan.cadence === "weekdays") {
+        if (next <= now) next.setDate(next.getDate() + 1);
+        while (next.getDay() === 0 || next.getDay() === 6) next.setDate(next.getDate() + 1);
+      } else if (plan.cadence === "weekly") {
+        let delta = (Number(plan.day) - next.getDay() + 7) % 7;
+        if (delta === 0 && next <= now) delta = 7;
+        next.setDate(next.getDate() + delta);
+      } else {
+        const lastDay = new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate();
+        next.setDate(plan.day === "L" ? lastDay : Math.min(Number(plan.day), lastDay));
+        if (next <= now) {
+          next.setMonth(next.getMonth() + 1, 1);
+          const nextLast = new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate();
+          next.setDate(plan.day === "L" ? nextLast : Math.min(Number(plan.day), nextLast));
+        }
+      }
+      return next;
+    }
+
+    function nextRunLabel(plan) {
+      if (plan.status === "archived") return "archived";
+      if (plan.status === "paused") return "paused";
+      if (plan.status === "orphaned") return "needs owner";
+      const mins = Math.max(0, Math.round((nextOccurrence(plan) - new Date()) / 60000));
+      const days = Math.floor(mins / 1440);
+      const hours = Math.floor((mins % 1440) / 60);
+      if (days) return `in ${days}d ${hours}h`;
+      if (hours) return mins % 60 ? `in ${hours}h ${mins % 60}m` : `in ${hours}h`;
+      return `in ${mins % 60}m`;
+    }
+
+    function recipientSummary(plan) {
+      const roster = RECIPIENTS[plan.id] || { people: [] };
+      const total = roster.people.reduce((sum, p) => sum + p.count, 0);
+      const tally = state => roster.people.filter(p => p.state === state).reduce((sum, p) => sum + p.count, 0);
+      const delivered = tally("sent");
+      const bounced = tally("bounced");
+      const queued = tally("queued");
+      let pill = roster.pill;
+      if (!pill) {
+        if (bounced) pill = bounced + " bounced";
+        else if (queued) pill = queued + " queued";
+        else pill = "All delivered";
+      }
+      return { roster, total, delivered, bounced, queued, pill, note: roster.note };
+    }
 
     function planById(id) { return PLANS.find(p => p.id === id); }
     function directoryUser(email) { return DIRECTORY.find(u => u.email === email) || (email === CURRENT_USER.email ? CURRENT_USER : null); }
@@ -1469,11 +1694,11 @@
 
         return `<tr data-plan-id="${plan.id}" data-plan-status="${plan.status === "active" ? "active" : plan.status === "paused" ? "paused" : "paused"}" data-needs-owner="${plan.status === "orphaned" || plan.ownerInactive ? "true" : "false"}" data-has-failure="${plan.hasFailure ? "true" : "false"}">
           <td><span class="dot ${STATUS_DOT[plan.status]}"></span><a class="link" href="#">${plan.name}</a><span class="meta">${plan.id}</span></td>
-          <td>${plan.schedule}<span class="meta">${plan.cron}</span></td>
+          <td>${planSchedule(plan)}<span class="meta">${planCron(plan)}</span></td>
           <td>${ownerCell}</td>
           <td>${statusBadge(plan.status)}</td>
-          <td><span class="recipients-link">${recipientTotal(plan.id) || plan.recipients}</span></td>
-          <td>${plan.nextRun}</td>
+          <td><span class="recipients-link">${recipientTotal(plan.id)}</span></td>
+          <td>${nextRunLabel(plan)}</td>
           <td class="menu-cell">
             <button type="button" class="kebab-btn" data-plan-id="${plan.id}" aria-label="Row actions">⋮</button>
           </td>
@@ -1539,7 +1764,6 @@
       const plan = planById(id);
       const snap = planSnapshot(plan);
       plan.status = "paused";
-      plan.nextRun = "paused";
       refreshAll();
       toast(`"${plan.name}" paused — no further runs`, "success", undoPlan(id, snap, `"${plan.name}" is running again`));
     }
@@ -1549,15 +1773,36 @@
       const snap = planSnapshot(plan);
       if (plan.ownerInactive) {
         plan.status = "orphaned";
-        plan.nextRun = "needs owner";
         refreshAll();
         toast(`"${plan.name}" still needs an active owner`, "", undoPlan(id, snap, `"${plan.name}" reverted`));
       } else {
         plan.status = "active";
-        plan.nextRun = "in 18h 22m";
         refreshAll();
-        toast(`"${plan.name}" resumed · next run ${plan.nextRun}`, "success", undoPlan(id, snap, `"${plan.name}" paused again`));
+        toast(`"${plan.name}" resumed · next run ${nextRunLabel(plan)}`, "success", undoPlan(id, snap, `"${plan.name}" paused again`));
       }
+    }
+
+    function archivePlan(id) {
+      const plan = planById(id);
+      const snap = planSnapshot(plan);
+      plan.status = "archived";
+      refreshAll();
+      toast(`"${plan.name}" archived`, "success", undoPlan(id, snap, `"${plan.name}" restored`));
+    }
+
+    function deletePlan(id) {
+      const plan = planById(id);
+      PLANS.splice(PLANS.indexOf(plan), 1);
+      closeDrawer();
+      refreshAll();
+      toast(`"${plan.name}" deleted`, "success");
+    }
+
+    function saveSchedule() {
+      const plan = planById(drawerPlanId);
+      Object.assign(plan, drawerDraft);
+      refreshAll();
+      toast(`Schedule saved · next run ${nextRunLabel(plan)}`, "success");
     }
 
     function sendTest(id) {
@@ -1566,13 +1811,35 @@
     }
 
     function runNow(id) {
+      runConfirm = false;
       const plan = planById(id);
-      toast(`Run queued for "${plan.name}" · ${recipientTotal(id)} recipients`, "success");
+      toast(`Run queued for "${plan.name}" · ${recipientSummary(plan).total} recipients`, "success");
+      if (drawerPlanId === id && drawerTab === "history") renderDrawerBody();
+    }
+
+    function askRun() { runConfirm = true; renderDrawerBody(); }
+    function cancelRun() { runConfirm = false; renderDrawerBody(); }
+    function confirmRun() {
+      const plan = planById(drawerPlanId);
+      runConfirm = false;
+      renderDrawerBody();
+      toast(`Run queued for "${plan.name}" · ${recipientSummary(plan).total} recipients`, "success");
+    }
+
+    function resetDraft() {
+      const plan = planById(drawerPlanId);
+      drawerDraft = plan ? { cadence: plan.cadence, day: plan.day, time: plan.time, tz: plan.tz } : null;
+    }
+
+    function draftPlan() {
+      return Object.assign({}, planById(drawerPlanId), drawerDraft);
     }
 
     function openDrawer(id, tab) {
       drawerPlanId = id;
       drawerTab = tab || "overview";
+      runConfirm = false;
+      resetDraft();
       document.getElementById("drawer-scrim").hidden = false;
       document.getElementById("plan-drawer").hidden = false;
       renderDrawer();
@@ -1584,8 +1851,258 @@
       document.getElementById("plan-drawer").hidden = true;
     }
 
-    function dlRow(k, v) {
-      return `<div class="drawer-dl-row"><span>${k}</span><span>${v}</span></div>`;
+    function dlRow(k, v, mono) {
+      return `<div class="drawer-dl-row${mono ? " mono" : ""}"><span>${k}</span><span>${v}</span></div>`;
+    }
+
+    function actRow(title, description, buttonHtml, critical) {
+      return `<div class="drawer-act-row${critical ? " critical" : ""}">
+        <div><h4>${title}</h4><p>${description}</p></div>
+        ${buttonHtml}
+      </div>`;
+    }
+
+    function dayOptions(plan) {
+      if (plan.cadence === "weekly") {
+        return WEEKDAYS.map((name, index) =>
+          `<option value="${index}"${String(index) === String(plan.day) ? " selected" : ""}>${name}</option>`).join("");
+      }
+      if (plan.cadence === "monthly") {
+        const options = [];
+        for (let i = 1; i <= 28; i++) {
+          options.push(`<option value="${i}"${String(i) === String(plan.day) ? " selected" : ""}>${ordinal(i)}</option>`);
+        }
+        options.push(`<option value="L"${plan.day === "L" ? " selected" : ""}>Last day</option>`);
+        return options.join("");
+      }
+      return '<option value="">—</option>';
+    }
+
+    function drawerOverview(plan) {
+      const summary = recipientSummary(plan);
+      return `
+        <div class="drawer-dl-group">
+          ${dlRow("Schedule", planSchedule(plan))}
+          ${dlRow("Timezone", plan.tz)}
+          ${dlRow("Bundle", plan.bundle, true)}
+          ${dlRow("Owner", plan.owner + (plan.ownerInactive ? " · inactive" : ""))}
+          ${dlRow("Recipients", `${summary.total} across ${summary.roster.people.length} destinations`)}
+        </div>
+        <div class="drawer-dl-group">
+          ${dlRow("Last run", plan.lastRun)}
+          ${dlRow("Success rate (30d)", plan.successRate)}
+          ${dlRow("Next run", nextRunLabel(plan))}
+        </div>`;
+    }
+
+    function drawerRecipients(plan) {
+      const summary = recipientSummary(plan);
+      return `
+        <div class="drawer-summary-strip">
+          <div><span class="big">${summary.delivered}</span><span class="of">of ${summary.total} delivered on the last run</span></div>
+          <span class="status-pill status-active">${summary.pill}</span>
+        </div>
+        ${summary.note ? `<p class="hint-text">${summary.note}</p>` : ""}
+        <div class="drawer-section-title split" style="margin-top:18px">
+          <span>Destinations</span>
+          <button type="button" id="edit-recipients-btn">Edit recipients…</button>
+        </div>
+        ${summary.roster.people.map(p => {
+          const state = RECIPIENT_STATE[p.state] || { label: p.state, pill: "status-paused" };
+          return `<div class="dest-row"><div><div class="who">${p.to}</div><div class="note${p.alert ? " note-err" : ""}">${p.kind}${p.count > 1 ? ` · ${p.count} people` : ""}</div></div><span class="status-pill ${state.pill}">${state.label}</span></div>`;
+        }).join("")}`;
+    }
+
+    function drawerScheduleHtml() {
+      const draft = draftPlan();
+      const dayOff = draft.cadence !== "weekly" && draft.cadence !== "monthly";
+      const timeOff = draft.cadence === "hourly4";
+      return `
+        <div class="drawer-section-title">When should this report run?</div>
+        <div class="drawer-field">
+          <label for="sch-cadence">Cadence</label>
+          <select class="drawer-input" id="sch-cadence">
+            ${CADENCES.map(c => `<option value="${c.key}"${c.key === draft.cadence ? " selected" : ""}>${c.label}</option>`).join("")}
+          </select>
+        </div>
+        <div class="drawer-field-row">
+          <div class="drawer-field">
+            <label for="sch-day">${draft.cadence === "monthly" ? "Day of month" : "Day of week"}</label>
+            <select class="drawer-input" id="sch-day"${dayOff ? " disabled" : ""}>${dayOptions(draft)}</select>
+          </div>
+          <div class="drawer-field">
+            <label for="sch-time">Time</label>
+            <input class="drawer-input" id="sch-time" type="time" value="${draft.time}"${timeOff ? " disabled" : ""}>
+          </div>
+        </div>
+        <div class="drawer-field">
+          <label for="sch-tz">Timezone</label>
+          <select class="drawer-input" id="sch-tz">
+            ${TIMEZONES.map(tz => `<option value="${tz}"${tz === draft.tz ? " selected" : ""}>${tz}</option>`).join("")}
+          </select>
+        </div>
+        <div class="drawer-dl-group">
+          ${dlRow("Reads as", planSchedule(draft))}
+          ${dlRow("Next run", nextRunLabel(draft))}
+        </div>
+        <details class="drawer-disclosure" id="sch-details"${scheduleDetailsOpen ? " open" : ""}>
+          <summary>Schedule details</summary>
+          <div class="drawer-disclosure-body">${dlRow("Cron expression", planCron(draft), true)}</div>
+        </details>
+        <p class="hint-text" style="margin-top:14px">Saving recalculates the next run. Runs already in flight are not interrupted.</p>`;
+    }
+
+    function bindScheduleForm() {
+      const cadence = document.getElementById("sch-cadence");
+      const day = document.getElementById("sch-day");
+      const time = document.getElementById("sch-time");
+      const tz = document.getElementById("sch-tz");
+      const details = document.getElementById("sch-details");
+      if (!cadence) return;
+      details.addEventListener("toggle", () => { scheduleDetailsOpen = details.open; });
+      cadence.addEventListener("change", () => {
+        drawerDraft.cadence = cadence.value;
+        const current = String(drawerDraft.day);
+        if (drawerDraft.cadence === "weekly" && !/^[0-6]$/.test(current)) drawerDraft.day = "1";
+        if (drawerDraft.cadence === "monthly" && !/^([1-9]|1\d|2[0-8]|L)$/.test(current)) drawerDraft.day = "1";
+        renderDrawerBody();
+      });
+      day.addEventListener("change", () => { drawerDraft.day = day.value; renderDrawerBody(); });
+      time.addEventListener("change", () => { drawerDraft.time = time.value || "09:00"; renderDrawerBody(); });
+      tz.addEventListener("change", () => { drawerDraft.tz = tz.value; renderDrawerBody(); });
+    }
+
+    function fmtStamp(date) {
+      return date.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    }
+
+    function historyStamps(plan, count) {
+      const stepMs = {
+        hourly4: 4 * 3600e3,
+        daily: 24 * 3600e3,
+        weekdays: 24 * 3600e3,
+        weekly: 7 * 24 * 3600e3,
+        monthly: 30 * 24 * 3600e3
+      }[plan.cadence];
+      const stamps = [];
+      let cursor = new Date(nextOccurrence(plan).getTime() - stepMs);
+      while (stamps.length < count) {
+        const weekend = cursor.getDay() === 0 || cursor.getDay() === 6;
+        if (!(plan.cadence === "weekdays" && weekend)) stamps.push(new Date(cursor));
+        cursor = new Date(cursor.getTime() - stepMs);
+      }
+      return stamps;
+    }
+
+    function drawerHistory(plan) {
+      const summary = recipientSummary(plan);
+      const stamps = historyStamps(plan, 5);
+      const bounced = summary.bounced;
+      const rows = [];
+      for (let i = 0; i < 5; i++) {
+        let outcome = { label: "Success", detail: `${summary.total} delivered in ${21 + i * 6}s` };
+        if (i === 0 && bounced) outcome = { label: "Failed", detail: `SMTP 550 · ${bounced} recipient bounced` };
+        if (i === 0 && plan.status === "orphaned") outcome = { label: "Blocked", detail: "owner deactivated — nothing sent" };
+        if (i === 3) outcome = { label: "Timeout", detail: "query exceeded 600s · retried and delivered" };
+        rows.push(`<div class="dest-row"><div><div class="who">${fmtStamp(stamps[i])}</div><div class="note">${outcome.detail}</div></div><span class="history-tag">${outcome.label}</span></div>`);
+      }
+      const runAction = runConfirm
+        ? `<span class="run-confirm">Send to ${summary.total} recipients now?
+             <button type="button" id="history-cancel-run">Cancel</button>
+             <button type="button" class="primary" id="history-confirm-run">Confirm</button>
+           </span>`
+        : `<button type="button" id="history-ask-run">Run now</button>`;
+      return `<div class="drawer-section-title split"><span>Last 5 runs</span>${runAction}</div>
+        ${rows.join("")}
+        <p class="hint-text" style="margin-top:16px">Full run logs come from the log-replication workers — v1.1.</p>`;
+    }
+
+    function drawerActions(plan) {
+      const rows = [];
+      if (plan.status === "archived") {
+        rows.push(actRow("Restore plan", "Returns the plan to the active list and resumes its cadence.",
+          `<button type="button" class="primary" data-act="resume">Restore</button>`));
+      } else if (plan.status === "paused") {
+        rows.push(actRow("Resume delivery", "Runs resume on the next scheduled occurrence.",
+          `<button type="button" class="primary" data-act="resume">Resume</button>`));
+      } else {
+        rows.push(actRow("Pause delivery", "Stops future runs. History and recipients are kept.",
+          `<button type="button" data-act="pause">Pause</button>`));
+      }
+      rows.push(actRow("Reassign owner",
+        plan.ownerInactive
+          ? `${plan.owner} is deactivated, so every run is blocked until this changes.`
+          : `Currently ${plan.owner}. Reassign if this person is leaving the team.`,
+        `<button type="button" data-act="reassign">Reassign owner…</button>`));
+      if (plan.status !== "archived") {
+        rows.push(actRow("Archive plan", "Hides the plan from the active list but keeps its run history.",
+          `<button type="button" data-act="archive">Archive</button>`));
+      }
+      rows.push(actRow("Delete plan", "Removes the schedule and its history. This cannot be undone.",
+        `<button type="button" class="danger" data-act="delete">Delete</button>`, true));
+      return rows.join("");
+    }
+
+    function renderDrawerFoot(plan) {
+      const foot = document.getElementById("drawer-foot");
+      if (drawerTab === "schedule") {
+        foot.innerHTML = `<span class="drawer-foot-note">${planSchedule(draftPlan())}</span>
+          <div class="drawer-foot-actions">
+            <button type="button" id="drawer-reset-schedule">Reset</button>
+            <button type="button" class="primary" id="drawer-save-schedule">Save schedule</button>
+          </div>`;
+        document.getElementById("drawer-reset-schedule").onclick = () => { resetDraft(); renderDrawerBody(); };
+        document.getElementById("drawer-save-schedule").onclick = saveSchedule;
+        return;
+      }
+      let action = "";
+      if (plan.status === "paused" || plan.status === "archived") {
+        action = `<button type="button" class="primary" id="drawer-foot-action">Resume delivery</button>`;
+      } else if (plan.ownerInactive) {
+        action = `<button type="button" class="primary" id="drawer-foot-action">Reassign owner…</button>`;
+      } else {
+        action = `<button type="button" id="drawer-foot-action">Pause delivery</button>`;
+      }
+      foot.innerHTML = `<span class="drawer-foot-note">Next run · ${nextRunLabel(plan)}</span>${action}`;
+      const btn = document.getElementById("drawer-foot-action");
+      if (plan.status === "paused" || plan.status === "archived") btn.onclick = () => resumePlan(plan.id);
+      else if (plan.ownerInactive) btn.onclick = () => openReassignModal(plan.id);
+      else btn.onclick = () => pausePlan(plan.id);
+    }
+
+    function renderDrawerBody() {
+      const plan = planById(drawerPlanId);
+      if (!plan) return;
+      const body = document.getElementById("drawer-body");
+      if (drawerTab === "overview") body.innerHTML = drawerOverview(plan);
+      else if (drawerTab === "recipients") body.innerHTML = drawerRecipients(plan);
+      else if (drawerTab === "history") body.innerHTML = drawerHistory(plan);
+      else if (drawerTab === "actions") body.innerHTML = drawerActions(plan);
+      else {
+        body.innerHTML = drawerScheduleHtml();
+        bindScheduleForm();
+      }
+
+      if (drawerTab === "recipients") {
+        document.getElementById("edit-recipients-btn")?.addEventListener("click", () =>
+          toast("Recipient editor opens in production — list is read-only in this prototype"));
+      }
+      if (drawerTab === "history") {
+        document.getElementById("history-ask-run")?.addEventListener("click", askRun);
+        document.getElementById("history-cancel-run")?.addEventListener("click", cancelRun);
+        document.getElementById("history-confirm-run")?.addEventListener("click", confirmRun);
+      }
+      if (drawerTab === "actions") {
+        body.querySelectorAll("[data-act]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const act = btn.dataset.act;
+            if (act === "archive") archivePlan(plan.id);
+            else if (act === "delete") deletePlan(plan.id);
+            else handlePlanAction(act, plan.id);
+          });
+        });
+      }
+      renderDrawerFoot(plan);
     }
 
     function renderDrawer() {
@@ -1597,51 +2114,7 @@
       document.querySelectorAll("#drawer-tabs button").forEach(tab => {
         tab.classList.toggle("active", tab.dataset.tab === drawerTab);
       });
-
-      const body = document.getElementById("drawer-body");
-      const roster = RECIPIENTS[plan.id] || { people: [] };
-      const total = recipientTotal(plan.id);
-
-      if (drawerTab === "overview") {
-        body.innerHTML = `<div class="drawer-dl">
-          ${dlRow("Schedule", plan.schedule)}
-          ${dlRow("Owner", plan.owner + (plan.ownerInactive ? " · inactive" : ""))}
-          ${dlRow("Recipients", `${total} across ${roster.people.length} destinations`)}
-          ${dlRow("Last run", plan.lastRun)}
-          ${dlRow("Success rate (30d)", plan.successRate)}
-          ${dlRow("Next run", plan.nextRun)}
-          ${dlRow("Bundle", plan.bundle)}
-        </div>`;
-      } else if (drawerTab === "recipients") {
-        body.innerHTML = `<p class="hint-text">${roster.note || "Everyone here receives the report exactly as the owner sees it."}</p>
-          ${roster.people.map(p => `<div class="dest-row"><div><div class="who">${p.to}</div><div class="note">${p.kind}${p.count > 1 ? ` · ${p.count} people` : ""}</div></div><span class="status-pill status-paused">${p.state}</span></div>`).join("")}
-          <button type="button" class="primary" style="margin-top:12px" id="edit-recipients-btn">Edit recipients…</button>`;
-        document.getElementById("edit-recipients-btn").addEventListener("click", () => toast("Recipient editor opens in production — list is read-only in this prototype"));
-      } else if (drawerTab === "actions") {
-        body.innerHTML = `<div class="drawer-actions">
-          <button type="button" class="primary" data-act="run">Run now</button>
-          <button type="button" data-act="test">Send test to me</button>
-          ${plan.status === "paused" || plan.status === "archived"
-            ? `<button type="button" class="primary" data-act="resume">Resume delivery</button>`
-            : `<button type="button" data-act="pause">Pause delivery</button>`}
-          ${plan.ownerInactive ? `<button type="button" class="primary" data-act="reassign">Reassign owner…</button>` : ""}
-        </div>`;
-        body.querySelectorAll("[data-act]").forEach(btn => {
-          btn.addEventListener("click", () => handlePlanAction(btn.dataset.act, plan.id));
-        });
-      }
-
-      const foot = document.getElementById("drawer-foot");
-      if (plan.status === "paused" || plan.status === "archived") {
-        foot.innerHTML = `<span class="drawer-foot-note">Delivery paused</span><button type="button" class="primary" id="drawer-foot-action">Resume delivery</button>`;
-        document.getElementById("drawer-foot-action").onclick = () => resumePlan(plan.id);
-      } else if (plan.ownerInactive) {
-        foot.innerHTML = `<span class="drawer-foot-note">Needs an active owner</span><button type="button" class="primary" id="drawer-foot-action">Reassign owner…</button>`;
-        document.getElementById("drawer-foot-action").onclick = () => openReassignModal(plan.id);
-      } else {
-        foot.innerHTML = `<span class="drawer-foot-note">Next run · ${plan.nextRun}</span><button type="button" id="drawer-foot-action">Pause delivery</button>`;
-        document.getElementById("drawer-foot-action").onclick = () => pausePlan(plan.id);
-      }
+      renderDrawerBody();
     }
 
     function openReassignModal(planId) {
@@ -1702,7 +2175,6 @@
       plan.ownerInactive = false;
       if (plan.status === "orphaned") {
         plan.status = "active";
-        plan.nextRun = "in 18h 22m";
       }
       closeModal();
       refreshAll();
@@ -1903,7 +2375,12 @@
     document.getElementById("drawer-scrim").addEventListener("click", closeDrawer);
     document.getElementById("modal-scrim").addEventListener("click", closeModal);
     document.querySelectorAll("#drawer-tabs button").forEach(tab => {
-      tab.addEventListener("click", () => { drawerTab = tab.dataset.tab; renderDrawer(); });
+      tab.addEventListener("click", () => {
+        drawerTab = tab.dataset.tab;
+        runConfirm = false;
+        if (drawerTab === "schedule") resetDraft();
+        renderDrawer();
+      });
     });
 
     document.addEventListener("click", () => {
