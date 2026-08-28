@@ -1,0 +1,264 @@
+{
+  "source": "UMass Community Patient Experience / Leadership Rounding",
+  "date_range": {
+    "min": "2026-02-25",
+    "max": "2026-08-24"
+  },
+  "total_interactions": 400,
+  "completed_rounds": {
+    "total": 367,
+    "al_yes": 63,
+    "al_no": 304
+  },
+  "adoption": {
+    "all_interactions_al_yes": 66,
+    "all_interactions_al_no": 334,
+    "al_adoption_rate_pct": 16.5,
+    "declined_to_record_yes": 274,
+    "declined_to_record_no": 126,
+    "declined_rate_pct": 68.5,
+    "declined_among_al_yes": 4,
+    "declined_among_al_no": 270
+  },
+  "documentation_time": {
+    "al_yes": {
+      "n_with_duration": 63,
+      "median_sec": 93.0,
+      "mean_sec": 217.6,
+      "median_fmt": "1m 33s",
+      "reduction_vs_no_pct": 11.8,
+      "seconds_saved": 12.5
+    },
+    "al_no": {
+      "n_with_duration": 304,
+      "median_sec": 105.5,
+      "mean_sec": 174.6,
+      "median_fmt": "1m 45s"
+    },
+    "outlier_exclusion": ">30 min excluded"
+  },
+  "script_completion": {
+    "core_fields": {
+      "fields": [
+        "Care Provider Communication",
+        "Courtesy and Respect",
+        "Staff Work Together",
+        "Overall Improvement",
+        "Family or Friend Medical Care Suggestion",
+        "Greeting",
+        "Communication",
+        "Cleanliness",
+        "Comfort",
+        "Safety"
+      ],
+      "al_yes": {
+        "avg_fields_answered": 4.7,
+        "median_fields_answered": 5,
+        "pct_all_fields_answered": 0.0,
+        "avg_completion_pct": 46.8,
+        "total_script_fields": 10,
+        "completion_pts_higher_than_no": -3.3
+      },
+      "al_no": {
+        "avg_fields_answered": 5.0,
+        "median_fields_answered": 5,
+        "pct_all_fields_answered": 3.3,
+        "avg_completion_pct": 50.1,
+        "total_script_fields": 10
+      }
+    },
+    "all_script_fields": {
+      "al_yes": {
+        "avg_fields_answered": 12.8,
+        "median_fields_answered": 13,
+        "pct_all_fields_answered": 0.0,
+        "avg_completion_pct": 34.5,
+        "total_script_fields": 37
+      },
+      "al_no": {
+        "avg_fields_answered": 12.6,
+        "median_fields_answered": 13,
+        "pct_all_fields_answered": 0.0,
+        "avg_completion_pct": 34.0,
+        "total_script_fields": 37
+      }
+    }
+  },
+  "per_question_completion": {
+    "Care Provider Communication": {
+      "al_yes_pct": 100.0,
+      "al_no_pct": 99.3,
+      "diff_pts": 0.7,
+      "al_yes_n": 63,
+      "al_no_n": 302
+    },
+    "Courtesy and Respect": {
+      "al_yes_pct": 100.0,
+      "al_no_pct": 99.3,
+      "diff_pts": 0.7,
+      "al_yes_n": 63,
+      "al_no_n": 302
+    },
+    "Staff Work Together": {
+      "al_yes_pct": 96.8,
+      "al_no_pct": 98.7,
+      "diff_pts": -1.9,
+      "al_yes_n": 61,
+      "al_no_n": 300
+    },
+    "Overall Improvement": {
+      "al_yes_pct": 74.6,
+      "al_no_pct": 89.5,
+      "diff_pts": -14.9,
+      "al_yes_n": 47,
+      "al_no_n": 272
+    },
+    "Family or Friend Medical Care Suggestion": {
+      "al_yes_pct": 96.8,
+      "al_no_pct": 95.4,
+      "diff_pts": 1.4,
+      "al_yes_n": 61,
+      "al_no_n": 290
+    },
+    "Greeting": {
+      "al_yes_pct": 0.0,
+      "al_no_pct": 3.6,
+      "diff_pts": -3.6,
+      "al_yes_n": 0,
+      "al_no_n": 11
+    },
+    "Communication": {
+      "al_yes_pct": 0.0,
+      "al_no_pct": 3.9,
+      "diff_pts": -3.9,
+      "al_yes_n": 0,
+      "al_no_n": 12
+    },
+    "Cleanliness": {
+      "al_yes_pct": 0.0,
+      "al_no_pct": 3.9,
+      "diff_pts": -3.9,
+      "al_yes_n": 0,
+      "al_no_n": 12
+    },
+    "Comfort": {
+      "al_yes_pct": 0.0,
+      "al_no_pct": 3.9,
+      "diff_pts": -3.9,
+      "al_yes_n": 0,
+      "al_no_n": 12
+    },
+    "Safety": {
+      "al_yes_pct": 0.0,
+      "al_no_pct": 3.6,
+      "diff_pts": -3.6,
+      "al_yes_n": 0,
+      "al_no_n": 11
+    },
+    "Room Status [Observation]": {
+      "al_yes_pct": 98.4,
+      "al_no_pct": 95.7,
+      "diff_pts": 2.7,
+      "al_yes_n": 62,
+      "al_no_n": 291
+    },
+    "White Board [Observation]": {
+      "al_yes_pct": 96.8,
+      "al_no_pct": 85.2,
+      "diff_pts": 11.6,
+      "al_yes_n": 61,
+      "al_no_n": 259
+    }
+  },
+  "free_text": {
+    "al_yes": {
+      "pct_rounds_with_any_free_text": 87.3,
+      "avg_detail_fields_populated": 7.3,
+      "median_detail_fields": 8,
+      "rounds_with_free_text_n": 55,
+      "multiplier_vs_no": 18.2,
+      "pts_higher_any_free_text": 63.0
+    },
+    "al_no": {
+      "pct_rounds_with_any_free_text": 24.3,
+      "avg_detail_fields_populated": 0.4,
+      "median_detail_fields": 0,
+      "rounds_with_free_text_n": 74
+    },
+    "detail_field_count": 31
+  },
+  "care_grams": {
+    "al_yes": {
+      "exceptional_service_recognition_n": 3,
+      "exceptional_service_recognition_pct": 4.8,
+      "email_n": 2,
+      "email_pct": 3.2,
+      "either_n": 3,
+      "either_pct": 4.8
+    },
+    "al_no": {
+      "exceptional_service_recognition_n": 13,
+      "exceptional_service_recognition_pct": 4.3,
+      "email_n": 10,
+      "email_pct": 3.3,
+      "either_n": 13,
+      "either_pct": 4.3
+    }
+  },
+  "whiteboard_observation": {
+    "al_yes_pct": 96.8,
+    "al_no_pct": 85.2,
+    "diff_pts": 11.6
+  },
+  "overall_improvement_details": {
+    "al_yes_pct": 52.4,
+    "al_no_pct": 11.2,
+    "diff_pts": 41.2
+  },
+  "per_rounder": {
+    "Avari Powers": {
+      "total_completed": 198,
+      "al_yes_n": 19,
+      "al_no_n": 179,
+      "al_adoption_pct": 9.6,
+      "al_yes_median_duration_sec": 85.0,
+      "al_yes_free_text_pct": 100.0,
+      "al_no_median_duration_sec": 61.0,
+      "al_no_free_text_pct": 32.4
+    },
+    "Grace Mirhej": {
+      "total_completed": 115,
+      "al_yes_n": 28,
+      "al_no_n": 87,
+      "al_adoption_pct": 24.3,
+      "al_yes_median_duration_sec": 46.5,
+      "al_yes_free_text_pct": 89.3,
+      "al_no_median_duration_sec": 121.0,
+      "al_no_free_text_pct": 12.6
+    },
+    "Oscar Sierra": {
+      "total_completed": 6,
+      "al_yes_n": 0,
+      "al_no_n": 6,
+      "al_adoption_pct": 0.0,
+      "al_no_median_duration_sec": 314.0,
+      "al_no_free_text_pct": 50.0
+    },
+    "Sarah Petruzzi": {
+      "total_completed": 1,
+      "al_yes_n": 0,
+      "al_no_n": 1,
+      "al_adoption_pct": 0.0
+    },
+    "William Heckendorf": {
+      "total_completed": 47,
+      "al_yes_n": 16,
+      "al_no_n": 31,
+      "al_adoption_pct": 34.0,
+      "al_yes_median_duration_sec": 493.5,
+      "al_yes_free_text_pct": 68.8,
+      "al_no_median_duration_sec": 311.0,
+      "al_no_free_text_pct": 6.5
+    }
+  }
+}
