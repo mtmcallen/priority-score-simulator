@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collaborative Rounding (Mobile) — Technical Specification &amp; Compliance Brief</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Official CipherHealth brand palette */
+      --cipher-teal: #00b4a4;
+      --deep-violet: #5b4fb5;
+      --electric-chartreuse: #b5cc2e;
+      --warm-amber: #e8a020;
+      --dark-anchor: #2d2660;
+      --lavender-white: #f2f1f9;
+
+      --white: #ffffff;
+      --body-text: #4b5563;
+      --muted: #6b7280;
+      --line: #e2e0ef;
+      --line-soft: #eeedf6;
+
+      --teal-tint: #d9f5f2;
+      --teal-ink: #00544c;
+      --violet-tint: #e8e6f7;
+      --amber-tint: #fdf0d9;
+      --amber-ink: #6b4400;
+      --chartreuse-tint: #f0f5d5;
+      --chartreuse-ink: #4a5410;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--body-text);
+      background: var(--lavender-white);
+    }
+
+    p { margin: 0 0 0.7rem; }
+    p:last-child { margin-bottom: 0; }
+    strong { color: var(--dark-anchor); font-weight: 700; }
+    a { color: var(--cipher-teal); }
+
+    code {
+      font-family: "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.86em;
+      background: var(--lavender-white);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0.08em 0.34em;
+      color: var(--deep-violet);
+      white-space: nowrap;
+    }
+
+    .sheet {
+      max-width: 8.5in;
+      margin: 0 auto;
+      background: var(--white);
+      box-shadow: 0 1px 3px rgba(45, 38, 96, 0.08), 0 12px 40px rgba(45, 38, 96, 0.1);
+    }
+
+    /* ---------- Cover ---------- */
+
+    .cover {
+      padding: 0.85in 0.85in 0.7in;
+      border-top: 10px solid var(--cipher-teal);
+      background:
+        radial-gradient(115% 85% at 100% 0%, rgba(91, 79, 181, 0.10) 0%, rgba(91, 79, 181, 0) 62%),
+        var(--white);
+    }
+
+    .cover img.logo { width: 232px; height: auto; display: block; }
+
+    .eyebrow {
+      margin: 2.1rem 0 0;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--cipher-teal);
+    }
+
+    .cover h1 {
+      font-family: Merriweather, Georgia, serif;
+      font-weight: 900;
+      font-size: 2.6rem;
+      line-height: 1.14;
+      letter-spacing: -0.015em;
+      color: var(--dark-anchor);
+      margin: 0.5rem 0 0;
+    }
+
+    .cover .platform {
+      display: inline-block;
+      margin-top: 0.85rem;
+      background: var(--dark-anchor);
+      color: var(--white);
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.34rem 0.8rem;
+      border-radius: 999px;
+    }
+
+    .cover .subtitle {
+      margin: 1.1rem 0 0;
+      font-size: 1.02rem;
+      color: var(--muted);
+      max-width: 30rem;
+    }
+
+    .rule {
+      height: 5px;
+      width: 96px;
+      background: linear-gradient(90deg, var(--cipher-teal) 0%, var(--cipher-teal) 33%, var(--deep-violet) 33%, var(--deep-violet) 66%, var(--electric-chartreuse) 66%);
+      border-radius: 3px;
+      margin: 1.6rem 0;
+    }
+
+    .factsheet {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.4rem;
+      font-size: 0.86rem;
+    }
+    .factsheet th, .factsheet td {
+      text-align: left;
+      padding: 0.5rem 0.9rem 0.5rem 0;
+      border-bottom: 1px solid var(--line-soft);
+      vertical-align: top;
+    }
+    .factsheet th {
+      width: 8.2rem;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--deep-violet);
+      white-space: nowrap;
+    }
+    .factsheet td { color: var(--dark-anchor); font-weight: 600; }
+
+    .confidential {
+      margin-top: 2.2rem;
+      padding-top: 0.9rem;
+      border-top: 2px solid var(--cipher-teal);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--dark-anchor);
+    }
+
+    /* ---------- Body ---------- */
+
+    main { padding: 0.55in 0.85in 0.75in; }
+
+    .toc {
+      background: var(--lavender-white);
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--deep-violet);
+      border-radius: 10px;
+      padding: 1.1rem 1.3rem;
+      margin-bottom: 2.2rem;
+    }
+    .toc h2 {
+      margin: 0 0 0.6rem;
+      font-family: Inter, sans-serif;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--deep-violet);
+      border: 0;
+      padding: 0;
+    }
+    .toc ol { margin: 0; padding-left: 1.15rem; font-size: 0.9rem; }
+    .toc li { margin-bottom: 0.22rem; color: var(--dark-anchor); font-weight: 600; }
+    .toc li span { color: var(--muted); font-weight: 400; }
+
+    section.part { margin-bottom: 2.4rem; }
+
+    h2.section-title {
+      font-family: Merriweather, Georgia, serif;
+      font-weight: 900;
+      font-size: 1.5rem;
+      line-height: 1.25;
+      color: var(--dark-anchor);
+      margin: 0 0 1.1rem;
+      padding-bottom: 0.55rem;
+      border-bottom: 3px solid var(--cipher-teal);
+    }
+    h2.section-title .n {
+      display: inline-block;
+      min-width: 2.1rem;
+      color: var(--cipher-teal);
+    }
+
+    h3.sub {
+      font-family: Inter, sans-serif;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--deep-violet);
+      margin: 1.7rem 0 0.7rem;
+    }
+
+    h3.sub:first-of-type { margin-top: 0.4rem; }
+
+    h4.part-label {
+      font-family: Merriweather, Georgia, serif;
+      font-size: 1.06rem;
+      font-weight: 700;
+      color: var(--white);
+      background: var(--deep-violet);
+      margin: 2rem 0 1.1rem;
+      padding: 0.55rem 0.95rem;
+      border-radius: 8px;
+    }
+
+    ul.brand-list { list-style: none; margin: 0 0 0.6rem; padding: 0; }
+    ul.brand-list > li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.62rem;
+    }
+    ul.brand-list > li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background: var(--cipher-teal);
+    }
+    ul.brand-list.violet > li::before { background: var(--deep-violet); }
+    ul.brand-list.amber > li::before { background: var(--warm-amber); }
+    ul.brand-list.chartreuse > li::before { background: var(--electric-chartreuse); }
+
+    ul.plain { margin: 0.35rem 0 0.6rem; padding-left: 1.1rem; }
+    ul.plain li { margin-bottom: 0.3rem; }
+
+    /* Guardrail cards */
+
+    .guardrails {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    .guardrail {
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--cipher-teal);
+      border-radius: 10px;
+      padding: 0.95rem 1.05rem;
+      background: var(--white);
+    }
+    .guardrail:nth-child(2) { border-top-color: var(--deep-violet); }
+    .guardrail:nth-child(3) { border-top-color: var(--warm-amber); }
+    .guardrail:nth-child(4) { border-top-color: var(--electric-chartreuse); }
+
+    .guardrail h4 {
+      margin: 0 0 0.4rem;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--dark-anchor);
+    }
+    .guardrail p { font-size: 0.85rem; }
+
+    /* Concern cards */
+
+    article.concern {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.05rem;
+      background: var(--white);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .concern-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      background: var(--lavender-white);
+      border-bottom: 1px solid var(--line);
+      padding: 0.75rem 1.05rem;
+    }
+
+    .concern-num {
+      flex: 0 0 auto;
+      min-width: 2.5rem;
+      text-align: center;
+      background: var(--dark-anchor);
+      color: var(--white);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      padding: 0.22rem 0.45rem;
+      border-radius: 6px;
+      margin-top: 0.1rem;
+    }
+
+    .concern-head h4 {
+      flex: 1;
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--dark-anchor);
+      line-height: 1.4;
+    }
+
+    .badge {
+      flex: 0 0 auto;
+      font-size: 0.63rem;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      padding: 0.28rem 0.55rem;
+      border-radius: 999px;
+      white-space: nowrap;
+      margin-top: 0.08rem;
+    }
+    .badge-yes { background: var(--amber-tint); color: var(--amber-ink); border: 1px solid #f0cd8e; }
+    .badge-no { background: var(--teal-tint); color: var(--teal-ink); border: 1px solid #9fe3dc; }
+
+    .concern-body { padding: 1rem 1.05rem 1.1rem; }
+
+    .field { margin-bottom: 0.95rem; }
+    .field:last-child { margin-bottom: 0; }
+
+    .field > .lbl {
+      display: block;
+      font-size: 0.66rem;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--deep-violet);
+      margin-bottom: 0.3rem;
+    }
+
+    .decision {
+      background: linear-gradient(90deg, rgba(0, 180, 164, 0.09), rgba(0, 180, 164, 0));
+      border-left: 4px solid var(--cipher-teal);
+      border-radius: 0 8px 8px 0;
+      padding: 0.6rem 0.85rem;
+    }
+    .decision .lbl { color: var(--teal-ink); margin-bottom: 0.15rem; }
+    .decision p { font-size: 0.94rem; font-weight: 700; color: var(--dark-anchor); }
+    .decision p em { font-weight: 400; color: var(--body-text); font-style: normal; }
+
+    .backend {
+      background: var(--lavender-white);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+    }
+    .backend .lbl { color: var(--dark-anchor); }
+
+    .quote {
+      border: 1px dashed var(--deep-violet);
+      background: var(--violet-tint);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+      color: var(--dark-anchor);
+      font-style: italic;
+    }
+    .quote .cap {
+      display: block;
+      font-style: normal;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: var(--deep-violet);
+      margin-bottom: 0.25rem;
+    }
+
+    .scenario { margin: 0.55rem 0; }
+    .scenario > .head {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--deep-violet);
+      margin-bottom: 0.15rem;
+    }
+
+    /* Tables */
+
+    table.data {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+      margin: 0.7rem 0 0.3rem;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    table.data th {
+      text-align: left;
+      background: var(--dark-anchor);
+      color: var(--white);
+      font-size: 0.64rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.5rem 0.6rem;
+    }
+    table.data th:first-child { border-radius: 6px 0 0 0; }
+    table.data th:last-child { border-radius: 0 6px 0 0; }
+    table.data td {
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid var(--line-soft);
+      vertical-align: top;
+    }
+    table.data tbody tr:nth-child(even) { background: #fafaff; }
+    table.data td:first-child { color: var(--dark-anchor); font-weight: 600; }
+
+    .pill {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 0.14rem 0.44rem;
+      border-radius: 999px;
+    }
+    .pill-yes { background: var(--amber-tint); color: var(--amber-ink); }
+    .pill-no { background: var(--teal-tint); color: var(--teal-ink); }
+
+    .callout {
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--warm-amber);
+      background: var(--amber-tint);
+      border-radius: 0 10px 10px 0;
+      padding: 0.9rem 1.1rem;
+      margin: 1rem 0;
+    }
+    .callout h4 {
+      margin: 0 0 0.35rem;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--amber-ink);
+    }
+    .callout p, .callout li { color: #5c4207; font-size: 0.89rem; }
+
+    .scope-card {
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--electric-chartreuse);
+      border-radius: 0 10px 10px 0;
+      background: var(--chartreuse-tint);
+      padding: 0.9rem 1.1rem;
+      margin-bottom: 0.8rem;
+    }
+    .scope-card h4 {
+      margin: 0 0 0.3rem;
+      font-size: 0.96rem;
+      font-weight: 800;
+      color: var(--dark-anchor);
+    }
+    .scope-card p { color: #46500f; font-size: 0.9rem; }
+
+    footer.doc-footer {
+      border-top: 4px solid var(--cipher-teal);
+      background: var(--dark-anchor);
+      color: rgba(255, 255, 255, 0.82);
+      padding: 1.05rem 0.85in;
+      font-size: 0.72rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    footer.doc-footer strong { color: var(--white); }
+
+    @media (max-width: 760px) {
+      .guardrails { grid-template-columns: 1fr; }
+      .cover, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+      footer.doc-footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .cover h1 { font-size: 2rem; }
+    }
+
+    @media print {
+      @page { size: letter; margin: 0.5in; }
+      body { background: var(--white); font-size: 10.5pt; }
+      .sheet { box-shadow: none; max-width: none; }
+      .cover { padding: 0 0 0.4in; border-top: 0; min-height: 8.4in; }
+      main { padding: 0; }
+      footer.doc-footer { padding-left: 0; padding-right: 0; }
+      .cover, section.part { break-after: auto; }
+      .cover { break-after: page; page-break-after: always; }
+      h2.section-title, h4.part-label { break-after: avoid; page-break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="sheet">
+
+  <!-- ============ COVER ============ -->
+  <header class="cover">
+    <img class="logo" src="../assets/cipherhealth-logo-official.png" alt="CipherHealth">
+
+    <p class="eyebrow">Technical Specification &amp; Compliance Brief</p>
+    <h1>Collaborative<br>Rounding</h1>
+    <span class="platform">Mobile · V1 Blueprint</span>
+
+    <p class="subtitle">Letting more than one clinician contribute to a single mobile round — without duplicate records, destructive overwrites, or broken audit trails.</p>
+
+    <div class="rule"></div>
+
+    <table class="factsheet">
+      <tr><th>Epic</th><td>Mobile Collaborative Rounding (V1 Blueprint)</td></tr>
+      <tr><th>Product</th><td>CipherRounds</td></tr>
+      <tr><th>Platform</th><td>Mobile (iOS &amp; Android), with cross-platform rules for Web</td></tr>
+      <tr><th>Release scope</th><td>V1 — lean 80% roadmap, gated behind <code>collaborative_rounding_enabled</code></td></tr>
+      <tr><th>Audience</th><td>Product, Mobile Engineering, Carenode Backend, Compliance</td></tr>
+      <tr><th>Status</th><td>Draft for engineering review</td></tr>
+    </table>
+
+    <p class="confidential">CipherHealth Confidential</p>
+  </header>
+
+  <main>
+
+    <!-- ============ TOC ============ -->
+    <nav class="toc">
+      <h2>Contents</h2>
+      <ol>
+        <li>Context, problems, and strategic value <span>— current state, the problems we are solving, why it matters</span></li>
+        <li>Summary of strategic decisions <span>— cutting the V1 scope to 80%</span></li>
+        <li>Developer concern matrix <span>— V1 decisions, workflows, and backend requirements</span>
+          <ul class="plain">
+            <li>Part 1 — “Must decide now” (core blockers)</li>
+            <li>Part 2 — Existing behaviors that must change in V1</li>
+            <li>Part 3 — Where attributes show in V1 vs. do later</li>
+          </ul>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- ============ SECTION 1 ============ -->
+    <section class="part">
+      <h2 class="section-title"><span class="n">1</span>Context, Problems, &amp; Strategic Value</h2>
+
+      <h3 class="sub">Current state</h3>
+      <ul class="brand-list">
+        <li><strong>Rigid single-user mobile architecture.</strong> Currently, two people cannot be in a single round together at all on mobile.</li>
+        <li><strong>Operational workaround.</strong> Mobile auditors must complete entirely separate, duplicate rounds for a single patient evaluation or environmental audit.</li>
+        <li><strong>Intentional web concurrency.</strong> In contrast to mobile, the web application deliberately supports simultaneous multi-contributor editing. This represents the ultimate future state intended for mobile.</li>
+      </ul>
+
+      <h3 class="sub">The problems we are solving</h3>
+      <ul class="brand-list violet">
+        <li><strong>Duplicate rounds and data bloat.</strong> Forcing separate records triggers a massive surge in total system data volume, skewing analytics and inflating storage.</li>
+        <li><strong>Inflated rounding time.</strong> Documenting the exact same room or unit multiple times pulls highly paid clinical leaders away from patient care.</li>
+        <li><strong>Fragmented data with no master record.</strong> Audit data is shattered across multiple disparate files, meaning critical safety defects, infection vectors, or compliance failures are easily missed.</li>
+        <li><strong>Severe staff frustration from lack of visibility.</strong> Auditors walk down hospital hallways blind, with zero visibility into adjacent team members’ work, leading them to frequently re-inspect areas a colleague literally just checked minutes prior.</li>
+        <li><strong>Destructive overwriting.</strong> If clinicians try to bypass the system by sharing credentials or opening the same round simultaneously, the app’s native auto-save-on-exit mechanism silently erases and overwrites each other’s work.</li>
+        <li><strong>Compliance audit vulnerabilities.</strong> Fragmented duplicate rounds break the continuous audit trail, leaving healthcare facilities exposed to major citations during regulatory accreditation safety audits.</li>
+      </ul>
+
+      <h3 class="sub">Why it is important &amp; what else this solves</h3>
+      <ul class="brand-list chartreuse">
+        <li><strong>Instant actionable insights.</strong> A single collaborative submission generates a unified, immediate work-order request list for hospital repairs or infection-control remediation.</li>
+        <li><strong>Frictionless shift handoffs.</strong> If a clinician is interrupted by a medical emergency mid-round, a colleague can step into the exact same round five minutes later, view what has already been done, and seamlessly finish it.</li>
+      </ul>
+    </section>
+
+    <!-- ============ SECTION 2 ============ -->
+    <section class="part">
+      <h2 class="section-title"><span class="n">2</span>Summary of Strategic Decisions: Cutting the V1 Scope to 80%</h2>
+
+      <p>To execute this feature efficiently without forcing an application rebuild, the product team has cut the V1 scope to a lean 80% roadmap by establishing four core engineering guardrails.</p>
+
+      <div class="guardrails">
+        <div class="guardrail">
+          <h4>1. 100% script-configured toggle</h4>
+          <p>All collaborative logic is locked behind a script configuration flag (<code>collaborative_rounding_enabled = true</code>). If a script has this setting turned off, the app runs its legacy single-user path, entirely isolating development risk. If the setting is off, no changes whatsoever are made to the UI.</p>
+        </div>
+        <div class="guardrail">
+          <h4>2. Context-specific isolation</h4>
+          <p>Round statuses are bound strictly to a matching <code>Patient_ID</code> + <code>Script_ID</code> composite pairing. A patient marked “In-Progress” in the EOC script remains completely unlocked, clear, and default for users opening the Wound Care script.</p>
+        </div>
+        <div class="guardrail">
+          <h4>3. The heartbeat safety lock</h4>
+          <p>Concurrency is solved at the entry gate, not via code merging. Only one device can actively edit a specific script round at any given second. Active users maintain a 30-second silent heartbeat. Inactivity triggers an automatic 5-minute server lockout lease release.</p>
+        </div>
+        <div class="guardrail">
+          <h4>4. Question-level attribution</h4>
+          <p>Answer objects remain untouched shared assets. Attribution metadata (<code>modified_by_user_id</code> and <code>modified_timestamp</code>) is written exclusively to the parent question row in the newly migrated SQLite foundation.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 3 ============ -->
+    <section class="part">
+      <h2 class="section-title"><span class="n">3</span>Developer Concern Matrix: V1 Decisions, Workflows &amp; Backend Requirements</h2>
+
+      <h4 class="part-label" id="part-1">Part 1 — “Must Decide Now” (Core Blockers)</h4>
+
+      <!-- Concern 1 -->
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">1</span>
+          <h4>What happens when two people answer at the same time?</h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Strict single-user check-in / check-out lockout. <em>Concurrent editing inside the exact same script session is blocked on mobile.</em></p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>When User A opens the script, the server locks it. If User B views the patient list, the Round button is greyed out and disabled. Tapping it blocks entry and displays the native alert message:</p>
+            <div class="quote">
+              <span class="cap">Native alert copy</span>
+              “Round in Progress — [Clinician Name] is currently completing this round. This patient will unlock automatically 5 minutes after they exit or become inactive.”
+            </div>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Build a lightweight locking table (<code>patient_id</code> + <code>script_id</code> + <code>locked_by_user_id</code> + <code>last_heartbeat_timestamp</code>). Expose <code>POST /rounds/{id}/lock</code>, <code>POST /rounds/{id}/heartbeat</code> (accepting 30-second pings), and <code>POST /rounds/{id}/unlock</code> endpoints. Implement a background cron job running every 30–60 seconds that purges locks whose last heartbeat is older than 5 minutes.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Concern 1b -->
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">1b</span>
+          <h4>What happens if multiple rounders are actively concurrent on web, and then switch over to mobile? <em>(Scenario edge case)</em></h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Immediate filter into mobile single-checkout rule. <em>Multi-user data generated on web remains safe, but mobile entry is serialized.</em></p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>The Carenode server processes and saves multiple web contributors to the master draft. When clinicians switch to mobile, the patient list parses the draft and immediately renders the two-person icon and the “In-Progress” badge. The first clinician to tap the active Round button secures the exclusive server lock, wipes their local script cache, and downloads the full web-generated data into local SQLite. Clinicians 2 and 3 are blocked by the disabled, locked Round button workflow.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Ensure the draft response payload (<code>GET /rounds/{id}/draft</code>) aggregates all open answer records contributed on web across multiple users into a clean, unified JSON structure that mobile SQLite can ingest upon opening.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Concern 1c -->
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">1c</span>
+          <h4>What if one user keeps rounding on web while another user attempts to round on mobile? <em>(Cross-platform edge case)</em></h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Platform-aware asymmetric lockout. <em>Preserve web’s intentional multi-user environment while shielding mobile via mutual exclusion.</em></p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <div class="scenario">
+              <div class="head">If web is active first</div>
+              <p>While users are actively editing on web, the server state reflects active web editors; the mobile patient list receives <code>is_locked = true</code>, turning the Round button into its greyed-out state with the alert:</p>
+              <div class="quote">
+                <span class="cap">Mobile alert copy</span>
+                “Round in Progress on Web — Please wait for web editors to finish before opening on mobile.”
+              </div>
+            </div>
+            <div class="scenario">
+              <div class="head">If mobile is active first</div>
+              <p>Mobile holds exclusive write access, and any web user opening the round sees a blocking banner:</p>
+              <div class="quote">
+                <span class="cap">Web banner copy</span>
+                “A clinician is currently updating this round on mobile. Web editing will be available once they complete their handoff.”
+              </div>
+            </div>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Integrate web sessions into the server locking logic. When a web user opens a collaborative round, register a web session/heartbeat so the backend knows <code>web_editors_active = true</code>. If mobile holds the lock, return a <code>423 Locked</code> status to web so web can display the blocking banner.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Concern 2 -->
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">2</span>
+          <h4>How fresh does the round have to be?</h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Fetch on open / manual refresh only. <em>Zero background polling or WebSocket overhead.</em></p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>The mobile app will never poll the server in the background. It reads the lock state and active draft answers strictly when the patient list view initializes, or when the user executes a manual pull-to-refresh.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Optimize <code>GET /patients</code> (or the existing patient list endpoint) to return lightweight <code>is_locked</code> and <code>is_collaborative</code> boolean flags per patient for the requested <code>Script_ID</code> without executing slow, deep database queries.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Concern 3 -->
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">3</span>
+          <h4>Does a round update while it’s open in front of you?</h4>
+          <span class="badge badge-no">Backend: No</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>No live UI updates. Frozen local UI state.</p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>Once a round is successfully opened via an active server lock, it remains a frozen snapshot. Content will never shift or disappear while open. New data from other users is only rendered if the screen is backed out and re-entered.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — No</span>
+            <p>Backend does not need to push live WebSocket events or change in-flight streaming payloads. The standard REST request-response cycle is maintained.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Concern 4 -->
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">4</span>
+          <h4>Who is allowed to clear, abandon, or even access a shared round?</h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Shade out destructive actions and block with explicit toast messaging.</p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>The moment <code>collaborative_rounding_enabled = true</code> is active on a script, the mobile client shades out and disables the “Clear All” button. Tapping it displays:</p>
+            <div class="quote">
+              <span class="cap">Toast copy</span>
+              “collaborative rounds cannot be cleared”
+            </div>
+            <p>Backing out releases the lock safely without deleting server drafts.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Add a server-side guardrail on <code>DELETE</code> or bulk-clear endpoints rejecting any clear request if the round’s script configuration has <code>collaborative_rounding_enabled = true</code> (returning <code>403 Forbidden</code>).</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Concern 5 -->
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">5</span>
+          <h4>Who possesses submission authority? <em>(Multi-user role gate)</em></h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Permission-gated submission actions.</p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>The mobile client evaluates user credentials. The “Submit” button will be completely shaded out and disabled unless the rounder possesses explicit Submitter permissions. Non-submitters can save and close, but cannot execute the final submission call.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Return the <code>can_submit_rounds</code> (or equivalent role permission) boolean flag within the user authentication/session payload, and enforce this permission server-side upon receiving <code>POST /rounds/{id}/submit</code>.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Concern 6 -->
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">6</span>
+          <h4>Who gets credit? <em>(Badges, reporting, and My Rounds filters)</em></h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Final submitter wins primary credit; creators, contributors, and submitters explicitly tracked.</p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>Compliance badges and “My Rounds” dashboard filters are awarded to the clinician who hits the final “Submit” button. However, individual text blocks and question rows retain permanent metadata tracking in audit logs.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Store <code>created_by_user_id</code> and <code>submitted_by_user_id</code> on the parent Rounds table. For badge award and compliance aggregation jobs, count rounds under <code>submitted_by_user_id</code>, while maintaining granular contributor IDs in relational response tables for compliance auditing.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Concern 7 -->
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">7</span>
+          <h4>Can a collaborative round be done offline?</h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Hybrid connection rule — creator immunity vs. contributor Wi-Fi lock.</p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <div class="scenario">
+              <div class="head">Fresh creator</div>
+              <p>Offline allowed using the standard active Round button; saves to local SQLite and pushes when online.</p>
+            </div>
+            <div class="scenario">
+              <div class="head">Contributor</div>
+              <p>Wi-Fi is mandatory to enter and secure the server lock. If the connection drops mid-round for more than 5 minutes, the lock breaks on the server; upon reconnecting, a lock eviction check flips the screen to read-only mode if another user claimed the lock.</p>
+            </div>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Expose a fast <code>GET /rounds/{id}/lock-status</code> validation check so mobile can verify whether its lock lease is still intact upon reconnecting, before flushing queued SQLite data.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Concern 8 -->
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">8</span>
+          <h4>What about photos and voice recordings?</h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Local-first capture, cloud upload-on-close, inherited attribution. <em>No voice recording in V1. Existing 10-photo UI preserved.</em></p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>Clinicians use the existing UI (up to 10 photos per option). Photos save locally to disk. On auto-save/exit, a background queue flushes images to AWS S3. The 5-minute heartbeat lock will not release until all images finish uploading. The next auditor pulls image URLs from the server dynamically. Photos inherit parent question attribution.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Provide direct pre-signed S3 upload URLs, or an endpoint to receive multi-image payloads per question response, and store the resulting public/secured S3 image URLs in the draft response JSON.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Concern 10 -->
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">10</span>
+          <h4>Capture attribution everywhere from day one <em>(rebuilding how answers are stored)</em></h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Question-level metadata tracking. <em>Answer choices remain untouched shared assets. No individual checkbox tracking in V1.</em></p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>Developers append <code>modified_by_user_id</code> and <code>modified_timestamp</code> to the SQLite <code>Patient_Responses</code> table.</p>
+            <ul class="plain">
+              <li><strong>Multi-select / checklists:</strong> last touch wins.</li>
+              <li><strong>Free text:</strong> append-only UI threads — User A’s text is locked in a read-only bubble, and User B gets a fresh input box below.</li>
+            </ul>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Update the response persistence schema to accept <code>modified_by_user_id</code> and <code>modified_timestamp</code> at the question level. For free text, support an append-array/child table (<code>Response_Text_Blocks</code>) so multiple narrative entries with individual timestamps and author IDs can be stored and returned per question.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- ============ PART 2 ============ -->
+      <h4 class="part-label">Part 2 — Existing Behaviors That Must Change in V1</h4>
+
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">B1</span>
+          <h4>In-progress rounds must be fetched repeatedly, not once at login.</h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Targeted fetch on open.</p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>Plumbing is added to trigger a <code>GET /rounds/{id}/draft</code> call the exact moment a clinician taps the active Round button to open a collaborative script.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Ensure the <code>GET /rounds/{id}/draft</code> endpoint returns the latest draft state efficiently for the requested <code>Script_ID</code> with minimal latency.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">B2</span>
+          <h4>The app must accept updates to a round it already has (ignores server versions).</h4>
+          <span class="badge badge-no">Backend: No</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Wipe-and-populate local script cache.</p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>Because mobile is now on a modern SQLite layer, when a collaborative script is opened, the local database clears its local cache for that specific script context only, and cleanly populates it with the server’s fresh JSON draft state.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — No</span>
+            <p>The standard draft response payload is consumed; cache wiping and repopulation is handled entirely client-side by the mobile SQLite data layer.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">B3</span>
+          <h4>The rounding list “in progress” state must come from the server.</h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Script-isolated “In-Progress” status capsule.</p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>An “In-Progress” status capsule displays on the patient list anytime a round has been started. It is strictly script-specific: if User A starts a round on Script 1, the patient says “In-Progress” only for that script. Toggling to Script 2 clears the “In-Progress” badge.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Update the patient list API query to join active drafts against the specific <code>Script_ID</code> passed in the request header/query parameter, returning <code>is_in_progress = true</code> only when an open draft exists for that script.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">B4</span>
+          <h4>The rounding list will visibly move, causing screen flicker while scrolling.</h4>
+          <span class="badge badge-no">Backend: No</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Frozen scroll rows.</p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>To protect list stability, rows on the mobile patient list screen will never move or reorder dynamically due to background events. Rows remain entirely locked in place until a user forces a manual pull-to-refresh.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — No</span>
+            <p>Entirely a client-side UI rendering rule; the mobile app freezes list sorting order while scrolling.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">B5</span>
+          <h4>Submitted rounds need to show a submitter plus contributors everywhere a round’s author appears today.</h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Read-only array parsing.</p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>If a round was completed on web with complex history, the Carenode backend serves this as a flat, pre-parsed JSON array. The mobile historical review screen runs a standard UI loop to render checkboxes with attribution capsules seamlessly.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Update <code>GET /rounds/{id}/summary</code> (the historical completed round endpoint) to aggregate and return creator, submitter, and unique contributor arrays alongside question-level attribution metadata.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">B5b</span>
+          <h4>Pull-to-refresh on the rounding list currently does not refresh in-progress rounds.</h4>
+          <span class="badge badge-yes">Backend: Yes</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Universal pull-to-refresh synchronization.</p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>The manual pull-to-refresh action on the patient list is refactored to fetch both unstarted and in-progress collaborative states simultaneously.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — Yes</span>
+            <p>Support query execution on the main list API that checks for active locking states and multi-user draft modifications dynamically upon request.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="concern">
+        <div class="concern-head">
+          <span class="concern-num">B6</span>
+          <h4>Existing in-progress rounds at the moment of upgrade need a defined outcome.</h4>
+          <span class="badge badge-no">Backend: No</span>
+        </div>
+        <div class="concern-body">
+          <div class="field decision">
+            <span class="lbl">The decision</span>
+            <p>Clean discard of legacy in-progress drafts on migration update.</p>
+          </div>
+          <div class="field">
+            <span class="lbl">The workflow</span>
+            <p>The exact millisecond a user installs the new mobile build, any unsubmitted local drafts matching the upgraded collaborative script schema are cleanly deleted from the local SQLite database to prevent schema collision.</p>
+          </div>
+          <div class="field backend">
+            <span class="lbl">Backend team updates — No</span>
+            <p>Handled entirely on the mobile device during the post-install SQLite database initialization script. Backend data for already-submitted rounds is 100% untouched.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- ============ PART 3 ============ -->
+      <h4 class="part-label">Part 3 — Where Attributes Show in V1 vs. Do Later (The Layout Matrix)</h4>
+
+      <h3 class="sub">Strong candidates for V1 (in scope)</h3>
+
+      <div class="scope-card">
+        <h4>History / completed round pages</h4>
+        <p>The history pages must explicitly display the creator, contributor, and submitter initials or full names alongside an accurate timestamp. This is rendered via a horizontal master attribution header at the top of the history report, alongside individual attribution capsules injected underneath completed question rows.</p>
+      </div>
+
+      <div class="scope-card">
+        <h4>The open-issue detail view</h4>
+        <p>Fully reuses the completed historical detail layout.</p>
+      </div>
+
+      <!-- ============ BACKEND ROLLUP ============ -->
+      <h3 class="sub">Backend impact at a glance</h3>
+      <p>Consolidated view of the “Backend Team Updates” called out in Part 1 and Part 2. No new requirements are introduced here.</p>
+
+      <table class="data">
+        <thead>
+          <tr>
+            <th style="width: 4.4rem;">Item</th>
+            <th>Backend requirement</th>
+            <th style="width: 5.2rem;">Required</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Locking table plus <code>lock</code>, <code>heartbeat</code>, and <code>unlock</code> endpoints; 30–60 second cron purge of stale locks</td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>1b</td><td><code>GET /rounds/{id}/draft</code> aggregates all web contributors into unified JSON for SQLite ingest</td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>1c</td><td>Web sessions registered in server locking logic; <code>423 Locked</code> returned to web when mobile holds the lock</td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>2</td><td>Patient list returns lightweight <code>is_locked</code> and <code>is_collaborative</code> flags per patient per script</td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>3</td><td>No live push required; standard REST request-response cycle maintained</td><td><span class="pill pill-no">No</span></td></tr>
+          <tr><td>4</td><td><code>403 Forbidden</code> guardrail on clear/delete endpoints for collaborative scripts</td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>5</td><td><code>can_submit_rounds</code> in the session payload, enforced server-side on submit</td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>6</td><td><code>created_by_user_id</code> and <code>submitted_by_user_id</code> on the Rounds table; contributor IDs retained for audit</td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>7</td><td><code>GET /rounds/{id}/lock-status</code> for fast lease validation on reconnect</td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>8</td><td>Pre-signed S3 upload URLs or multi-image endpoint; store image URLs in draft response JSON</td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>10</td><td>Question-level attribution in the persistence schema; <code>Response_Text_Blocks</code> child table for free text</td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>B1</td><td><code>GET /rounds/{id}/draft</code> returns latest state per script with minimal latency</td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>B2</td><td>Client-side cache wipe and repopulate only</td><td><span class="pill pill-no">No</span></td></tr>
+          <tr><td>B3</td><td>Patient list joins active drafts on <code>Script_ID</code> to return <code>is_in_progress</code></td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>B4</td><td>Client-side list rendering rule only</td><td><span class="pill pill-no">No</span></td></tr>
+          <tr><td>B5</td><td><code>GET /rounds/{id}/summary</code> returns creator, submitter, and contributor arrays</td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>B5b</td><td>Main list API checks active locks and multi-user draft modifications on request</td><td><span class="pill pill-yes">Yes</span></td></tr>
+          <tr><td>B6</td><td>Client-side SQLite migration only; submitted rounds untouched</td><td><span class="pill pill-no">No</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <h4>Risk isolation reminder</h4>
+        <p>Every behavior in this brief is gated by <code>collaborative_rounding_enabled</code>. Scripts with the flag off run the legacy single-user path with no UI change whatsoever, which keeps the V1 blast radius limited to opted-in scripts.</p>
+      </div>
+
+    </section>
+  </main>
+
+  <footer class="doc-footer">
+    <span><strong>CipherHealth Confidential</strong> · Collaborative Rounding (Mobile) · Technical Specification &amp; Compliance Brief</span>
+    <span>Epic: Mobile Collaborative Rounding — V1 Blueprint</span>
+  </footer>
+
+</div>
+</body>
+</html>
