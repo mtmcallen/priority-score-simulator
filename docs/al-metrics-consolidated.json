@@ -1,0 +1,107 @@
+{
+  "title": "Ambient Listening — consolidated AL vs non-AL metrics",
+  "generated": "2026-09-09",
+  "sources": {
+    "looker": {
+      "model": "looker_insights_agent",
+      "explore": "patient_rounds_activity",
+      "period": "2026-05-05 to 2026-09-09",
+      "al_definition": "orchid_interaction_fact.round_has_ai_generated_answers = Yes (round produced AI-generated answers)",
+      "control_scope": "non-AL limited to the same rounding scripts where AL is used, per site"
+    },
+    "umass_csv": {
+      "file": "UMass_AL_8.28.csv",
+      "period": "2026-02-25 to 2026-08-24",
+      "scope": "completed rounds only (Ability to Round = Yes)",
+      "used_for": "documentation time only"
+    }
+  },
+  "al_scripts_by_site": {
+    "UMass Memorial Health": ["Community Patient Experience/Leadership Rounding", "Community Nurse Leader Rounding"],
+    "Prisma Health": ["Inpatient Patient Leader Round", "ED Patient Leader Round 2.0"],
+    "Hartford HealthCare": ["HHC Nurse Leader Rounding", "HHC ED Nurse Leader Rounding", "HHC Inpatient BH Leader Rounding"]
+  },
+  "volume": {
+    "UMass Memorial Health": { "al_rounds": 58, "al_rounders": 3, "non_al_rounds_same_scripts": 603 },
+    "Prisma Health": { "al_rounds": 187, "al_rounders": 32, "non_al_rounds_same_scripts": 158723 },
+    "Hartford HealthCare": { "al_rounds": 172, "al_rounders": 22, "non_al_rounds_same_scripts": 27906 },
+    "total_al_rounds": 417,
+    "total_al_rounders": 57
+  },
+  "documentation_time": {
+    "source": "umass_csv",
+    "note": "Looker minutes-to-round is not usable for time saved: it measures start-to-submit (includes AI review) and non-AL medians round down to 0 minutes.",
+    "UMass Memorial Health": {
+      "al_median_sec": 93,
+      "al_median_fmt": "1m 33s",
+      "non_al_median_sec": 105.5,
+      "non_al_median_fmt": "1m 45s",
+      "reduction_pct": 11.8,
+      "seconds_saved_per_round": 12.5,
+      "al_n": 63,
+      "non_al_n": 304,
+      "outliers_excluded": ">30 min"
+    }
+  },
+  "opportunity_areas": {
+    "metric": "% of rounds with an opportunity area, excluding Ability to Round",
+    "UMass Memorial Health": { "al_pct": 43.1, "non_al_pct": 36.0, "diff_pts": 7.1 },
+    "Prisma Health": { "al_pct": 71.7, "non_al_pct": 34.3, "diff_pts": 37.4 },
+    "Hartford HealthCare": { "al_pct": 58.7, "non_al_pct": 17.8, "diff_pts": 40.9 }
+  },
+  "script_completion": {
+    "metric": "average % of script completed, excluding free text",
+    "UMass Memorial Health": { "al_pct": 90.7, "non_al_pct": 83.1, "diff_pts": 7.6 },
+    "Prisma Health": { "al_pct": 81.7, "non_al_pct": 71.4, "diff_pts": 10.3 },
+    "Hartford HealthCare": { "al_pct": 83.1, "non_al_pct": 74.7, "diff_pts": 8.4 }
+  },
+  "free_text_capture": {
+    "metric": "average free-text responses per round",
+    "UMass Memorial Health": { "al": 8.7, "non_al": 0.4, "multiplier": 20 },
+    "Prisma Health": { "al": 4.1, "non_al": 0.4, "multiplier": 12 },
+    "Hartford HealthCare": { "al": 6.3, "non_al": 1.2, "multiplier": 5 }
+  },
+  "total_responses_per_round": {
+    "UMass Memorial Health": { "al": 27.0, "non_al": 15.8, "pct_more": 71 },
+    "Prisma Health": { "al": 19.3, "non_al": 13.5, "pct_more": 43 },
+    "Hartford HealthCare": { "al": 15.7, "non_al": 9.4, "pct_more": 67 }
+  },
+  "interactive_rounds": {
+    "metric": "% of rounds that were interactive (Ability to Round = Yes)",
+    "UMass Memorial Health": { "al_pct": 98.3, "non_al_pct": 96.2, "diff_pts": 2.1 },
+    "Prisma Health": { "al_pct": 96.8, "non_al_pct": 86.4, "diff_pts": 10.4 },
+    "Hartford HealthCare": { "al_pct": 99.4, "non_al_pct": 85.1, "diff_pts": 14.3 }
+  },
+  "issues": {
+    "metric": "issues logged per 100 rounds (same scripts)",
+    "UMass Memorial Health": { "al_per_100": 15.5, "non_al_per_100": 9.5, "al_issues": 9, "al_closed": 9, "al_close_rate_pct": 100 },
+    "Prisma Health": { "al_per_100": 16.0, "non_al_per_100": 1.5, "al_issues": 30, "al_closed": 30, "al_close_rate_pct": 100 },
+    "Hartford HealthCare": { "al_per_100": 4.1, "non_al_per_100": 0.4, "al_issues": 7, "al_closed": 7, "al_close_rate_pct": 100 }
+  },
+  "care_grams": {
+    "metric": "rounding care grams per 100 rounds (same scripts)",
+    "UMass Memorial Health": { "al_per_100": 3.4, "non_al_per_100": 1.5 },
+    "Prisma Health": { "al_per_100": 58.3, "non_al_per_100": 6.5 },
+    "Hartford HealthCare": { "al_per_100": 7.0, "non_al_per_100": 4.9 }
+  },
+  "consent_and_trust": {
+    "patients_declining_consent_on_al_rounds": {
+      "UMass Memorial Health": 0,
+      "Prisma Health": 13,
+      "Hartford HealthCare": 2
+    },
+    "pct_al_rounds_with_manual_ai_override": {
+      "UMass Memorial Health": 0.0,
+      "Prisma Health": 0.0,
+      "Hartford HealthCare": 1.7
+    }
+  },
+  "caveats": [
+    "AL samples are small (58-187 rounds per site) against very large non-AL controls; early adopters may round differently.",
+    "Non-AL is scoped to the same rounding scripts as AL per site, but not to the same rounders or patient mix.",
+    "Higher opportunity-area and issue rates are read as better capture of patient concerns, not worsening patient experience.",
+    "Care gram counts may include multiple recipients per care gram.",
+    "Documentation time comes from the UMass CSV only; Looker minutes-to-round is unsuitable for time saved.",
+    "Looker AL definition (round produced AI answers) differs slightly from the CSV Ambient Listening flag."
+  ]
+}
