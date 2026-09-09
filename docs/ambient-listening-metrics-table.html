@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ambient Listening — Full Metrics Table</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark-anchor: #2d2660;
+      --deep-violet: #5b4fb5;
+      --cipher-teal: #00b4a4;
+      --electric-chartreuse: #b5cc2e;
+      --warm-amber: #e8a020;
+      --lavender-white: #f2f1f9;
+      --teal-tint: #d0f4f1;
+      --gray-500: #6b7280;
+      --white: #ffffff;
+    }
+
+    @page { size: landscape; margin: 0.35in; }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--dark-anchor);
+      background: #e8e7ef;
+    }
+
+    .edit-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.55rem 1rem;
+      background: var(--dark-anchor);
+      color: var(--white);
+      border-bottom: 3px solid var(--cipher-teal);
+      font-size: 8.75pt;
+    }
+
+    .edit-toolbar strong { color: var(--cipher-teal); }
+
+    .edit-toolbar button {
+      font: inherit;
+      font-size: 8.25pt;
+      font-weight: 700;
+      padding: 0.35rem 0.7rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: var(--cipher-teal);
+      color: var(--white);
+    }
+
+    .sheet {
+      max-width: 13.2in;
+      margin: 0.28in auto 0.5in;
+      background: var(--white);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 28px rgba(45, 38, 96, 0.12);
+    }
+
+    .hero {
+      background: var(--dark-anchor);
+      color: var(--white);
+      padding: 0.22in 0.32in 0.2in;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+
+    .brand { display: flex; align-items: center; gap: 0.4rem; }
+    .brand-mark { width: 30px; height: 30px; display: block; }
+    .brand-name { font-size: 11pt; font-weight: 800; }
+
+    .hero h1 {
+      margin: 0.12rem 0 0;
+      font-size: 16pt;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .hero .sub {
+      margin: 0.08rem 0 0;
+      font-size: 7.5pt;
+      line-height: 1.35;
+      opacity: 0.9;
+      max-width: 8.8in;
+    }
+
+    .hero .meta {
+      text-align: right;
+      font-size: 7pt;
+      line-height: 1.35;
+      opacity: 0.92;
+      white-space: nowrap;
+    }
+
+    .hero .meta strong { color: var(--cipher-teal); }
+
+    .accent-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--cipher-teal), var(--electric-chartreuse), var(--warm-amber));
+    }
+
+    .body { padding: 0.16in 0.22in 0.14in; }
+
+    table.full {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 7.25pt;
+    }
+
+    table.full thead th {
+      background: var(--dark-anchor);
+      color: var(--white);
+      padding: 0.18rem 0.22rem;
+      text-align: right;
+      font-size: 6.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    table.full thead th.metric,
+    table.full tbody td.metric {
+      text-align: left;
+      width: 2.35in;
+    }
+
+    table.full thead th.site {
+      text-align: center;
+      border-left: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    table.full thead th.lift { color: var(--cipher-teal); }
+
+    table.full tbody td {
+      padding: 0.15rem 0.22rem;
+      border-bottom: 1px solid rgba(45, 38, 96, 0.1);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      vertical-align: top;
+    }
+
+    table.full tbody td.metric {
+      font-weight: 600;
+      color: var(--dark-anchor);
+    }
+
+    table.full tbody tr.group td {
+      background: var(--lavender-white);
+      font-weight: 800;
+      font-size: 6.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--deep-violet);
+      text-align: left;
+      padding-top: 0.28rem;
+      padding-bottom: 0.18rem;
+    }
+
+    table.full tbody tr.note-row td {
+      text-align: left;
+      font-weight: 400;
+      font-size: 6.5pt;
+      color: var(--gray-500);
+      line-height: 1.3;
+    }
+
+    table.full tbody td.al { font-weight: 700; }
+    table.full tbody td.lift { color: #0a7c59; font-weight: 700; }
+    table.full tbody td.na { color: var(--gray-500); font-weight: 400; }
+    table.full tbody td.site-start { border-left: 1px solid rgba(45, 38, 96, 0.1); }
+
+    .caveats {
+      margin-top: 0.12in;
+      font-size: 6.35pt;
+      line-height: 1.38;
+      color: var(--gray-500);
+    }
+
+    .caveats strong { color: var(--dark-anchor); }
+
+    footer {
+      padding: 0.1in 0.22in 0.14in;
+      display: flex;
+      justify-content: space-between;
+      font-size: 6.25pt;
+      color: var(--gray-500);
+      border-top: 1px solid rgba(45, 38, 96, 0.1);
+    }
+
+    footer strong { color: var(--dark-anchor); }
+
+    @media print {
+      body { background: none; }
+      .edit-toolbar { display: none !important; }
+      .sheet { margin: 0; box-shadow: none; border-radius: 0; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="edit-toolbar">
+    <div><strong>Ambient Listening — Full metrics table</strong> — UMass · Prisma · Hartford · copy or print landscape</div>
+    <button type="button" id="print-page">Print / Save PDF</button>
+  </div>
+
+  <div class="sheet">
+    <div class="hero">
+      <div>
+        <div class="brand">
+          <img class="brand-mark" src="../assets/cipherhealth-logo-mark.svg" alt="CipherHealth">
+          <span class="brand-name">CipherHealth</span>
+        </div>
+        <h1>Ambient Listening vs same-script rounds without AL</h1>
+        <p class="sub">All three beta sites. Rounding metrics: Looker, May 5 – Sep 9, 2026. Non-AL limited to the same rounding scripts where AL is used. Documentation time: UMass CSV median (Feb 25 – Aug 24); Prisma and Hartford Looker average start-to-submit (May 5 – Jul 31, interactive).</p>
+      </div>
+      <div class="meta">
+        <strong>417 AL rounds</strong> · 57 rounders<br>
+        AL = round produced AI-generated answers
+      </div>
+    </div>
+    <div class="accent-bar"></div>
+
+    <div class="body">
+      <table class="full">
+        <thead>
+          <tr>
+            <th class="metric" rowspan="2">Metric</th>
+            <th class="site" colspan="3">UMass Memorial</th>
+            <th class="site" colspan="3">Prisma Health</th>
+            <th class="site" colspan="3">Hartford HealthCare</th>
+          </tr>
+          <tr>
+            <th>AL</th>
+            <th>No AL</th>
+            <th class="lift">Lift</th>
+            <th class="site">AL</th>
+            <th>No AL</th>
+            <th class="lift">Lift</th>
+            <th class="site">AL</th>
+            <th>No AL</th>
+            <th class="lift">Lift</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="group"><td colspan="10">Volume (Looker, May 5 – Sep 9, same scripts)</td></tr>
+          <tr>
+            <td class="metric">AL / non-AL rounds</td>
+            <td class="al">58</td>
+            <td>603</td>
+            <td class="na">—</td>
+            <td class="al site-start">187</td>
+            <td>158,723</td>
+            <td class="na">—</td>
+            <td class="al site-start">172</td>
+            <td>27,906</td>
+            <td class="na">—</td>
+          </tr>
+          <tr>
+            <td class="metric">Rounders using AL</td>
+            <td class="al">3</td>
+            <td class="na">—</td>
+            <td class="na">—</td>
+            <td class="al site-start">32</td>
+            <td class="na">—</td>
+            <td class="na">—</td>
+            <td class="al site-start">22</td>
+            <td class="na">—</td>
+            <td class="na">—</td>
+          </tr>
+          <tr class="note-row">
+            <td class="metric">Scripts in this comparison</td>
+            <td colspan="3">Community Patient Experience/Leadership Rounding; Community Nurse Leader Rounding</td>
+            <td colspan="3">Inpatient Patient Leader Round; ED Patient Leader Round 2.0</td>
+            <td colspan="3">HHC Nurse Leader Rounding; HHC ED Nurse Leader Rounding; HHC Inpatient BH Leader Rounding</td>
+          </tr>
+
+          <tr class="group"><td colspan="10">Documentation time</td></tr>
+          <tr>
+            <td class="metric">Time per round</td>
+            <td class="al">1m 33s</td>
+            <td>1m 45s</td>
+            <td class="lift">~12% faster</td>
+            <td class="al site-start">5.0 min</td>
+            <td>17.7 min</td>
+            <td class="lift">~72% faster</td>
+            <td class="al site-start">4.0 min</td>
+            <td>30.4 min</td>
+            <td class="lift">~87% faster</td>
+          </tr>
+          <tr>
+            <td class="metric">Clock / method</td>
+            <td colspan="3">CSV median duration; completed rounds; &gt;30 min excluded</td>
+            <td colspan="3">Looker avg start-to-submit; interactive; May–Jul</td>
+            <td colspan="3">Looker avg start-to-submit; interactive; May–Jul</td>
+          </tr>
+          <tr>
+            <td class="metric">Sample (doc-time rows)</td>
+            <td class="al">63</td>
+            <td>304</td>
+            <td class="na">—</td>
+            <td class="al site-start">151</td>
+            <td>100,310</td>
+            <td class="na">—</td>
+            <td class="al site-start">130</td>
+            <td>17,663</td>
+            <td class="na">—</td>
+          </tr>
+          <tr>
+            <td class="metric">Looker median start-to-submit (May–Jul)</td>
+            <td class="na" colspan="3">Not the UMass metric — CSV used instead</td>
+            <td class="al site-start">4 min</td>
+            <td>0 min</td>
+            <td class="na">not comparable</td>
+            <td class="al site-start">1 min</td>
+            <td>0 min</td>
+            <td class="na">not comparable</td>
+          </tr>
+
+          <tr class="group"><td colspan="10">Capture quality (Looker, May 5 – Sep 9, same scripts)</td></tr>
+          <tr>
+            <td class="metric">Rounds with an opportunity area (excl. Ability to Round)</td>
+            <td class="al">43.1%</td>
+            <td>36.0%</td>
+            <td class="lift">+7.1 pts</td>
+            <td class="al site-start">71.7%</td>
+            <td>34.3%</td>
+            <td class="lift">+37.4 pts</td>
+            <td class="al site-start">58.7%</td>
+            <td>17.8%</td>
+            <td class="lift">+40.9 pts</td>
+          </tr>
+          <tr>
+            <td class="metric">Avg % of script completed (excl. free text)</td>
+            <td class="al">90.7%</td>
+            <td>83.1%</td>
+            <td class="lift">+7.6 pts</td>
+            <td class="al site-start">81.7%</td>
+            <td>71.4%</td>
+            <td class="lift">+10.3 pts</td>
+            <td class="al site-start">83.1%</td>
+            <td>74.7%</td>
+            <td class="lift">+8.4 pts</td>
+          </tr>
+          <tr>
+            <td class="metric">Free-text answers per round</td>
+            <td class="al">8.7</td>
+            <td>0.4</td>
+            <td class="lift">20×</td>
+            <td class="al site-start">4.1</td>
+            <td>0.4</td>
+            <td class="lift">12×</td>
+            <td class="al site-start">6.3</td>
+            <td>1.2</td>
+            <td class="lift">5×</td>
+          </tr>
+          <tr>
+            <td class="metric">Total answers per round</td>
+            <td class="al">27.0</td>
+            <td>15.8</td>
+            <td class="lift">+71%</td>
+            <td class="al site-start">19.3</td>
+            <td>13.5</td>
+            <td class="lift">+43%</td>
+            <td class="al site-start">15.7</td>
+            <td>9.4</td>
+            <td class="lift">+67%</td>
+          </tr>
+
+          <tr class="group"><td colspan="10">Patient engagement</td></tr>
+          <tr>
+            <td class="metric">Interactive rounds (talked to patient)</td>
+            <td class="al">98.3%</td>
+            <td>96.2%</td>
+            <td class="lift">+2.1 pts</td>
+            <td class="al site-start">96.8%</td>
+            <td>86.4%</td>
+            <td class="lift">+10.4 pts</td>
+            <td class="al site-start">99.4%</td>
+            <td>85.1%</td>
+            <td class="lift">+14.3 pts</td>
+          </tr>
+
+          <tr class="group"><td colspan="10">Follow-through</td></tr>
+          <tr>
+            <td class="metric">Issues logged per 100 rounds</td>
+            <td class="al">15.5</td>
+            <td>9.5</td>
+            <td class="lift">1.6×</td>
+            <td class="al site-start">16.0</td>
+            <td>1.5</td>
+            <td class="lift">11×</td>
+            <td class="al site-start">4.1</td>
+            <td>0.4</td>
+            <td class="lift">10×</td>
+          </tr>
+          <tr>
+            <td class="metric">AL issues closed</td>
+            <td class="al">9 of 9</td>
+            <td class="na">—</td>
+            <td class="lift">100%</td>
+            <td class="al site-start">30 of 30</td>
+            <td class="na">—</td>
+            <td class="lift">100%</td>
+            <td class="al site-start">7 of 7</td>
+            <td class="na">—</td>
+            <td class="lift">100%</td>
+          </tr>
+          <tr>
+            <td class="metric">Care grams per 100 rounds</td>
+            <td class="al">3.4</td>
+            <td>1.5</td>
+            <td class="lift">2.3×</td>
+            <td class="al site-start">58.3</td>
+            <td>6.5</td>
+            <td class="lift">9.0×</td>
+            <td class="al site-start">7.0</td>
+            <td>4.9</td>
+            <td class="lift">1.4×</td>
+          </tr>
+
+          <tr class="group"><td colspan="10">Adoption &amp; trust (AL rounds only)</td></tr>
+          <tr>
+            <td class="metric">Patients declining consent on AL rounds</td>
+            <td class="al">0</td>
+            <td class="na">—</td>
+            <td class="na">—</td>
+            <td class="al site-start">13</td>
+            <td class="na">—</td>
+            <td class="na">—</td>
+            <td class="al site-start">2</td>
+            <td class="na">—</td>
+            <td class="na">—</td>
+          </tr>
+          <tr>
+            <td class="metric">AL rounds with a manual AI override</td>
+            <td class="al">0%</td>
+            <td class="na">—</td>
+            <td class="na">—</td>
+            <td class="al site-start">0%</td>
+            <td class="na">—</td>
+            <td class="na">—</td>
+            <td class="al site-start">1.7%</td>
+            <td class="na">—</td>
+            <td class="na">—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="caveats">
+        <strong>How to read this:</strong> Higher opportunity-area and issue rates mean better capture of what patients said, not worse experience. Care gram counts may include multiple recipients per care gram. Prisma/Hartford documentation-time % reductions use Looker start-to-submit averages; non-AL medians on that clock are 0 minutes because many sessions record as under a minute or are left open — those percentages are not the same measurement as the UMass CSV median (~12%). AL samples are small (58–187 rounds) against large same-script controls; early adopters may round differently. Non-AL is same scripts, not same rounders or patient mix.
+      </p>
+    </div>
+
+    <footer>
+      <span><strong>CIPHERHEALTH CONFIDENTIAL</strong> · Ambient Listening full metrics table</span>
+      <span>Generated Sep 9, 2026</span>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('print-page').addEventListener('click', function () {
+      window.print();
+    });
+  </script>
+</body>
+</html>
