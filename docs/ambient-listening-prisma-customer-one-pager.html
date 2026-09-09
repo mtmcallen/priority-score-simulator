@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ambient Listening at Prisma Health</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark-anchor: #2d2660;
+      --deep-violet: #5b4fb5;
+      --cipher-teal: #00b4a4;
+      --electric-chartreuse: #b5cc2e;
+      --warm-amber: #e8a020;
+      --lavender-white: #f2f1f9;
+      --teal-tint: #d0f4f1;
+      --teal-tint-text: #004e48;
+      --gray-500: #6b7280;
+      --white: #ffffff;
+    }
+
+    @page { size: letter; margin: 0; }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--dark-anchor);
+      background: var(--white);
+    }
+
+    .page { max-width: 8.5in; margin: 0 auto; }
+
+    .edit-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.55rem 1rem;
+      background: var(--dark-anchor);
+      color: var(--white);
+      border-bottom: 3px solid var(--cipher-teal);
+      font-size: 8.75pt;
+    }
+
+    .edit-toolbar strong { color: var(--cipher-teal); }
+
+    .edit-toolbar button {
+      font: inherit;
+      font-size: 8.25pt;
+      font-weight: 700;
+      padding: 0.35rem 0.7rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: var(--cipher-teal);
+      color: var(--white);
+    }
+
+    .hero-band {
+      background: var(--dark-anchor);
+      color: var(--white);
+      padding: 0.32in 0.5in 0.28in;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-band::after {
+      content: "";
+      position: absolute;
+      right: -0.5in;
+      top: -0.3in;
+      width: 2.6in;
+      height: 2.6in;
+      border-radius: 50%;
+      background: rgba(0, 180, 164, 0.14);
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 0.16in;
+    }
+
+    .brand { display: flex; align-items: center; gap: 0.4rem; }
+    .brand-mark { width: 32px; height: 32px; display: block; }
+    .brand-name { font-size: 12pt; font-weight: 800; }
+
+    .badge {
+      font-size: 6.75pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.16rem 0.4rem;
+      border-radius: 999px;
+      background: var(--cipher-teal);
+      color: var(--white);
+    }
+
+    .headline { position: relative; z-index: 1; }
+    .headline .eyebrow {
+      margin: 0 0 0.1rem;
+      font-size: 7pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--cipher-teal);
+    }
+    .headline h1 {
+      margin: 0;
+      font-size: 20pt;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+    }
+    .headline .sub {
+      margin: 0.1rem 0 0;
+      font-size: 8pt;
+      line-height: 1.35;
+      opacity: 0.9;
+      max-width: 7in;
+    }
+
+    .accent-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--cipher-teal), var(--electric-chartreuse), var(--warm-amber));
+    }
+
+    .body { padding: 0.22in 0.5in 0.16in; }
+
+    .lead {
+      margin: 0 0 0.16in;
+      font-size: 8.5pt;
+      line-height: 1.4;
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.1in;
+      margin-bottom: 0.16in;
+    }
+
+    .stat-card {
+      border-radius: 8px;
+      padding: 0.12in 0.12in 0.11in;
+      background: var(--lavender-white);
+      border: 2px solid rgba(91, 79, 181, 0.18);
+    }
+
+    .stat-card.teal { background: var(--teal-tint); border-color: var(--cipher-teal); }
+    .stat-card.violet { background: rgba(91, 79, 181, 0.08); border-color: var(--deep-violet); }
+    .stat-card.amber { background: #fdefd0; border-color: var(--warm-amber); }
+
+    .stat-card .value {
+      margin: 0;
+      font-size: 16pt;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .stat-card .label {
+      margin: 0.08rem 0 0;
+      font-size: 6.75pt;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .hospitals {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.1in;
+      margin-bottom: 0.16in;
+    }
+
+    .hospital {
+      border: 1px solid rgba(45, 38, 96, 0.14);
+      border-radius: 8px;
+      padding: 0.12in 0.14in;
+    }
+
+    .hospital h3 {
+      margin: 0;
+      font-size: 8.25pt;
+      font-weight: 800;
+    }
+
+    .hospital .nums {
+      margin: 0.08rem 0 0;
+      font-size: 12pt;
+      font-weight: 900;
+      color: var(--deep-violet);
+      letter-spacing: -0.03em;
+    }
+
+    .hospital p {
+      margin: 0.04rem 0 0;
+      font-size: 7pt;
+      color: var(--gray-500);
+      line-height: 1.3;
+    }
+
+    .section-title {
+      margin: 0 0 0.08in;
+      font-size: 8.25pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--deep-violet);
+    }
+
+    table.metrics {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 7.5pt;
+    }
+
+    table.metrics thead th {
+      background: var(--dark-anchor);
+      color: var(--white);
+      padding: 0.18rem 0.32rem;
+      text-align: left;
+      font-size: 6.75pt;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    table.metrics thead th.num,
+    table.metrics td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    table.metrics tbody td {
+      padding: 0.16rem 0.32rem;
+      border-bottom: 1px solid rgba(45, 38, 96, 0.1);
+    }
+
+    table.metrics tbody tr.headline-row td { background: rgba(0, 180, 164, 0.09); font-weight: 700; }
+    .positive { color: #0a7c59; font-weight: 700; }
+
+    footer {
+      padding: 0.14in 0.5in 0.2in;
+      display: flex;
+      justify-content: space-between;
+      font-size: 6.5pt;
+      color: var(--gray-500);
+      border-top: 1px solid rgba(45, 38, 96, 0.1);
+    }
+
+    footer strong { color: var(--dark-anchor); }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; }
+      .edit-toolbar { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="edit-toolbar">
+    <div><strong>Prisma Health — Ambient Listening</strong> — customer one-pager · Print to PDF before sending</div>
+    <button type="button" id="print-page">Print / Save PDF</button>
+  </div>
+
+  <div class="page">
+    <div class="hero-band">
+      <div class="top-row">
+        <div class="brand">
+          <img class="brand-mark" src="../assets/cipherhealth-logo-mark.svg" alt="CipherHealth">
+          <span class="brand-name">CipherHealth</span>
+        </div>
+        <span class="badge">Prepared for Prisma Health</span>
+      </div>
+      <div class="headline">
+        <p class="eyebrow">Ambient Listening · Inpatient &amp; ED Patient Leader Rounding</p>
+        <h1>More of the conversation, less typing</h1>
+        <p class="sub">May 5 – September 9, 2026. Ambient Listening compared with the same rounding scripts without it. Rounders review and submit every answer — nothing auto-submits.</p>
+      </div>
+    </div>
+
+    <div class="accent-bar"></div>
+
+    <div class="body">
+      <p class="lead">
+        <strong>At Prisma Health,</strong> 32 rounders completed <strong>189 Ambient Listening rounds</strong>. Those rounds identified more patient concerns, captured far more of what patients said in their own words, and took less time to document than the same scripts without Ambient Listening. <strong>13 patients declined recording consent</strong> — Ambient Listening is not used when a patient says no.
+      </p>
+
+      <div class="stat-row">
+        <div class="stat-card teal">
+          <p class="value">189</p>
+          <p class="label">Ambient Listening rounds</p>
+        </div>
+        <div class="stat-card violet">
+          <p class="value">32</p>
+          <p class="label">Rounders who used AL</p>
+        </div>
+        <div class="stat-card amber">
+          <p class="value">13</p>
+          <p class="label">Patients who declined consent</p>
+        </div>
+        <div class="stat-card">
+          <p class="value">+38 pts</p>
+          <p class="label">More rounds with a patient concern</p>
+        </div>
+      </div>
+
+      <h2 class="section-title">Ambient Listening rounds by hospital</h2>
+      <div class="hospitals">
+        <div class="hospital">
+          <h3>Baptist Columbia</h3>
+          <p class="nums">91 rounds</p>
+          <p>12 rounders · 48% of Prisma AL volume · 76% of AL rounds surfaced a patient concern vs 32% without AL</p>
+        </div>
+        <div class="hospital">
+          <h3>Greenville Memorial</h3>
+          <p class="nums">85 rounds</p>
+          <p>17 rounders · 45% of Prisma AL volume · 72% of AL rounds surfaced a patient concern vs 35% without AL</p>
+        </div>
+        <div class="hospital">
+          <h3>Patewood Memorial</h3>
+          <p class="nums">13 rounds</p>
+          <p>4 rounders · 7% of Prisma AL volume · early volume; 46% of AL rounds surfaced a patient concern vs 4% without AL</p>
+        </div>
+      </div>
+
+      <h2 class="section-title">Prisma Health · Ambient Listening vs same scripts without it</h2>
+      <table class="metrics">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th class="num">With Ambient Listening</th>
+            <th class="num">Without Ambient Listening</th>
+            <th class="num">Difference</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="headline-row">
+            <td>Average documentation time</td>
+            <td class="num">5.0 min</td>
+            <td class="num">17.7 min</td>
+            <td class="num positive">~72% faster</td>
+          </tr>
+          <tr class="headline-row">
+            <td>Rounds with a patient concern identified</td>
+            <td class="num">72.0%</td>
+            <td class="num">34.3%</td>
+            <td class="num positive">+37.7 pts</td>
+          </tr>
+          <tr>
+            <td>Average % of script completed</td>
+            <td class="num">81.8%</td>
+            <td class="num">71.4%</td>
+            <td class="num positive">+10.4 pts</td>
+          </tr>
+          <tr class="headline-row">
+            <td>Free-text answers per round</td>
+            <td class="num">4.1</td>
+            <td class="num">0.4</td>
+            <td class="num positive">12× more</td>
+          </tr>
+          <tr>
+            <td>Total answers per round</td>
+            <td class="num">19.3</td>
+            <td class="num">13.5</td>
+            <td class="num positive">+43%</td>
+          </tr>
+          <tr>
+            <td>Interactive rounds (talked with the patient)</td>
+            <td class="num">96.8%</td>
+            <td class="num">86.4%</td>
+            <td class="num positive">+10.4 pts</td>
+          </tr>
+          <tr>
+            <td>Issues logged per 100 rounds</td>
+            <td class="num">15.9</td>
+            <td class="num">1.5</td>
+            <td class="num positive">More capture</td>
+          </tr>
+          <tr>
+            <td>AL issues closed</td>
+            <td class="num" colspan="2">30 of 30 closed</td>
+            <td class="num positive">100%</td>
+          </tr>
+          <tr>
+            <td>Care grams per 100 rounds</td>
+            <td class="num">58.2</td>
+            <td class="num">6.5</td>
+            <td class="num positive">9× more</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer>
+      <span><strong>Prepared for Prisma Health</strong> · Ambient Listening</span>
+      <span>Inpatient Patient Leader Round &amp; ED Patient Leader Round 2.0 · May 5 – Sep 9, 2026</span>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('print-page').addEventListener('click', function () {
+      window.print();
+    });
+  </script>
+</body>
+</html>
