@@ -13,7 +13,13 @@
       "file": "UMass_AL_8.28.csv",
       "period": "2026-02-25 to 2026-08-24",
       "scope": "completed rounds only (Ability to Round = Yes)",
-      "used_for": "documentation time only"
+      "used_for": "UMass documentation time only"
+    },
+    "looker_documentation_time": {
+      "period": "2026-05-05 to 2026-07-31",
+      "metric": "orchid_interaction_fact.average_minutes_to_round (start-to-submit)",
+      "scope": "interactive rounds on the same AL scripts per site",
+      "used_for": "Prisma and Hartford documentation time"
     }
   },
   "al_scripts_by_site": {
@@ -29,9 +35,9 @@
     "total_al_rounders": 57
   },
   "documentation_time": {
-    "source": "umass_csv",
-    "note": "Looker minutes-to-round is not usable for time saved: it measures start-to-submit (includes AI review) and non-AL medians round down to 0 minutes.",
     "UMass Memorial Health": {
+      "source": "umass_csv",
+      "metric": "median interaction duration",
       "al_median_sec": 93,
       "al_median_fmt": "1m 33s",
       "non_al_median_sec": 105.5,
@@ -41,6 +47,32 @@
       "al_n": 63,
       "non_al_n": 304,
       "outliers_excluded": ">30 min"
+    },
+    "Prisma Health": {
+      "source": "looker_may_jul",
+      "metric": "average minutes start-to-submit, interactive, same AL scripts",
+      "period": "2026-05-05 to 2026-07-31",
+      "al_avg_min": 5.0,
+      "non_al_avg_min": 17.7,
+      "al_median_min": 4,
+      "non_al_median_min": 0,
+      "reduction_pct": 71.7,
+      "al_n": 151,
+      "non_al_n": 100310,
+      "note": "Non-AL median is 0; average is inflated by sessions left open."
+    },
+    "Hartford HealthCare": {
+      "source": "looker_may_jul",
+      "metric": "average minutes start-to-submit, interactive, same AL scripts",
+      "period": "2026-05-05 to 2026-07-31",
+      "al_avg_min": 4.0,
+      "non_al_avg_min": 30.4,
+      "al_median_min": 1,
+      "non_al_median_min": 0,
+      "reduction_pct": 87.0,
+      "al_n": 130,
+      "non_al_n": 17663,
+      "note": "Non-AL median is 0; average is inflated by sessions left open."
     }
   },
   "opportunity_areas": {
@@ -101,7 +133,7 @@
     "Non-AL is scoped to the same rounding scripts as AL per site, but not to the same rounders or patient mix.",
     "Higher opportunity-area and issue rates are read as better capture of patient concerns, not worsening patient experience.",
     "Care gram counts may include multiple recipients per care gram.",
-    "Documentation time comes from the UMass CSV only; Looker minutes-to-round is unsuitable for time saved.",
+    "UMass documentation time is CSV median duration; Prisma and Hartford use Looker average start-to-submit minutes (May 5-Jul 31, interactive, same scripts). Non-AL medians on that clock are 0, so those % reductions are not comparable to the UMass median.",
     "Looker AL definition (round produced AI answers) differs slightly from the CSV Ambient Listening flag."
   ]
 }
